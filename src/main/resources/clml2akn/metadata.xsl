@@ -9,13 +9,14 @@
 	xmlns:dc="http://purl.org/dc/elements/1.1/"
 	xmlns:dct="http://purl.org/dc/terms/"
 	xmlns:local="http://www.jurisdatum.com/tna/clml2akn"
-	exclude-result-prefixes="xs ukl dc dct local">
+	exclude-result-prefixes="xs ukl local">
 
 <xsl:template match="Metadata">
 	<meta>
 		<xsl:call-template name="identification" />
 		<xsl:call-template name="references" />
 		<xsl:call-template name="notes" />
+		<xsl:call-template name="proprietary" />
 	</meta>
 </xsl:template>
 
@@ -353,5 +354,22 @@
 	</xsl:if>
 </xsl:template>
 
+<xsl:template name="proprietary">
+	<proprietary>
+		<xsl:apply-templates select="dc:* | dct:*" />
+	</proprietary>
+</xsl:template>
+
+<xsl:template match="dc:*">
+	<xsl:element name="dc:{ local-name() }">
+		<xsl:apply-templates />
+	</xsl:element>
+</xsl:template>
+
+<xsl:template match="dct:*">
+	<xsl:element name="dct:{ local-name() }">
+		<xsl:apply-templates />
+	</xsl:element>
+</xsl:template>
 
 </xsl:transform>
