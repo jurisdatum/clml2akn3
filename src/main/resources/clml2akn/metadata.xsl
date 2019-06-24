@@ -355,7 +355,7 @@
 </xsl:template>
 
 <xsl:template name="proprietary">
-	<proprietary>
+	<proprietary source="#source">
 		<xsl:apply-templates select="dc:* | dct:*" />
 	</proprietary>
 </xsl:template>
