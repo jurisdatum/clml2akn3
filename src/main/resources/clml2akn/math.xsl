@@ -48,7 +48,9 @@
 
 
 <xsl:template match="Where">
-	<xsl:apply-templates />
+	<blockContainer class="where">
+		<xsl:apply-templates />
+	</blockContainer>
 </xsl:template>
 
 </xsl:transform>
