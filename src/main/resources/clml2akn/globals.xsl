@@ -70,9 +70,6 @@
 		<xsl:when test="$name = ('P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7')">
 			<xsl:value-of select="true()" />
 		</xsl:when>
-		<xsl:when test="$name = ('P')">
-			<xsl:value-of select="true()" />
-		</xsl:when>
 		<xsl:when test="$e/self::UnorderedList[@Class='Definition']">
 			<xsl:value-of select="true()" />
 		</xsl:when>
@@ -85,13 +82,7 @@
 <xsl:function name="local:element-is-para" as="xs:boolean">
 	<xsl:param name="e" as="element()" />
 	<xsl:variable name="name" select="local-name($e)" />
-	<xsl:value-of select="$name = ('Para', 'P1para', 'P2para', 'P3para', 'P4para', 'P5para', 'P6para', 'P7para')" />
-</xsl:function>
-
-<xsl:function name="local:struct-has-structural-children" as="xs:boolean">
-	<xsl:param name="parent" as="element()" />
-	<xsl:variable name="paras" as="element()*" select="$parent/*[local:element-is-para(.)]" /><!-- maybe include P -->
-	<xsl:value-of select="exists($parent/*[local:element-is-structural(.)]) or exists($paras/*[local:element-is-structural(.)])" />
+	<xsl:sequence select="$name = ('P', 'Para', 'P1para', 'P2para', 'P3para', 'P4para', 'P5para', 'P6para', 'P7para')" />
 </xsl:function>
 
 <!-- returns an id for each term, to allow term elements to refer to metadata counterparts -->

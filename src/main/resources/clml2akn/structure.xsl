@@ -9,13 +9,19 @@
 	exclude-result-prefixes="xs local">
 
 
+<xsl:function name="local:struct-has-structural-children" as="xs:boolean">
+	<xsl:param name="parent" as="element()" />
+	<xsl:variable name="paras" as="element()*" select="$parent/*[local:element-is-para(.)]" />
+	<xsl:value-of select="exists($parent/*[local:element-is-structural(.)]) or exists($paras/*[local:element-is-structural(.)])" />
+</xsl:function>
+
 <xsl:function name="local:flatten-children" as="element()*">
 	<xsl:param name="parent" as="element()" />
 	<xsl:for-each select="$parent/*">
 		<xsl:choose>
 			<xsl:when test="self::Number or self::Pnumber or self::Title or self::Subtitle" />
 			<xsl:when test="local:element-is-para(.)">
-				<xsl:sequence select="*" />
+				<xsl:sequence select="local:flatten-children(.)" />
 			</xsl:when>
 			<xsl:otherwise>
 				<xsl:sequence select="." />
@@ -64,7 +70,7 @@
 					<xsl:apply-templates select="$intro" />
 				</intro>
 			</xsl:if>
-			<xsl:apply-templates select="$children except $headings except $intro except $wrapup" />
+			<xsl:apply-templates select="$children except $intro except $wrapup" />
 			<xsl:if test="exists($wrapup)">
 				<wrapUp>
 					<xsl:apply-templates select="$wrapup" />
@@ -79,7 +85,7 @@
 	</xsl:choose>
 </xsl:template>
 
-<xsl:template name="mini-hcontainer">
+<!-- <xsl:template name="mini-hcontainer">
 	<xsl:choose>
 		<xsl:when test="empty(*[local:element-is-structural(.)])">
 			<xsl:apply-templates select="Number | Title" />
@@ -91,17 +97,17 @@
 			<xsl:apply-templates />
 		</xsl:otherwise>
 	</xsl:choose>
-</xsl:template>
+</xsl:template> -->
 
 <xsl:template match="Part">
 	<part>
-		<xsl:call-template name="mini-hcontainer" />
+		<xsl:call-template name="hcontainer" />
 	</part>
 </xsl:template>
 
 <xsl:template match="Chapter">
 	<chapter>
-		<xsl:call-template name="mini-hcontainer" />
+		<xsl:call-template name="hcontainer" />
 	</chapter>
 </xsl:template>
 
@@ -109,14 +115,6 @@
 	<hcontainer name="crossheading">
 		<xsl:apply-templates />
 	</hcontainer>
-</xsl:template>
-
-<xsl:template match="P">
-	<xsl:param name="context" as="xs:string*" tunnel="yes" />
-	<xsl:variable name="name" select="'level'" />
-	<xsl:element name="{ $name }">
-		<xsl:call-template name="hcontainer" />
-	</xsl:element>
 </xsl:template>
 
 <xsl:template match="P1group">
@@ -160,6 +158,10 @@
 	<xsl:element name="{ $name }">
 		<xsl:call-template name="hcontainer" />
 	</xsl:element>
+</xsl:template>
+
+<xsl:template match="P">
+	<xsl:apply-templates />
 </xsl:template>
 
 
