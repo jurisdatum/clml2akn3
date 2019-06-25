@@ -50,16 +50,7 @@
 	</xsl:if>
 </xsl:function>
 
-<xsl:template name="hcontainer">
-	<xsl:apply-templates select="Number | Pnumber" />
-	<xsl:if test="self::P1 and parent::P1group and empty(parent::*/parent::*/P1group[count(P1) gt 1])">
-		<xsl:apply-templates select="parent::*/Title" />
-	</xsl:if>
-	<xsl:if test="self::P2 and parent::P2group and empty(parent::*/parent::*/P2group[count(P2) gt 1])">
-		<xsl:apply-templates select="parent::*/Title" />
-	</xsl:if>
-	<xsl:apply-templates select="Title | Subtitle" />
-	<xsl:variable name="headings" as="element()*" select="Number | Pnumber | Title | Subtitle" />
+<xsl:template name="hcontainer-body">
 	<xsl:choose>
 		<xsl:when test="local:struct-has-structural-children(.)">
 			<xsl:variable name="children" as="element()+" select="local:flatten-children(.)" />
@@ -78,6 +69,7 @@
 			</xsl:if>
 		</xsl:when>
 		<xsl:otherwise>
+			<xsl:variable name="headings" as="element()*" select="Number | Pnumber | Title | Subtitle" />
 			<content>
 				<xsl:apply-templates select="* except $headings" />
 			</content>
@@ -85,19 +77,17 @@
 	</xsl:choose>
 </xsl:template>
 
-<!-- <xsl:template name="mini-hcontainer">
-	<xsl:choose>
-		<xsl:when test="empty(*[local:element-is-structural(.)])">
-			<xsl:apply-templates select="Number | Title" />
-			<content>
-				<xsl:apply-templates select="*[not(self::Number) and not(self::Title)]" />
-			</content>
-		</xsl:when>
-		<xsl:otherwise>
-			<xsl:apply-templates />
-		</xsl:otherwise>
-	</xsl:choose>
-</xsl:template> -->
+<xsl:template name="hcontainer">
+	<xsl:apply-templates select="Number | Pnumber" />
+	<xsl:if test="self::P1 and parent::P1group and empty(parent::*/parent::*/P1group[count(P1) gt 1])">
+		<xsl:apply-templates select="parent::*/Title" />
+	</xsl:if>
+	<xsl:if test="self::P2 and parent::P2group and empty(parent::*/parent::*/P2group[count(P2) gt 1])">
+		<xsl:apply-templates select="parent::*/Title" />
+	</xsl:if>
+	<xsl:apply-templates select="Title | Subtitle" />
+	<xsl:call-template name="hcontainer-body" />
+</xsl:template>
 
 <xsl:template match="Part">
 	<part>
@@ -183,16 +173,7 @@
 </xsl:template>
 
 <xsl:template match="ScheduleBody">
-	<xsl:choose>
-		<xsl:when test="empty(*[local:element-is-structural(.)])">
-			<content>
-				<xsl:apply-templates />
-			</content>
-		</xsl:when>
-		<xsl:otherwise>
-			<xsl:apply-templates />
-		</xsl:otherwise>
-	</xsl:choose>
+	<xsl:call-template name="hcontainer-body" />
 </xsl:template>
 
 <xsl:template match="Schedule/Number">
