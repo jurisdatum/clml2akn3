@@ -65,7 +65,7 @@
 			<xsl:value-of select="true()" />
 		</xsl:when>
 		<xsl:when test="$name = ('P1group', 'P2group', 'P3group')">
-			<xsl:value-of select="true()" />
+			<xsl:value-of select="normalize-space($e/Title) or exists($e/*[local:element-is-structural(.)])" />
 		</xsl:when>
 		<xsl:when test="$name = ('P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7')">
 			<xsl:value-of select="true()" />
@@ -82,7 +82,20 @@
 <xsl:function name="local:element-is-para" as="xs:boolean">
 	<xsl:param name="e" as="element()" />
 	<xsl:variable name="name" select="local-name($e)" />
-	<xsl:sequence select="$name = ('P', 'Para', 'P1para', 'P2para', 'P3para', 'P4para', 'P5para', 'P6para', 'P7para')" />
+	<xsl:choose>
+		<xsl:when test="$name = ('Para', 'P1para', 'P2para', 'P3para', 'P4para', 'P5para', 'P6para', 'P7para')">
+			<xsl:value-of select="true()" />
+		</xsl:when>
+		<xsl:when test="$name = ('P')">
+			<xsl:value-of select="true()" />
+		</xsl:when>
+		<xsl:when test="$name = ('P1group', 'P2group', 'P3group')">
+			<xsl:value-of select="not(normalize-space($e/Title)) and empty($e/*[local:element-is-structural(.)])" />
+		</xsl:when>
+		<xsl:otherwise>
+			<xsl:value-of select="false()" />
+		</xsl:otherwise>
+	</xsl:choose>
 </xsl:function>
 
 <!-- returns an id for each term, to allow term elements to refer to metadata counterparts -->
