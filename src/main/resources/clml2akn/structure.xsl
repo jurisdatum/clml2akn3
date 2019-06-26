@@ -108,11 +108,23 @@
 </xsl:template>
 
 <xsl:template match="P1group">
+	<xsl:param name="context" as="xs:string*" tunnel="yes" />
 	<xsl:choose>
 		<xsl:when test="exists(parent::*/P1group[count(P1) gt 1])">
 			<hcontainer name="crossheading" class="p1group">
 				<xsl:apply-templates />
 			</hcontainer>
+		</xsl:when>
+		<xsl:when test="normalize-space(Title) and empty(P1)">
+			<xsl:if test="exists(*[local:element-is-structural(.)])">
+				<xsl:message terminate="yes">
+					<xsl:sequence select="." />
+				</xsl:message>
+			</xsl:if>
+			<xsl:element name="{ local:make-hcontainer-name(., $context) }">
+				<xsl:apply-templates select="Title" />
+				<xsl:call-template name="hcontainer-body" />
+			</xsl:element>
 		</xsl:when>
 		<xsl:otherwise>
 			<xsl:apply-templates select="*[not(self::Title)]" />

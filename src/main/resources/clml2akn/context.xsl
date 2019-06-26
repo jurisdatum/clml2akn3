@@ -31,7 +31,7 @@
 	<xsl:param name="clml" as="element()" />
 	<xsl:param name="context" as="xs:string*" />
 	<xsl:choose>
-		<xsl:when test="$clml/self::P1">
+		<xsl:when test="$clml/self::P1 or $clml/self::P1group">
 			<xsl:choose>
 				<xsl:when test="local:is-within-schedule($context)">
 					<xsl:text>paragraph</xsl:text>
