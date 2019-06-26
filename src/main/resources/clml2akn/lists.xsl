@@ -24,7 +24,14 @@
 		<xsl:choose>
 			<xsl:when test="exists(@NumberOverride)">
 				<num>
-					<xsl:value-of select="local:format-list-number(., parent::*/@Type, parent::*/@Decoration)" />
+					<xsl:choose>
+						<xsl:when test="exists(parent::*/@Type) and exists(parent::*/@Decoration)">
+							<xsl:value-of select="local:format-list-number(., parent::*/@Type, parent::*/@Decoration)" />
+						</xsl:when>
+						<xsl:otherwise>
+							<xsl:value-of select="@NumberOverride" />
+						</xsl:otherwise>
+					</xsl:choose>
 				</num>
 			</xsl:when>
 			<xsl:when test="parent::OrderedList">
