@@ -144,7 +144,16 @@
 
 <xsl:variable name="doc-subtype" as="xs:string" select="''" />
 
-<xsl:variable name="doc-year" as="xs:integer" select="xs:integer(/Legislation/ukm:Metadata/ukm:*/ukm:Year/@Value)" />
+<xsl:variable name="doc-year" as="xs:integer">
+	<xsl:choose>
+		<xsl:when test="exists(/Legislation/ukm:Metadata/ukm:*/ukm:Year)">
+			<xsl:value-of select="xs:integer(/Legislation/ukm:Metadata/ukm:*/ukm:Year/@Value)" />
+		</xsl:when>
+		<xsl:otherwise>
+			<xsl:value-of select="xs:integer(/Legislation/ukm:Metadata/ukm:*/ukm:Year/@Value)" />
+		</xsl:otherwise>
+	</xsl:choose>
+</xsl:variable>
 
 <xsl:variable name="doc-number" as="xs:string" select="/Legislation/ukm:Metadata/ukm:*/ukm:Number/@Value" />
 

@@ -11,7 +11,7 @@
 
 <xsl:template match="UnorderedList | OrderedList">
 	<xsl:param name="context" as="xs:string*" tunnel="yes" />
-	<blockList class="{ if (self::UnorderedList) then 'unordered' else 'ordered' }">
+	<blockList>
 		<xsl:apply-templates>
 			<xsl:with-param name="context" select="('blockList', $context)" tunnel="yes" />
 		</xsl:apply-templates>
@@ -39,6 +39,9 @@
 					<xsl:choose>
 						<xsl:when test="parent::*/@Type = 'alpha'">
 							<xsl:number value="count(preceding-sibling::ListItem) + 1" format="a" />
+						</xsl:when>
+						<xsl:when test="parent::*/@Type = 'roman'">
+							<xsl:number value="count(preceding-sibling::ListItem) + 1" format="i" />
 						</xsl:when>
 					</xsl:choose>
 				</xsl:variable>

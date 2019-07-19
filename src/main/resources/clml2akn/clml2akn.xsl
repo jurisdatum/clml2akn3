@@ -22,7 +22,9 @@
 <xsl:include href="numbers.xsl" />
 <xsl:include href="lists.xsl" />
 <xsl:include href="tables.xsl" />
+<xsl:include href="images.xsl" />
 <xsl:include href="amendments.xsl" />
+<xsl:include href="citations.xsl" />
 <xsl:include href="changes.xsl" />
 <xsl:include href="math.xsl" />
 <xsl:include href="commentaries.xsl" />
@@ -73,42 +75,6 @@
 	<p>
 		<xsl:apply-templates />
 	</p>
-</xsl:template>
-
-
-<!-- citations and references -->
-
-<xsl:template match="Citation">
-	<xsl:if test="exists(@UpTo)">
-		<xsl:message terminate="yes" />
-	</xsl:if>
-	<ref eId="{ @id }" href="{ @URI }" ukl:Class="{ @Class }" ukl:Year="{ @Year }" ukl:Number="{ @Number }">
-		<xsl:choose>
-			<xsl:when test="node()[last()][self::FootnoteRef]"><!-- uksi/1999/1750/made -->
-				<xsl:variable name="fnRef" as="element()" select="node()[last()]" />
-					<xsl:apply-templates select="node() except $fnRef" />
-				<xsl:apply-templates select="$fnRef" />
-			</xsl:when>
-			<xsl:otherwise>
-				<xsl:apply-templates />
-			</xsl:otherwise>
-		</xsl:choose>
-	</ref>
-</xsl:template>
-
-<xsl:template match="CitationSubRef">
-	<xsl:choose>
-		<xsl:when test="@UpTo">
-			<rref eId="{ @id }" class="subref" from="{ @URI }" upTo="{ @UpTo }" ukl:CitationRef="{ @CitationRef }">
-				<xsl:apply-templates />
-			</rref>
-		</xsl:when>
-		<xsl:otherwise>
-			<ref eId="{ @id }" class="subref" href="{ @URI }">
-				<xsl:apply-templates />
-			</ref>
-		</xsl:otherwise>
-	</xsl:choose>
 </xsl:template>
 
 <xsl:template match="InternalLink">

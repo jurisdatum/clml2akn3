@@ -5,6 +5,7 @@
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xpath-default-namespace="http://www.legislation.gov.uk/namespaces/metadata"
 	xmlns:ukl="http://www.legislation.gov.uk/namespaces/legislation"
+	xmlns:ukm="http://www.legislation.gov.uk/namespaces/metadata"
 	xmlns="http://docs.oasis-open.org/legaldocml/ns/akn/3.0"
 	xmlns:dc="http://purl.org/dc/elements/1.1/"
 	xmlns:dct="http://purl.org/dc/terms/"
@@ -28,7 +29,15 @@
 					<xsl:value-of select="/ukl:Legislation/Metadata/PrimaryMetadata/EnactmentDate/@Date" />
 				</xsl:when>
 				<xsl:otherwise>
-					<xsl:value-of select="local:parse-date(/ukl:Legislation/ukl:Primary/ukl:PrimaryPrelims/ukl:DateOfEnactment/ukl:DateText)" />
+					<xsl:variable name="prelim-date" as="xs:date?" select="local:parse-date(/ukl:Legislation/ukl:Primary/ukl:PrimaryPrelims/ukl:DateOfEnactment/ukl:DateText)" />
+					<xsl:choose>
+						<xsl:when test="exists($prelim-date)">
+							<xsl:value-of select="$prelim-date" />
+						</xsl:when>
+						<xsl:otherwise>
+							<xsl:value-of select="concat(/ukl:Legislation/Metadata/PrimaryMetadata/Year/@Value, '-01-01')" />
+						</xsl:otherwise>
+					</xsl:choose>
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:when>
@@ -37,11 +46,16 @@
 				<xsl:when test="exists(/ukl:Legislation/Metadata/SecondaryMetadata/Made)">
 					<xsl:value-of select="/ukl:Legislation/Metadata/SecondaryMetadata/Made/@Date" />
 				</xsl:when>
-				<xsl:when test="exists(/ukl:Legislation/ukl:Secondary/ukl:SecondaryPrelims/ukl:MadeDate/ukl:DateText)">
-					<xsl:value-of select="local:parse-date(/ukl:Legislation/ukl:Secondary/ukl:SecondaryPrelims/ukl:MadeDate/ukl:DateText)" />
-				</xsl:when>
 				<xsl:otherwise>
-					<xsl:value-of select="concat(/ukl:Legislation/Metadata/SecondaryMetadata/Year/@Value, '-01-01')" />
+					<xsl:variable name="prelim-date" as="xs:date?" select="local:parse-date(/ukl:Legislation/ukl:Secondary/ukl:SecondaryPrelims/ukl:MadeDate/ukl:DateText)" />
+					<xsl:choose>
+						<xsl:when test="exists($prelim-date)">
+							<xsl:value-of select="$prelim-date" />
+						</xsl:when>
+						<xsl:otherwise>
+							<xsl:value-of select="concat(/ukl:Legislation/Metadata/SecondaryMetadata/Year/@Value, '-01-01')" />
+						</xsl:otherwise>
+					</xsl:choose>
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:when>
@@ -53,9 +67,45 @@
 
 <xsl:variable name="work-date-name" as="xs:string">
 	<xsl:choose>
-		<xsl:when test="$doc-category = 'primary'">enacted</xsl:when>
-		<xsl:when test="$doc-category = 'secondary'">made</xsl:when>
-		<xsl:when test="$doc-category = 'euretained'">adopted</xsl:when>
+		<xsl:when test="$doc-category = 'primary'">
+			<xsl:choose>
+				<xsl:when test="exists(/ukl:Legislation/Metadata/PrimaryMetadata/EnactmentDate)">
+					<xsl:text>enacted</xsl:text>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:variable name="prelim-date" as="xs:date?" select="local:parse-date(/ukl:Legislation/ukl:Primary/ukl:PrimaryPrelims/ukl:DateOfEnactment/ukl:DateText)" />
+					<xsl:choose>
+						<xsl:when test="exists($prelim-date)">
+							<xsl:text>enacted</xsl:text>
+						</xsl:when>
+						<xsl:otherwise>
+							<xsl:text>estimated</xsl:text>
+						</xsl:otherwise>
+					</xsl:choose>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:when>
+		<xsl:when test="$doc-category = 'secondary'">
+			<xsl:choose>
+				<xsl:when test="exists(/ukl:Legislation/Metadata/SecondaryMetadata/Made)">
+					<xsl:text>made</xsl:text>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:variable name="prelim-date" as="xs:date?" select="local:parse-date(/ukl:Legislation/ukl:Secondary/ukl:SecondaryPrelims/ukl:MadeDate/ukl:DateText)" />
+					<xsl:choose>
+						<xsl:when test="exists($prelim-date)">
+							<xsl:text>made</xsl:text>
+						</xsl:when>
+						<xsl:otherwise>
+							<xsl:text>estimated</xsl:text>
+						</xsl:otherwise>
+					</xsl:choose>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:when>
+		<xsl:when test="$doc-category = 'euretained'">
+			<xsl:text>adopted</xsl:text>
+		</xsl:when>
 	</xsl:choose>
 </xsl:variable>
 
@@ -337,9 +387,9 @@
 <xsl:template name="references">
 	<references source="#source">
 		<TLCOrganization eId="source" href="" showAs="" />
-	    <TLCConcept eId="varActYear" showAs="{ $doc-year }" href="" />
+<!-- 	    <TLCConcept eId="varActYear" showAs="{ $doc-year }" href="" />
 	    <TLCConcept eId="varActNo" showAs="{ $doc-number }" href="" />
-	    <TLCConcept eId="varActTitle" showAs="{ $doc-title }" href="" />
+	    <TLCConcept eId="varActTitle" showAs="{ $doc-title }" href="" /> -->
 		<xsl:for-each-group select="//ukl:Term" group-by="local:make-term-id(.)">
 			<TLCTerm eId="{ local:make-term-id(.) }" showAs="{.}" href="" />
 		</xsl:for-each-group>
@@ -356,8 +406,15 @@
 
 <xsl:template name="proprietary">
 	<proprietary source="#source">
+		<xsl:apply-templates select="/ukl:Legislation/Metadata/*/Year" />
 		<xsl:apply-templates select="dc:* | dct:*" />
 	</proprietary>
+</xsl:template>
+
+<xsl:template match="ukm:*">
+	<xsl:element name="ukm:{ local-name() }">
+		<xsl:copy-of select="@*" />
+	</xsl:element>
 </xsl:template>
 
 <xsl:template match="dc:*">
