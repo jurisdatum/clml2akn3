@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<xsl:transform version="3.0"
+<xsl:transform version="2.0"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xpath-default-namespace="http://www.legislation.gov.uk/namespaces/legislation"
@@ -43,7 +43,7 @@
 		<xsl:text>)</xsl:text>
 </xsl:template>
 
-<xsl:function name="local:format-list-number" as="xs:string">
+<xsl:function name="local:format-list-number" as="xs:string?">
 	<xsl:param name="number" as="xs:string" />
 	<xsl:param name="list-decor" as="attribute(Decoration)" />
 	<xsl:choose>
@@ -53,7 +53,7 @@
 	</xsl:choose>
 </xsl:function>
 
-<xsl:function name="local:format-list-number">
+<xsl:function name="local:format-list-number" as="xs:string?">
 	<xsl:param name="item" as="element(ListItem)" />
 	<xsl:param name="list-type" as="attribute(Type)" />
 	<xsl:param name="list-decor" as="attribute(Decoration)" />

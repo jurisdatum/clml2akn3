@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<xsl:transform version="3.0"
+<xsl:transform version="2.0"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xpath-default-namespace="http://www.legislation.gov.uk/namespaces/legislation"
@@ -15,19 +15,24 @@
 		<xsl:when test="empty($context)">
 			<xsl:value-of select="false()" />
 		</xsl:when>
-		<xsl:when test="head($context) = 'schedule'">
-			<xsl:value-of select="true()" />
-		</xsl:when>
-		<xsl:when test="head($context) = 'quotedStructure'">
-			<xsl:value-of select="false()" />
-		</xsl:when>
 		<xsl:otherwise>
-			<xsl:value-of select="local:is-within-schedule(tail($context))" />
+			<xsl:variable name="head" as="xs:string" select="$context[1]" />
+			<xsl:choose>
+				<xsl:when test="$head = 'schedule'">
+					<xsl:value-of select="true()" />
+				</xsl:when>
+				<xsl:when test="$head = 'quotedStructure'">
+					<xsl:value-of select="false()" />
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:value-of select="local:is-within-schedule(subsequence($context, 2))" />
+				</xsl:otherwise>
+			</xsl:choose>
 		</xsl:otherwise>
 	</xsl:choose>
 </xsl:function>
 
-<xsl:function name="local:make-hcontainer-name" as="xs:string">
+<xsl:function name="local:make-hcontainer-name" as="xs:string?">
 	<xsl:param name="clml" as="element()" />
 	<xsl:param name="context" as="xs:string*" />
 	<xsl:choose>

@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<xsl:transform version="3.0"
+<xsl:transform version="2.0"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xpath-default-namespace="http://www.legislation.gov.uk/namespaces/legislation"
 	xmlns:ukm="http://www.legislation.gov.uk/namespaces/metadata"
 	xmlns:dc="http://purl.org/dc/elements/1.1/"
-	xmlns:map="http://www.w3.org/2005/xpath-functions/map"
 	xmlns:local="http://www.jurisdatum.com/tna/clml2akn"
-	exclude-result-prefixes="xs ukm dc map local">
+	exclude-result-prefixes="xs ukm dc local">
 
 
 <!-- keys -->
@@ -18,43 +17,45 @@
 
 <!-- functions -->
 
-<xsl:variable name="short-types" as="map(xs:string, xs:string)" select="map{
-	'UnitedKingdomPublicGeneralAct': 'ukpga',
-	'UnitedKingdomLocalAct': 'ukla',
-	'ScottishAct': 'asp',
-	'WelshNationalAssemblyAct': 'anaw',
-	'WelshAssemblyMeasure': 'mwa',
-	'UnitedKingdomChurchMeasure': 'ukcm',
-	'NorthernIrelandAct': 'nia',
-	'ScottishOldAct': 'aosp',
-	'EnglandAct': 'aep',
-	'IrelandAct': 'aip',
-	'GreatBritainAct': 'apgb',
-	'NorthernIrelandAssemblyMeasure': 'mnia',
-	'NorthernIrelandParliamentAct': 'apni',
-	'UnitedKingdomStatutoryInstrument': 'uksi',
-	'WelshStatutoryInstrument': 'wsi',
-	'ScottishStatutoryInstrument': 'ssi',
-	'NorthernIrelandOrderInCouncil': 'nisi',
-	'NorthernIrelandStatutoryRule': 'nisr',
-	'UnitedKingdomChurchInstrument': 'ukci',
-	'UnitedKingdomMinisterialDirection': 'ukmd',
-	'UnitedKingdomMinisterialOrder': 'ukmo',
-	'UnitedKingdomStatutoryRuleOrOrder': 'uksro',
-	'NorthernIrelandStatutoryRuleOrOrder': 'nisro',
-	'UnitedKingdomDraftPublicBill': 'ukdpb',
-	'UnitedKingdomDraftStatutoryInstrument': 'ukdsi',
-	'ScottishDraftStatutoryInstrument': 'sdsi',
-	'NorthernIrelandDraftStatutoryRule': 'nidsr',
-	'EuropeanUnionRegulation': 'eur',
-	'EuropeanUnionDecision': 'eudn',
-	'EuropeanUnionDirective': 'eudr',
-	'EuropeanUnionTreaty': 'eut'
-}" />
+<xsl:variable name="short-types" as="element()">
+	<shortTypes
+		UnitedKingdomPublicGeneralAct = "ukpga"
+		UnitedKingdomLocalAct = "ukla"
+		ScottishAct = "asp"
+		WelshNationalAssemblyAct = "anaw"
+		WelshAssemblyMeasure = "mwa"
+		UnitedKingdomChurchMeasure = "ukcm"
+		NorthernIrelandAct = "nia"
+		ScottishOldAct = "aosp"
+		EnglandAct = "aep"
+		IrelandAct = "aip"
+		GreatBritainAct = "apgb"
+		NorthernIrelandAssemblyMeasure = "mnia"
+		NorthernIrelandParliamentAct = "apni"
+		UnitedKingdomStatutoryInstrument = "uksi"
+		WelshStatutoryInstrument = "wsi"
+		ScottishStatutoryInstrument = "ssi"
+		NorthernIrelandOrderInCouncil = "nisi"
+		NorthernIrelandStatutoryRule = "nisr"
+		UnitedKingdomChurchInstrument = "ukci"
+		UnitedKingdomMinisterialDirection = "ukmd"
+		UnitedKingdomMinisterialOrder = "ukmo"
+		UnitedKingdomStatutoryRuleOrOrder = "uksro"
+		NorthernIrelandStatutoryRuleOrOrder = "nisro"
+		UnitedKingdomDraftPublicBill = "ukdpb"
+		UnitedKingdomDraftStatutoryInstrument = "ukdsi"
+		ScottishDraftStatutoryInstrument = "sdsi"
+		NorthernIrelandDraftStatutoryRule = "nidsr"
+		EuropeanUnionRegulation = "eur"
+		EuropeanUnionDecision = "eudn"
+		EuropeanUnionDirective = "eudr"
+		EuropeanUnionTreaty = "eut"
+	/>
+</xsl:variable>
 
 <xsl:function name="local:short-type-from-long" as="xs:string">
 	<xsl:param name="long-type" as="xs:string" />
-	<xsl:value-of select="map:get($short-types, $long-type)" />
+	<xsl:value-of select="$short-types/@*[name() = $long-type]" />
 </xsl:function>
 
 <xsl:function name="local:element-is-structural" as="xs:boolean">

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<xsl:transform version="3.0"
+<xsl:transform version="2.0"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xpath-default-namespace="http://www.legislation.gov.uk/namespaces/metadata"
@@ -21,7 +21,7 @@
 	</meta>
 </xsl:template>
 
-<xsl:variable name="work-date" as="xs:string">
+<xsl:variable name="work-date" as="xs:string?">
 	<xsl:choose>
 		<xsl:when test="$doc-category = 'primary'">
 			<xsl:choose>
@@ -65,7 +65,7 @@
 	</xsl:choose>
 </xsl:variable>
 
-<xsl:variable name="work-date-name" as="xs:string">
+<xsl:variable name="work-date-name" as="xs:string?">
 	<xsl:choose>
 		<xsl:when test="$doc-category = 'primary'">
 			<xsl:choose>
@@ -115,7 +115,7 @@
 			<xsl:value-of select="EUMetadata/CreatedBy[1]/@URI" />
 		</xsl:when>
 		<xsl:otherwise>
-			<xsl:variable name="temp" as="xs:string">
+			<xsl:variable name="temp" as="xs:string?">
 				<xsl:choose>
 					<xsl:when test="$doc-long-type = 'EnglandAct'">
 						<xsl:text>legislature/EnglishParliament</xsl:text>

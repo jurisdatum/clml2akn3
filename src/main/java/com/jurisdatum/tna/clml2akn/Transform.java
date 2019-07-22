@@ -1,10 +1,10 @@
 package com.jurisdatum.tna.clml2akn;
 
-
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.util.Properties;
 
+import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
@@ -14,15 +14,15 @@ import com.jurisdatum.xml.Saxon;
 
 import net.sf.saxon.s9api.Destination;
 import net.sf.saxon.s9api.SaxonApiException;
-import net.sf.saxon.s9api.Serializer;
-import net.sf.saxon.s9api.Xslt30Transformer;
+import net.sf.saxon.s9api.Serializer.Property;
 import net.sf.saxon.s9api.XsltCompiler;
 import net.sf.saxon.s9api.XsltExecutable;
+import net.sf.saxon.s9api.XsltTransformer;
 
-public class Transform {
+public class Transform implements com.jurisdatum.xml.Transform {
 	
 	private static final String stylesheet = "/clml2akn/clml2akn.xsl";
-	
+
 	private static class Importer implements URIResolver {
 		@Override public Source resolve(String href, String base) throws TransformerException {
 			InputStream file = this.getClass().getResourceAsStream("/clml2akn/" + href);
@@ -46,27 +46,25 @@ public class Transform {
 		}
 	}
 	
-	private void transform(Source akn, Destination destination) {
-		Xslt30Transformer transform = executable.load30();
+	private void transform(Source clml, Destination destination) {
+		XsltTransformer transform = executable.load();
 		try {
-			transform.transform(akn, destination);
+			transform.setSource(clml);
+			transform.setDestination(destination);
+			transform.transform();
 		} catch (SaxonApiException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	public void transform(Source akn, OutputStream output) {
-		Serializer serializer = executable.getProcessor().newSerializer(output);
-//		serializer.setOutputProperty(Property.SAXON_SUPPRESS_INDENTATION, "{http://www.legislation.gov.uk/namespaces/legislation}Text");
-		transform(akn, serializer);
+	private static Properties properties = new Properties();
+	static {
+		properties.setProperty(Property.INDENT.toString(), "yes");
 	}
 	
-//	public void export(OutputStream destination) {
-//		try {
-//			executable.export(destination);
-//		} catch (SaxonApiException e) {
-//			throw new RuntimeException(e);
-//		}
-//	}
+	public void transform(Source akn, Result result) {
+		Destination destination = Saxon.makeDestination(result, properties);
+		transform(akn, destination);
+	}
 
 }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<xsl:transform version="3.0"
+<xsl:transform version="2.0"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xpath-default-namespace="http://www.legislation.gov.uk/namespaces/legislation"
@@ -55,7 +55,9 @@
 </xsl:template>
 
 <xsl:template match="Body">
-	<xsl:apply-templates />
+	<xsl:apply-templates>
+		<xsl:with-param name="context" select="('Body')" tunnel="yes" />
+	</xsl:apply-templates>
 </xsl:template>
 
 

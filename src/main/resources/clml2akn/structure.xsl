@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<xsl:transform version="3.0"
+<xsl:transform version="2.0"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xpath-default-namespace="http://www.legislation.gov.uk/namespaces/legislation"
@@ -31,17 +31,17 @@
 </xsl:function>
 
 <xsl:function name="local:get-intro-elements" as="element()*">
-	<xsl:param name="children" as="element()*" />
+	<xsl:param name="children" as="element()+" />
 	<xsl:if test="exists($children)">
-		<xsl:variable name="first-child" as="element()" select="head($children)" />
+		<xsl:variable name="first-child" as="element()" select="$children[1]" />
 		<xsl:if test="not(local:element-is-structural($first-child))">
-			<xsl:sequence select="($first-child, local:get-intro-elements(tail($children)))" />
+			<xsl:sequence select="($first-child, local:get-intro-elements(subsequence($children, 2)))" />
 		</xsl:if>
 	</xsl:if>
 </xsl:function>
 
 <xsl:function name="local:get-wrapup-elements" as="element()*">
-	<xsl:param name="children" as="element()*" />
+	<xsl:param name="children" as="element()+" />
 	<xsl:if test="exists($children)">
 		<xsl:variable name="last-child" as="element()" select="$children[last()]" />
 		<xsl:if test="not(local:element-is-structural($last-child))">
@@ -112,7 +112,9 @@
 	<xsl:choose>
 		<xsl:when test="exists(parent::*/P1group[count(P1) gt 1])">
 			<hcontainer name="crossheading" class="p1group">
-				<xsl:apply-templates />
+				<xsl:apply-templates>
+					<xsl:with-param name="context" select="('crossheading', $context)" tunnel="yes" />
+				</xsl:apply-templates>
 			</hcontainer>
 		</xsl:when>
 		<xsl:when test="normalize-space(Title) and empty(P1)">
@@ -121,9 +123,14 @@
 					<xsl:sequence select="." />
 				</xsl:message>
 			</xsl:if>
-			<xsl:element name="{ local:make-hcontainer-name(., $context) }">
-				<xsl:apply-templates select="Title" />
-				<xsl:call-template name="hcontainer-body" />
+			<xsl:variable name="name" as="xs:string" select="local:make-hcontainer-name(., $context)" />
+			<xsl:element name="{ $name }">
+				<xsl:apply-templates select="Title">
+					<xsl:with-param name="context" select="($name, $context)" tunnel="yes" />
+				</xsl:apply-templates>
+				<xsl:call-template name="hcontainer-body">
+					<xsl:with-param name="context" select="($name, $context)" tunnel="yes" />
+				</xsl:call-template>
 			</xsl:element>
 		</xsl:when>
 		<xsl:otherwise>
@@ -136,7 +143,9 @@
 	<xsl:param name="context" as="xs:string*" tunnel="yes" />
 	<xsl:variable name="name" select="local:make-hcontainer-name(., $context)" />
 	<xsl:element name="{ $name }">
-		<xsl:call-template name="hcontainer" />
+		<xsl:call-template name="hcontainer">
+			<xsl:with-param name="context" select="($name, $context)" tunnel="yes" />
+		</xsl:call-template>
 	</xsl:element>
 </xsl:template>
 
