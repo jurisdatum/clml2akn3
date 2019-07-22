@@ -31,7 +31,7 @@
 </xsl:function>
 
 <xsl:function name="local:get-intro-elements" as="element()*">
-	<xsl:param name="children" as="element()+" />
+	<xsl:param name="children" as="element()*" />
 	<xsl:if test="exists($children)">
 		<xsl:variable name="first-child" as="element()" select="$children[1]" />
 		<xsl:if test="not(local:element-is-structural($first-child))">
@@ -41,7 +41,7 @@
 </xsl:function>
 
 <xsl:function name="local:get-wrapup-elements" as="element()*">
-	<xsl:param name="children" as="element()+" />
+	<xsl:param name="children" as="element()*" />
 	<xsl:if test="exists($children)">
 		<xsl:variable name="last-child" as="element()" select="$children[last()]" />
 		<xsl:if test="not(local:element-is-structural($last-child))">
@@ -117,7 +117,7 @@
 				</xsl:apply-templates>
 			</hcontainer>
 		</xsl:when>
-		<xsl:when test="normalize-space(Title) and empty(P1)">
+		<xsl:when test="empty(P1)">
 			<xsl:if test="exists(*[local:element-is-structural(.)])">
 				<xsl:message terminate="yes">
 					<xsl:sequence select="." />
@@ -125,9 +125,11 @@
 			</xsl:if>
 			<xsl:variable name="name" as="xs:string" select="local:make-hcontainer-name(., $context)" />
 			<xsl:element name="{ $name }">
-				<xsl:apply-templates select="Title">
-					<xsl:with-param name="context" select="($name, $context)" tunnel="yes" />
-				</xsl:apply-templates>
+				<xsl:if test="normalize-space(Title)">
+					<xsl:apply-templates select="Title">
+						<xsl:with-param name="context" select="($name, $context)" tunnel="yes" />
+					</xsl:apply-templates>
+				</xsl:if>
 				<xsl:call-template name="hcontainer-body">
 					<xsl:with-param name="context" select="($name, $context)" tunnel="yes" />
 				</xsl:call-template>
