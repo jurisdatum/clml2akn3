@@ -62,9 +62,9 @@ public class Transform implements com.jurisdatum.xml.Transform {
 		properties.setProperty(Property.INDENT.toString(), "yes");
 	}
 	
-	public void transform(Source akn, Result result) {
-		Destination destination = Saxon.makeDestination(result, properties);
-		transform(akn, destination);
+	public void transform(Source clml, Result akn) {
+		Destination destination = Saxon.makeDestination(akn, properties);
+		transform(clml, destination);
 	}
 
 }
