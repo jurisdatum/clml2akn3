@@ -9,16 +9,21 @@
 	xmlns:local="http://www.jurisdatum.com/tna/clml2akn"
 	exclude-result-prefixes="xs ukl local">
 
+<xsl:function name="local:section-ref-to-uri-path" as="xs:string">
+	<xsl:param name="section" as="xs:string" />
+	<xsl:value-of select="translate($section, '-', '/')" />
+</xsl:function>
 
 <xsl:function name="local:make-lgu-uri" as="xs:string">
 	<xsl:param name="long-type" as="xs:string" />
 	<xsl:param name="year" as="xs:string" />
 	<xsl:param name="number" as="xs:string?" />
 	<xsl:param name="section" as="xs:string?" />
-	<xsl:variable name="short-type" as="xs:string" select="local:short-type-from-long($long-type)" />
 	<xsl:variable name="host" as="xs:string" select="'http://www.legislation.gov.uk/'" />
+	<xsl:variable name="short-type" as="xs:string" select="local:short-type-from-long($long-type)" />
 	<xsl:choose>
 		<xsl:when test="exists($section)">
+			<xsl:variable name="section" as="xs:string" select="local:section-ref-to-uri-path($section)" />
 			<xsl:value-of select="concat($host, 'id/', $short-type, '/', $year, '/', $number, '/', $section)" />
 		</xsl:when>
 		<xsl:otherwise>
@@ -62,6 +67,19 @@
 </xsl:template>
 
 <xsl:template match="CitationSubRef">
+	<xsl:variable name="parent" as="element()?">
+		<xsl:choose>
+			<xsl:when test="exists(@CitationRef) and exists(key('id', @CitationRef))">
+				<xsl:sequence select="key('id', @CitationRef)[1]" />
+			</xsl:when>
+			<xsl:when test="exists(parent::Citation)">
+				<xsl:sequence select="parent::Citation" />
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:sequence select="preceding-sibling::Citation[1]" />
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:variable>
 	<xsl:choose>
 		<xsl:when test="exists(@StartSectionRef) and exists(@EndSectionRef)">
 			<rref eId="{ @id }" class="subref">
@@ -70,9 +88,12 @@
 						<xsl:when test="exists(@URI)">
 							<xsl:value-of select="@URI" />
 						</xsl:when>
-						<xsl:otherwise>
-							<xsl:value-of select="local:make-lgu-uri(@Class, @Year, @Number, @StartSectionRef)" />
-						</xsl:otherwise>
+						<xsl:when test="exists($parent/@URI)">
+							<xsl:value-of select="concat($parent/@URI, '/', local:section-ref-to-uri-path(@StartSectionRef))" />
+						</xsl:when>
+						<xsl:when test="exists($parent/@Class) and exists($parent/@Year) and exists($parent/@Number)">
+							<xsl:value-of select="local:make-lgu-uri($parent/@Class, $parent/@Year, $parent/@Number, @StartSectionRef)" />
+						</xsl:when>
 					</xsl:choose>
 				</xsl:attribute>
 				<xsl:attribute name="upTo">
@@ -80,9 +101,12 @@
 						<xsl:when test="exists(@UpTo)">
 							<xsl:value-of select="@UpTo" />
 						</xsl:when>
-						<xsl:otherwise>
-							<xsl:value-of select="local:make-lgu-uri(@Class, @Year, @Number, @EndSectionRef)" />
-						</xsl:otherwise>
+						<xsl:when test="exists($parent/@URI)">
+							<xsl:value-of select="concat($parent/@URI, '/', local:section-ref-to-uri-path(@EndSectionRef))" />
+						</xsl:when>
+						<xsl:when test="exists($parent/@Class) and exists($parent/@Year) and exists($parent/@Number)">
+							<xsl:value-of select="local:make-lgu-uri($parent/@Class, $parent/@Year, $parent/@Number, @EndSectionRef)" />
+						</xsl:when>
 					</xsl:choose>
 				</xsl:attribute>
 				<xsl:if test="@CitationRef">
@@ -100,9 +124,12 @@
 						<xsl:when test="exists(@URI)">
 							<xsl:value-of select="@URI" />
 						</xsl:when>
-						<xsl:otherwise>
-							<xsl:value-of select="local:make-lgu-uri(@Class, @Year, @Number, @SectionRef)" />
-						</xsl:otherwise>
+						<xsl:when test="exists($parent/@URI)">
+							<xsl:value-of select="concat($parent/@URI, '/', local:section-ref-to-uri-path(@SectionRef))" />
+						</xsl:when>
+						<xsl:when test="exists($parent/@Class) and exists($parent/@Year) and exists($parent/@Number)">
+							<xsl:value-of select="local:make-lgu-uri($parent/@Class, $parent/@Year, $parent/@Number, @SectionRef)" />
+						</xsl:when>
 					</xsl:choose>
 				</xsl:attribute>
 				<xsl:apply-templates />
