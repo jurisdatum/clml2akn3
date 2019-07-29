@@ -363,6 +363,9 @@
 			<FRBRdate date="{ $work-date }" name="{ $work-date-name }" />
 			<FRBRauthor href="{ $work-author }" />
 			<FRBRcountry value="{ $work-country }" />
+			<xsl:if test="exists($doc-minor-type)">
+				<FRBRsubtype value="{ $doc-minor-type }" />
+			</xsl:if>
 			<FRBRnumber value="{ $doc-number }" />
 			<FRBRname value="{ $work-cite }" />
 			<FRBRprescriptive value="true" />
@@ -387,9 +390,6 @@
 <xsl:template name="references">
 	<references source="#source">
 		<TLCOrganization eId="source" href="" showAs="" />
-<!-- 	    <TLCConcept eId="varActYear" showAs="{ $doc-year }" href="" />
-	    <TLCConcept eId="varActNo" showAs="{ $doc-number }" href="" />
-	    <TLCConcept eId="varActTitle" showAs="{ $doc-title }" href="" /> -->
 		<xsl:for-each-group select="//ukl:Term" group-by="local:make-term-id(.)">
 			<TLCTerm eId="{ local:make-term-id(.) }" showAs="{.}" href="" />
 		</xsl:for-each-group>

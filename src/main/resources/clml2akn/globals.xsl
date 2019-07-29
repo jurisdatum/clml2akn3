@@ -140,7 +140,7 @@
 	<xsl:value-of select="/Legislation/ukm:Metadata/ukm:*/ukm:DocumentClassification/ukm:DocumentCategory/@Value" />
 </xsl:variable>
 
-<xsl:variable name="doc-subtype" as="xs:string" select="''" />
+<xsl:variable name="doc-minor-type" as="xs:string?" select="/Legislation/ukm:Metadata/ukm:*/ukm:DocumentClassification/ukm:DocumentMinorType/@Value" />
 
 <xsl:variable name="doc-year" as="xs:integer">
 	<xsl:choose>
