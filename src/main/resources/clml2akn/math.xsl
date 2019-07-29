@@ -16,6 +16,12 @@
 	</tblock>
 </xsl:template>
 
+<xsl:template match="equationNumber">
+	<num>
+		<xsl:apply-templates />
+	</num>
+</xsl:template>
+
 <xsl:template match="Formula/math:*">
 	<foreign>
 		<xsl:next-match />
