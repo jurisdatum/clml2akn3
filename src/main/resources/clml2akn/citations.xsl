@@ -138,5 +138,25 @@
 	</xsl:choose>
 </xsl:template>
 
+<xsl:template match="InternalLink">
+	<xsl:choose>
+		<xsl:when test="empty(@EndRef)">
+			<ref href="#{ @Ref }">
+				<xsl:apply-templates />
+			</ref>
+		</xsl:when>
+		<xsl:otherwise>
+			<rref from="#{ @Ref }" upTo="#{ @EndRef }">
+				<xsl:apply-templates />
+			</rref>
+		</xsl:otherwise>
+	</xsl:choose>
+</xsl:template>
+
+<xsl:template match="ExternalLink">
+	<ref href="{ @URI }">
+		<xsl:apply-templates />
+	</ref>
+</xsl:template>
 
 </xsl:transform>
