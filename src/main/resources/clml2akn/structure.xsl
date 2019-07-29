@@ -79,7 +79,7 @@
 	</xsl:choose>
 </xsl:function>
 
-<xsl:function name="local:is-within-schedule-2" as="xs:boolean">
+<xsl:function name="local:clml-is-within-schedule" as="xs:boolean">
 	<xsl:param name="clml" as="element()" />
 	<xsl:choose>
 		<xsl:when test="empty($clml/parent::*)">
@@ -95,7 +95,7 @@
 			<xsl:value-of select="false()" />
 		</xsl:when>
 		<xsl:otherwise>
-			<xsl:sequence select="local:is-within-schedule-2($clml/parent::*)" />
+			<xsl:sequence select="local:clml-is-within-schedule($clml/parent::*)" />
 		</xsl:otherwise>
 	</xsl:choose>
 </xsl:function>
@@ -126,7 +126,7 @@
 	</xsl:variable>
 	<xsl:variable name="within-schedule" as="xs:boolean">
 		<xsl:choose>
-			<xsl:when test="local:is-within-schedule-2($clml)">
+			<xsl:when test="local:clml-is-within-schedule($clml)">
 				<xsl:sequence select="true()" />
 			</xsl:when>
 			<xsl:when test="exists($block-amendment)">
@@ -141,6 +141,9 @@
 		<xsl:choose>
 			<xsl:when test="ends-with(local-name($clml), 'group')">
 				<xsl:value-of select="substring-before(local-name($clml), 'group')" />
+			</xsl:when>
+			<xsl:when test="$clml/self::P/parent::Pblock">
+				<xsl:value-of select="'P1'" />
 			</xsl:when>
 			<xsl:otherwise>
 				<xsl:value-of select="local-name($clml)" />
@@ -314,17 +317,17 @@
 	</xsl:choose>
 </xsl:template>
 
-<xsl:template match="P2 | P3 | P4 | P5">
+<xsl:template match="P2 | P3 | P4 | P5 | Pblock/P">
 	<xsl:param name="context" as="xs:string*" tunnel="yes" />
 	<xsl:variable name="name" select="local:make-hcontainer-name(., $context)" />
 	<xsl:element name="{ $name }">
 		<!-- add the LDAPP class attributes where necessary -->
-		<xsl:if test="self::P3 and local:is-within-schedule-2(.) and exists(ancestor::BlockAmendment)">
+		<xsl:if test="self::P3 and local:clml-is-within-schedule(.) and exists(ancestor::BlockAmendment)">
 			<xsl:attribute name="class">
 				<xsl:text>para1</xsl:text>
 			</xsl:attribute>
 		</xsl:if>
-		<xsl:if test="self::P4 and local:is-within-schedule-2(.) and exists(ancestor::BlockAmendment)">
+		<xsl:if test="self::P4 and local:clml-is-within-schedule(.) and exists(ancestor::BlockAmendment)">
 			<xsl:attribute name="class">
 				<xsl:text>para2</xsl:text>
 			</xsl:attribute>

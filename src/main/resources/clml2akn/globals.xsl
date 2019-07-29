@@ -71,6 +71,9 @@
 		<xsl:when test="$name = ('P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7')">
 			<xsl:value-of select="true()" />
 		</xsl:when>
+		<xsl:when test="$e/self::P/parent::Pblock">
+			<xsl:value-of select="true()" />
+		</xsl:when>
 		<xsl:when test="$e/self::UnorderedList[@Class='Definition']">
 			<xsl:value-of select="true()" />
 		</xsl:when>
@@ -87,7 +90,7 @@
 		<xsl:when test="$name = ('Para', 'P1para', 'P2para', 'P3para', 'P4para', 'P5para', 'P6para', 'P7para')">
 			<xsl:value-of select="true()" />
 		</xsl:when>
-		<xsl:when test="$name = ('P')">
+		<xsl:when test="$e/self::P and not($e/parent::Pblock)">
 			<xsl:value-of select="true()" />
 		</xsl:when>
 		<xsl:otherwise>
