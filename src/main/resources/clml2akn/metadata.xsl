@@ -391,7 +391,7 @@
 	<references source="#source">
 		<TLCOrganization eId="source" href="" showAs="" />
 		<xsl:for-each-group select="//ukl:Term" group-by="local:make-term-id(.)">
-			<TLCTerm eId="{ local:make-term-id(.) }" showAs="{.}" href="" />
+			<TLCTerm eId="{ local:make-term-id(.) }" showAs="{ normalize-space(.) }" href="" />
 		</xsl:for-each-group>
 	</references>
 </xsl:template>

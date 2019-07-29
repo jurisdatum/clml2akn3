@@ -107,7 +107,7 @@
 			<xsl:value-of select="$term/@id" />
 		</xsl:when>
 		<xsl:otherwise>
-			<xsl:value-of select="concat('term-', lower-case(translate($term, ' &#xA;&#34;“”%', '-')))" />
+			<xsl:value-of select="concat('term-', lower-case(translate(normalize-space($term), ' &#xA;&#34;“”%', '-')))" />
 		</xsl:otherwise>
 	</xsl:choose>
 </xsl:function>
