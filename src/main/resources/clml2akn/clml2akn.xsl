@@ -79,12 +79,6 @@
 	</p>
 </xsl:template>
 
-<xsl:template match="InternalLink">
-	<a href="#{ @Ref }">
-		<xsl:apply-templates />
-	</a>
-</xsl:template>
-
 
 <!-- inline -->
 

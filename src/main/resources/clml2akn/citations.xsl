@@ -157,6 +157,9 @@
 	<ref href="{ @URI }">
 		<xsl:apply-templates />
 	</ref>
+<!-- 	<a href="#{ @URI }">
+		<xsl:apply-templates />
+	</a> -->
 </xsl:template>
 
 </xsl:transform>
