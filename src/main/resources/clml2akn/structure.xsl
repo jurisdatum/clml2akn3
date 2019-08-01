@@ -197,6 +197,9 @@
 
 <xsl:template name="hcontainer-body">
 	<xsl:choose>
+		<xsl:when test="count(*[local:element-is-para(.)][exists(*[local:element-is-structural(.)])]) gt 1">
+			<xsl:apply-templates select="* except (Number | Pnumber | Title | Subtitle)" mode="wrapper" />
+		</xsl:when>
 		<xsl:when test="local:struct-has-structural-children(.)">
 			<xsl:variable name="children" as="element()+" select="local:flatten-children(.)" />
 			<xsl:variable name="intro" as="element()*" select="local:get-intro-elements($children)" />
@@ -220,6 +223,12 @@
 			</content>
 		</xsl:otherwise>
 	</xsl:choose>
+</xsl:template>
+
+<xsl:template match="*" mode="wrapper">
+	<hcontainer name="wrapper">
+		<xsl:call-template name="hcontainer-body" />
+	</hcontainer>
 </xsl:template>
 
 <xsl:template name="hcontainer">
