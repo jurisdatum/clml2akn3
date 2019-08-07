@@ -25,6 +25,7 @@
 <xsl:include href="images.xsl" />
 <xsl:include href="amendments.xsl" />
 <xsl:include href="citations.xsl" />
+<xsl:include href="forms.xsl" />
 <xsl:include href="changes.xsl" />
 <xsl:include href="math.xsl" />
 <xsl:include href="commentaries.xsl" />
