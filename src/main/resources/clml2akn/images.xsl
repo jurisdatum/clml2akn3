@@ -38,6 +38,7 @@
 		<img src="{ $src }">
 			<xsl:if test="exists(@Width)">
 				<xsl:choose>
+					<xsl:when test="@Width = 'auto'" />
 					<xsl:when test="ends-with(@Width, 'pt')">
 						<xsl:attribute name="width">
 							<xsl:value-of select="local:pt-to-px(number(substring-before(@Width,'pt')))" />
@@ -55,6 +56,7 @@
 			</xsl:if>
 			<xsl:if test="exists(@Height)">
 				<xsl:choose>
+					<xsl:when test="@Height = 'auto'" />
 					<xsl:when test="ends-with(@Height, 'pt')">
 						<xsl:attribute name="height">
 							<xsl:value-of select="local:pt-to-px(number(substring-before(@Height,'pt')))" />
