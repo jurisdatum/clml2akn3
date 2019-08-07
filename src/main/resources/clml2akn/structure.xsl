@@ -195,26 +195,145 @@
 	</xsl:if>
 </xsl:function>
 
+<xsl:function name="local:children-must-be-divided" as="xs:boolean">
+	<xsl:param name="children" as="element()*" />
+	<xsl:param name="found-first-structural-child" as="xs:boolean" />
+	<xsl:param name="found-first-wrapup" as="xs:boolean" />
+	<xsl:choose>
+		<xsl:when test="empty($children)">
+			<xsl:sequence select="false()" />
+		</xsl:when>
+		<xsl:otherwise>
+			<xsl:variable name="head" as="element()" select="$children[1]" />
+			<xsl:variable name="tail" as="element()*" select="subsequence($children, 2)" />
+			<xsl:choose>
+				<xsl:when test="$found-first-wrapup">
+					<xsl:choose>
+						<xsl:when test="local:element-is-structural($head)">
+							<xsl:sequence select="true()" />
+						</xsl:when>
+						<xsl:otherwise>
+							<xsl:sequence select="local:children-must-be-divided($tail, true(), true())" />
+						</xsl:otherwise>
+					</xsl:choose>
+				</xsl:when>
+				<xsl:when test="$found-first-structural-child">
+					<xsl:choose>
+						<xsl:when test="local:element-is-structural($head)">
+							<xsl:sequence select="local:children-must-be-divided($tail, true(), false())" />
+						</xsl:when>
+						<xsl:otherwise>
+							<xsl:sequence select="local:children-must-be-divided($tail, true(), true())" />
+						</xsl:otherwise>
+					</xsl:choose>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:choose>
+						<xsl:when test="local:element-is-structural($head)">
+							<xsl:sequence select="local:children-must-be-divided($tail, true(), false())" />
+						</xsl:when>
+						<xsl:otherwise>
+							<xsl:sequence select="local:children-must-be-divided($tail, false(), false())" />
+						</xsl:otherwise>
+					</xsl:choose>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:otherwise>
+	</xsl:choose>
+</xsl:function>
+
+<xsl:function name="local:children-must-be-divided" as="xs:boolean">
+	<xsl:param name="children" as="element()*" />
+	<xsl:sequence select="local:children-must-be-divided($children, false(), false())" />
+</xsl:function>
+
+<xsl:function name="local:get-frist-group-of-children" as="element()*">
+	<xsl:param name="children" as="element()*" />
+	<xsl:param name="found-first-structural-child" as="xs:boolean" />
+	<xsl:choose>
+		<xsl:when test="empty($children)">
+			<xsl:sequence select="()" />
+		</xsl:when>
+		<xsl:otherwise>
+			<xsl:variable name="head" as="element()" select="$children[1]" />
+			<xsl:variable name="tail" as="element()*" select="subsequence($children, 2)" />
+			<xsl:choose>
+				<xsl:when test="local:element-is-structural($head)">
+					<xsl:sequence select="($head, local:get-frist-group-of-children($tail, true()))" />
+				</xsl:when>
+				<xsl:when test="not($found-first-structural-child)">
+					<xsl:sequence select="($head, local:get-frist-group-of-children($tail, false()))" />
+				</xsl:when>
+				<xsl:when test="exists($tail[local:element-is-structural(.)])">
+					<xsl:sequence select="()" />
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:sequence select="$children" />
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:otherwise>
+	</xsl:choose>
+</xsl:function>
+
+<xsl:function name="local:get-frist-group-of-children" as="element()*">
+	<xsl:param name="children" as="element()*" />
+	<xsl:sequence select="local:get-frist-group-of-children($children, false())" />
+</xsl:function>
+
+<xsl:template name="divide-children-and-wrap">
+	<xsl:param name="children" as="element()+" />
+	<xsl:param name="first-group" as="element()+" select="local:get-frist-group-of-children($children)" />
+	<xsl:param name="rest" as="element()*" select="$children except $first-group" />
+	<hcontainer name="wrapper2">
+		<xsl:call-template name="handle-one-group-of-children">
+			<xsl:with-param name="children" select="$first-group" />
+		</xsl:call-template>
+	</hcontainer>
+	<xsl:if test="exists($rest)">
+		<xsl:call-template name="divide-children-and-wrap">
+			<xsl:with-param name="children" select="$rest" />
+		</xsl:call-template>
+	</xsl:if>
+</xsl:template>
+
+<xsl:template name="handle-one-group-of-children">
+	<xsl:param name="children" as="element()+" />
+	<xsl:variable name="intro" as="element()*" select="local:get-intro-elements($children)" />
+	<xsl:variable name="wrapup" as="element()*" select="local:get-wrapup-elements($children)" />
+	<xsl:if test="exists($intro)">
+		<intro>
+			<xsl:apply-templates select="$intro" />
+		</intro>
+	</xsl:if>
+	<xsl:apply-templates select="$children except $intro except $wrapup" />
+	<xsl:if test="exists($wrapup)">
+		<wrapUp>
+			<xsl:apply-templates select="$wrapup" />
+		</wrapUp>
+	</xsl:if>
+</xsl:template>
+
 <xsl:template name="hcontainer-body">
 	<xsl:choose>
+		<!-- hcontainer[@name='wrapper1'] maps P?paras where more than one sibling contain structural children -->
 		<xsl:when test="count(*[local:element-is-para(.)][exists(*[local:element-is-structural(.)])]) gt 1">
-			<xsl:apply-templates select="* except (Number | Pnumber | Title | Subtitle)" mode="wrapper" />
+			<xsl:apply-templates select="* except (Number | Pnumber | Title | Subtitle)" mode="wrapper1" />
 		</xsl:when>
 		<xsl:when test="local:struct-has-structural-children(.)">
 			<xsl:variable name="children" as="element()+" select="local:flatten-children(.)" />
-			<xsl:variable name="intro" as="element()*" select="local:get-intro-elements($children)" />
-			<xsl:variable name="wrapup" as="element()*" select="local:get-wrapup-elements($children)" />
-			<xsl:if test="exists($intro)">
-				<intro>
-					<xsl:apply-templates select="$intro" />
-				</intro>
-			</xsl:if>
-			<xsl:apply-templates select="$children except $intro except $wrapup" />
-			<xsl:if test="exists($wrapup)">
-				<wrapUp>
-					<xsl:apply-templates select="$wrapup" />
-				</wrapUp>
-			</xsl:if>
+			<xsl:choose>
+				<!-- hcontainer[@name='wrapper2'] wraps groups of numbered paragraphs that are siblings but separated by content -->
+				<xsl:when test="local:children-must-be-divided($children)">
+					<xsl:call-template name="divide-children-and-wrap">
+						<xsl:with-param name="children" select="$children" />
+					</xsl:call-template>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:call-template name="handle-one-group-of-children">
+						<xsl:with-param name="children" select="$children" />
+					</xsl:call-template>
+				</xsl:otherwise>
+			</xsl:choose>
 		</xsl:when>
 		<xsl:otherwise>
 			<xsl:variable name="headings" as="element()*" select="Number | Pnumber | Title | Subtitle" />
@@ -225,8 +344,8 @@
 	</xsl:choose>
 </xsl:template>
 
-<xsl:template match="*" mode="wrapper">
-	<hcontainer name="wrapper">
+<xsl:template match="*" mode="wrapper1">
+	<hcontainer name="wrapper1">
 		<xsl:call-template name="hcontainer-body" />
 	</hcontainer>
 </xsl:template>
