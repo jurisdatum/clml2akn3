@@ -5,9 +5,10 @@
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xpath-default-namespace="http://www.legislation.gov.uk/namespaces/legislation"
 	xmlns="http://docs.oasis-open.org/legaldocml/ns/akn/3.0"
+	xmlns:ukl="http://www.legislation.gov.uk/namespaces/legislation"
 	xmlns:html="http://www.w3.org/1999/xhtml"
 	xmlns:local="http://www.jurisdatum.com/tna/clml2akn"
-	exclude-result-prefixes="xs html local">
+	exclude-result-prefixes="xs ukl html local">
 
 
 <xsl:variable name="mapping" as="element()">
@@ -511,6 +512,11 @@
 <xsl:template match="Number | Pnumber">
 	<xsl:param name="context" as="xs:string*" tunnel="yes" />
 	<num>
+		<xsl:if test="parent::FragmentNumber">
+			<xsl:attribute name="ukl:Context">
+				<xsl:value-of select="parent::*/@Context" />
+			</xsl:attribute>
+		</xsl:if>
 		<xsl:apply-templates select="local:get-skipped-commentary-refs(.)">
 			<xsl:with-param name="force" select="true()" />
 		</xsl:apply-templates>
@@ -523,6 +529,11 @@
 <xsl:template match="Title">
 	<xsl:param name="context" as="xs:string*" tunnel="yes" />
 	<heading>
+		<xsl:if test="parent::FragmentTitle">
+			<xsl:attribute name="ukl:Context">
+				<xsl:value-of select="parent::*/@Context" />
+			</xsl:attribute>
+		</xsl:if>
 		<xsl:apply-templates select="local:get-skipped-commentary-refs(.)">
 			<xsl:with-param name="force" select="true()" />
 		</xsl:apply-templates>

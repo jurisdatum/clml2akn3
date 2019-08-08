@@ -47,4 +47,8 @@
 	</quotedText>
 </xsl:template>
 
+<xsl:template match="FragmentNumber | FragmentTitle">
+	<xsl:apply-templates />
+</xsl:template>
+
 </xsl:transform>
