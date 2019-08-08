@@ -54,8 +54,11 @@
 
 
 <xsl:template match="Where">
+	<xsl:param name="context" as="xs:string*" tunnel="yes" />
 	<blockContainer class="where">
-		<xsl:apply-templates />
+		<xsl:apply-templates>
+			<xsl:with-param name="context" select="('blockContainer', $context)" tunnel="yes" />
+		</xsl:apply-templates>
 	</blockContainer>
 </xsl:template>
 

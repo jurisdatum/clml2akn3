@@ -62,13 +62,24 @@
 
 <xsl:template match="ListItem" mode="definition">
 	<xsl:param name="context" as="xs:string*" tunnel="yes" />
-	<hcontainer name="definition">
-		<content>
-			<xsl:apply-templates>
-				<xsl:with-param name="context" select="('content', 'definition', $context)" tunnel="yes" />
-			</xsl:apply-templates>
-		</content>
-	</hcontainer>
+	<xsl:choose>
+		<xsl:when test="$context[1] = 'blockContainer'">
+			<tblock class="definition">
+				<xsl:apply-templates>
+					<xsl:with-param name="context" select="('tblock', $context)" tunnel="yes" />
+				</xsl:apply-templates>
+			</tblock>
+		</xsl:when>
+		<xsl:otherwise>
+			<hcontainer name="definition">
+				<content>
+					<xsl:apply-templates>
+						<xsl:with-param name="context" select="('content', 'definition', $context)" tunnel="yes" />
+					</xsl:apply-templates>
+				</content>
+			</hcontainer>
+		</xsl:otherwise>
+	</xsl:choose>
 </xsl:template>
 
 </xsl:transform>
