@@ -22,7 +22,7 @@
 			<P6 akn="subclause" />
 		</primary>
 		<secondary>
-			<order>
+			<order> <!-- use if 'unknown' -->
 				<P1 akn="article" />
 				<P2 akn="paragraph" />
 				<P3 akn="subparagraph" />
@@ -65,6 +65,7 @@
 	<xsl:param name="doc-subclass" as="xs:string" />
 	<xsl:param name="schedule" as="xs:boolean" />
 	<xsl:param name="clml-element-name" as="xs:string" />
+	<xsl:variable name="doc-subclass" as="xs:string" select="if ($doc-subclass = 'unknown') then 'order' else $doc-subclass" />
 	<xsl:choose>
 		<xsl:when test="$schedule">
 			<xsl:value-of select="$mapping/*:schedule/*[local-name()=$clml-element-name]/@akn" />
@@ -419,7 +420,7 @@
 
 <xsl:template match="P1">
 	<xsl:param name="context" as="xs:string*" tunnel="yes" />
-	<xsl:variable name="name" select="local:make-hcontainer-name(., $context)" />
+	<xsl:variable name="name" as="xs:string" select="local:make-hcontainer-name(., $context)" />
 	<xsl:element name="{ if ($name = $unsupported) then 'hcontainer' else $name }">
 		<xsl:if test="$name = $unsupported">
 			<xsl:attribute name="name">
@@ -448,7 +449,7 @@
 
 <xsl:template match="P2 | P3 | P4 | P5 | Pblock/P">
 	<xsl:param name="context" as="xs:string*" tunnel="yes" />
-	<xsl:variable name="name" select="local:make-hcontainer-name(., $context)" />
+	<xsl:variable name="name" as="xs:string" select="local:make-hcontainer-name(., $context)" />
 	<xsl:element name="{ $name }">
 		<!-- add the LDAPP class attributes where necessary -->
 		<xsl:if test="self::P3 and local:clml-is-within-schedule(.) and exists(ancestor::BlockAmendment)">
