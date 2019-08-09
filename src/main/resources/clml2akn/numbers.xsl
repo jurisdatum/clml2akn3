@@ -47,8 +47,26 @@
 	<xsl:param name="number" as="xs:string" />
 	<xsl:param name="list-decor" as="attribute(Decoration)" />
 	<xsl:choose>
+		<xsl:when test="$list-decor = 'none'">
+			<xsl:value-of select="$number" />
+		</xsl:when>
 		<xsl:when test="$list-decor = 'parens'">
 			<xsl:value-of select="concat('(', $number, ')')" />
+		</xsl:when>
+		<xsl:when test="$list-decor = 'parenRight'">
+			<xsl:value-of select="concat($number, ')')" />
+		</xsl:when>
+		<xsl:when test="$list-decor = 'brackets'">
+			<xsl:value-of select="concat('[', $number, ']')" />
+		</xsl:when>
+		<xsl:when test="$list-decor = 'bracketRight'">
+			<xsl:value-of select="concat($number, ']')" />
+		</xsl:when>
+		<xsl:when test="$list-decor = 'period'">
+			<xsl:value-of select="concat($number, '.')" />
+		</xsl:when>
+		<xsl:when test="$list-decor = 'colon'">
+			<xsl:value-of select="concat($number, ':')" />
 		</xsl:when>
 	</xsl:choose>
 </xsl:function>

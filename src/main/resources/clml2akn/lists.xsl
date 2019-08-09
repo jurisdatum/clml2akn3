@@ -35,14 +35,26 @@
 				</num>
 			</xsl:when>
 			<xsl:when test="parent::OrderedList">
-				<xsl:variable name="num" as="xs:string?">
+				<xsl:variable name="num" as="xs:string">
 					<xsl:choose>
-						<xsl:when test="parent::*/@Type = 'alpha'">
-							<xsl:number value="count(preceding-sibling::ListItem) + 1" format="a" />
+						<xsl:when test="parent::*/@Type = 'arabic'">
+							<xsl:number value="count(preceding-sibling::ListItem) + 1" format="1" />
 						</xsl:when>
 						<xsl:when test="parent::*/@Type = 'roman'">
 							<xsl:number value="count(preceding-sibling::ListItem) + 1" format="i" />
 						</xsl:when>
+						<xsl:when test="parent::*/@Type = 'romanupper'">
+							<xsl:number value="count(preceding-sibling::ListItem) + 1" format="I" />
+						</xsl:when>
+						<xsl:when test="parent::*/@Type = 'alpha'">
+							<xsl:number value="count(preceding-sibling::ListItem) + 1" format="a" />
+						</xsl:when>
+						<xsl:when test="parent::*/@Type = 'alphaupper'">
+							<xsl:number value="count(preceding-sibling::ListItem) + 1" format="A" />
+						</xsl:when>
+						<xsl:otherwise>
+							<xsl:number value="count(preceding-sibling::ListItem) + 1" format="1" />
+						</xsl:otherwise>
 					</xsl:choose>
 				</xsl:variable>
 				<num>
