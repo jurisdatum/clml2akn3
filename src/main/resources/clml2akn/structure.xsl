@@ -452,12 +452,12 @@
 	<xsl:variable name="name" as="xs:string" select="local:make-hcontainer-name(., $context)" />
 	<xsl:element name="{ $name }">
 		<!-- add the LDAPP class attributes where necessary -->
-		<xsl:if test="self::P3 and local:clml-is-within-schedule(.) and exists(ancestor::BlockAmendment)">
+		<xsl:if test="self::P3 and local:clml-is-within-schedule(.)">
 			<xsl:attribute name="class">
 				<xsl:text>para1</xsl:text>
 			</xsl:attribute>
 		</xsl:if>
-		<xsl:if test="self::P4 and local:clml-is-within-schedule(.) and exists(ancestor::BlockAmendment)">
+		<xsl:if test="self::P4 and local:clml-is-within-schedule(.)">
 			<xsl:attribute name="class">
 				<xsl:text>para2</xsl:text>
 			</xsl:attribute>
