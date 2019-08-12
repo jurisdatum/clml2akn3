@@ -70,6 +70,7 @@
 				<xsl:with-param name="context" select="('embeddedStructure', $context)" tunnel="yes" />
 			</xsl:apply-templates>
 		</embeddedStructure>
+		<xsl:apply-templates select="following-sibling::*[1][self::AppendText]" mode="force" />
 	</p>
 </xsl:template>
 
