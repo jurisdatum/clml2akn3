@@ -51,4 +51,26 @@
 	<xsl:apply-templates />
 </xsl:template>
 
+<xsl:template match="BlockExtract">
+	<xsl:param name="context" as="xs:string*" tunnel="yes" />
+	<p>
+		<embeddedStructure>
+			<xsl:attribute name="ukl:SourceClass">
+				<xsl:value-of select="@SourceClass" />
+			</xsl:attribute>
+			<xsl:if test="exists(@SourceSubClass)">
+				<xsl:attribute name="ukl:SourceSubClass">
+					<xsl:value-of select="@SourceSubClass" />
+				</xsl:attribute>
+			</xsl:if>
+			<xsl:attribute name="ukl:Context">
+				<xsl:value-of select="@Context" />
+			</xsl:attribute>
+			<xsl:apply-templates>
+				<xsl:with-param name="context" select="('embeddedStructure', $context)" tunnel="yes" />
+			</xsl:apply-templates>
+		</embeddedStructure>
+	</p>
+</xsl:template>
+
 </xsl:transform>
