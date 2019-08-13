@@ -377,8 +377,20 @@
 </xsl:template>
 
 <xsl:template match="Pblock">
+	<xsl:param name="context" as="xs:string*" tunnel="yes" />
 	<hcontainer name="crossheading">
-		<xsl:apply-templates />
+		<xsl:apply-templates>
+			<xsl:with-param name="context" select="('crossheading', $context)" tunnel="yes" />
+		</xsl:apply-templates>
+	</hcontainer>
+</xsl:template>
+
+<xsl:template match="PsubBlock">
+	<xsl:param name="context" as="xs:string*" tunnel="yes" />
+	<hcontainer name="subheading">
+		<xsl:apply-templates>
+			<xsl:with-param name="context" select="('subheading', $context)" tunnel="yes" />
+		</xsl:apply-templates>
 	</hcontainer>
 </xsl:template>
 
@@ -386,7 +398,7 @@
 	<xsl:param name="context" as="xs:string*" tunnel="yes" />
 	<xsl:choose>
 		<xsl:when test="exists(parent::*/P1group[count(P1) gt 1])">
-			<hcontainer name="crossheading">  <!-- class="p1group" -->
+			<hcontainer name="{ if ($context[1] = 'crossheading') then 'subheading' else 'crossheading' }">  <!-- class="p1group" -->
 				<xsl:apply-templates>
 					<xsl:with-param name="context" select="('crossheading', $context)" tunnel="yes" />
 				</xsl:apply-templates>
