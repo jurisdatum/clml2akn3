@@ -17,6 +17,10 @@
 	</tblock>
 </xsl:template>
 
+<xsl:template match="TableText">
+	<xsl:apply-templates />
+</xsl:template>
+
 <xsl:template match="html:table">
 	<foreign>
 		<xsl:copy>
