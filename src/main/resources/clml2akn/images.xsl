@@ -72,6 +72,11 @@
 					</xsl:otherwise>
 				</xsl:choose>
 			</xsl:if>
+			<xsl:if test="exists(@Description)">
+				<xsl:attribute name="title">
+					<xsl:value-of select="@Description" />
+				</xsl:attribute>
+			</xsl:if>
 		</img>
 	</p>
 </xsl:template>
