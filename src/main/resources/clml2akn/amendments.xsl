@@ -15,7 +15,25 @@
 	<xsl:param name="context" as="xs:string*" tunnel="yes" />
 	<p>
 		<mod>
-			<quotedStructure ukl:TargetClass="{ @TargetClass }" ukl:TargetSubClass="{ @TargetSubClass }" ukl:Context="{ @Context }" ukl:Format="{ @Format }">
+			<quotedStructure ukl:TargetClass="{ @TargetClass }" ukl:TargetSubClass="{ @TargetSubClass }" ukl:Context="{ @Context }">
+				<xsl:choose>
+					<xsl:when test="@Format = ('double', 'default')">
+						<xsl:attribute name="startQuote">
+							<xsl:text>“</xsl:text>
+						</xsl:attribute>
+						<xsl:attribute name="endQuote">
+							<xsl:text>”</xsl:text>
+						</xsl:attribute>
+					</xsl:when>
+					<xsl:when test="@Format = 'single'">
+						<xsl:attribute name="startQuote">
+							<xsl:text>‘</xsl:text>
+						</xsl:attribute>
+						<xsl:attribute name="endQuote">
+							<xsl:text>’</xsl:text>
+						</xsl:attribute>
+					</xsl:when>
+				</xsl:choose>
 				<xsl:apply-templates>
 					<xsl:with-param name="context" select="('quotedStructure', $context)" tunnel="yes" />
 				</xsl:apply-templates>
