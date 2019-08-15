@@ -129,6 +129,41 @@
 </xsl:function>
 
 
+<!-- internal identifiers -->
+
+<xsl:function name="local:get-internal-id" as="xs:string">
+	<xsl:param name="e" as="element()" />
+	<xsl:choose>
+		<xsl:when test="exists($e/ancestor::Version)">
+			<xsl:variable name="version" as="element(Version)" select="$e/ancestor::Version" />
+			<xsl:choose>
+				<xsl:when test="exists($e/@id) and exists($version/@Description)">
+					<xsl:value-of select="concat($e/@id, '-', lower-case($version/@Description))" />
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:value-of select="generate-id($e)" />
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:when>
+		<xsl:when test="exists($e/@id)">
+			<xsl:value-of select="$e/@id" />
+		</xsl:when>
+		<xsl:otherwise>
+			<xsl:value-of select="generate-id($e)" />
+		</xsl:otherwise>
+	</xsl:choose>
+</xsl:function>
+
+<xsl:template name="add-internal-id">
+	<xsl:if test="empty(ancestor::BlockAmendment) and empty(ancestor::BlockExtract)">
+		<xsl:attribute name="eId">
+			<xsl:value-of select="local:get-internal-id(.)" />
+		</xsl:attribute>
+	</xsl:if>
+</xsl:template>
+
+
+
 <!-- variables -->
 
 <xsl:variable name="doc-long-type" as="xs:string">

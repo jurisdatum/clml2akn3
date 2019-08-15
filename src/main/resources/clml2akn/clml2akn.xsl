@@ -29,6 +29,7 @@
 <xsl:include href="changes.xsl" />
 <xsl:include href="math.xsl" />
 <xsl:include href="commentaries.xsl" />
+<xsl:include href="resources.xsl" />
 
 
 <xsl:template match="/">

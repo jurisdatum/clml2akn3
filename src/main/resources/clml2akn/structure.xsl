@@ -353,6 +353,7 @@
 </xsl:template>
 
 <xsl:template name="hcontainer">
+	<xsl:call-template name="add-structure-attributes" />
 	<xsl:apply-templates select="Number | Pnumber" />
 	<xsl:if test="self::P1 and parent::P1group and empty(parent::*/parent::*/P1group[count(P1) gt 1])">
 		<xsl:apply-templates select="parent::*/Title" />
@@ -363,6 +364,17 @@
 	<xsl:apply-templates select="Title | Subtitle" />
 	<xsl:call-template name="hcontainer-body" />
 </xsl:template>
+
+
+<!-- attributes -->
+
+<xsl:template name="add-structure-attributes">
+	<xsl:call-template name="add-internal-id" />
+	<xsl:call-template name="add-alt-attr" />
+</xsl:template>
+
+
+<!-- matching templates -->
 
 <xsl:template match="Part">
 	<part>
@@ -379,6 +391,7 @@
 <xsl:template match="Pblock">
 	<xsl:param name="context" as="xs:string*" tunnel="yes" />
 	<hcontainer name="crossheading">
+		<xsl:call-template name="add-structure-attributes" />
 		<xsl:apply-templates>
 			<xsl:with-param name="context" select="('crossheading', $context)" tunnel="yes" />
 		</xsl:apply-templates>
@@ -388,6 +401,7 @@
 <xsl:template match="PsubBlock">
 	<xsl:param name="context" as="xs:string*" tunnel="yes" />
 	<hcontainer name="subheading">
+		<xsl:call-template name="add-structure-attributes" />
 		<xsl:apply-templates>
 			<xsl:with-param name="context" select="('subheading', $context)" tunnel="yes" />
 		</xsl:apply-templates>
@@ -399,10 +413,12 @@
 	<xsl:choose>
 		<xsl:when test="exists(parent::*/P1group[count(P1) gt 1])">
 			<hcontainer name="{ if ($context[1] = 'crossheading') then 'subheading' else 'crossheading' }">  <!-- class="p1group" -->
+				<xsl:call-template name="add-structure-attributes" />
 				<xsl:apply-templates>
 					<xsl:with-param name="context" select="('crossheading', $context)" tunnel="yes" />
 				</xsl:apply-templates>
 			</hcontainer>
+			<xsl:call-template name="insert-alt-versions" />
 		</xsl:when>
 		<xsl:when test="empty(P1)">
 			<xsl:if test="exists(*[local:element-is-structural(.)])">
@@ -412,6 +428,7 @@
 			</xsl:if>
 			<xsl:variable name="name" as="xs:string" select="local:make-hcontainer-name(., $context)" />
 			<xsl:element name="{ $name }">
+				<xsl:call-template name="add-structure-attributes" />
 				<xsl:if test="normalize-space(Title)">
 					<xsl:apply-templates select="Title">
 						<xsl:with-param name="context" select="($name, $context)" tunnel="yes" />
@@ -421,9 +438,12 @@
 					<xsl:with-param name="context" select="($name, $context)" tunnel="yes" />
 				</xsl:call-template>
 			</xsl:element>
+			<xsl:call-template name="insert-alt-versions" />
 		</xsl:when>
-		<xsl:otherwise>
-			<xsl:apply-templates select="*[not(self::Title)]" />
+		<xsl:otherwise> <!-- there is only one P1 -->
+			<xsl:apply-templates select="*[not(self::Title)]">
+				<xsl:with-param name="inherit-from-p1group" select="true()" />
+			</xsl:apply-templates>
 		</xsl:otherwise>
 	</xsl:choose>
 </xsl:template>
@@ -431,18 +451,27 @@
 <xsl:variable name="unsupported" as="xs:string*" select="('regulation')" />
 
 <xsl:template match="P1">
+	<xsl:param name="inherit-from-p1group" as="xs:boolean" select="false()" />
 	<xsl:param name="context" as="xs:string*" tunnel="yes" />
 	<xsl:variable name="name" as="xs:string" select="local:make-hcontainer-name(., $context)" />
+	<xsl:variable name="alt-version-anchor" as="element()" select="if (empty(@AltVersionRefs) and $inherit-from-p1group) then .. else ." />
 	<xsl:element name="{ if ($name = $unsupported) then 'hcontainer' else $name }">
 		<xsl:if test="$name = $unsupported">
 			<xsl:attribute name="name">
 				<xsl:value-of select="$name" />
 			</xsl:attribute>
 		</xsl:if>
+		<xsl:call-template name="add-internal-id" />
+		<xsl:call-template name="add-alt-attr">
+			<xsl:with-param name="e" select="$alt-version-anchor" />
+		</xsl:call-template>
 		<xsl:call-template name="hcontainer">
 			<xsl:with-param name="context" select="($name, $context)" tunnel="yes" />
 		</xsl:call-template>
 	</xsl:element>
+	<xsl:call-template name="insert-alt-versions">
+		<xsl:with-param name="alt-version-refs" select="$alt-version-anchor/@AltVersionRefs" />
+	</xsl:call-template>
 </xsl:template>
 
 <xsl:template match="P2group">
@@ -450,6 +479,7 @@
 	<xsl:choose>
 		<xsl:when test="exists(parent::*/P2group[count(P2) gt 1])">
 			<level>
+				<xsl:call-template name="add-structure-attributes" />
 				<xsl:apply-templates />
 			</level>
 		</xsl:when>
@@ -494,6 +524,7 @@
 <xsl:template match="Schedule">
 	<xsl:param name="context" as="xs:string*" tunnel="yes" />
 	<hcontainer name="schedule">
+		<xsl:call-template name="add-structure-attributes" />
 		<xsl:apply-templates select="*[not(self::Reference)]">
 			<xsl:with-param name="context" select="('schedule', $context)" tunnel="yes" />
 		</xsl:apply-templates>
