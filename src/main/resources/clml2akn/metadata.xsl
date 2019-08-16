@@ -15,6 +15,7 @@
 <xsl:template match="Metadata">
 	<meta>
 		<xsl:call-template name="identification" />
+		<xsl:call-template name="analysis" />
 		<xsl:call-template name="references" />
 		<xsl:call-template name="notes" />
 		<xsl:call-template name="proprietary" />
@@ -387,15 +388,6 @@
 	</identification>
 </xsl:template>
 
-<xsl:template name="references">
-	<references source="#source">
-		<TLCOrganization eId="source" href="" showAs="" />
-		<xsl:for-each-group select="//ukl:Term" group-by="local:make-term-id(.)">
-			<TLCTerm eId="{ local:make-term-id(.) }" showAs="{ normalize-space(.) }" href="" />
-		</xsl:for-each-group>
-	</references>
-</xsl:template>
-
 <xsl:template name="notes">
 	<xsl:if test="/ukl:Legislation/ukl:Commentaries/ukl:Commentary">
 		<notes source="#source">
@@ -428,5 +420,99 @@
 		<xsl:apply-templates />
 	</xsl:element>
 </xsl:template>
+
+
+<!-- analysis -->
+
+<xsl:variable name="elements-with-restrict-extent" as="element()*" select="//*[@RestrictExtent]" />
+
+<xsl:variable name="has-restrictions" as="xs:boolean" select="exists($elements-with-restrict-extent)" />
+
+<xsl:variable name="has-analysis" as="xs:boolean" select="$has-restrictions" />
+
+<xsl:template name="analysis">
+	<xsl:if test="$has-analysis">
+		<analysis source="#source">
+			<xsl:call-template name="restrictions" />
+		</analysis>
+	</xsl:if>
+</xsl:template>
+
+<xsl:template name="restrictions">
+	<xsl:if test="$has-restrictions">
+		<restrictions source="#source">
+			<xsl:call-template name="extent-restrictions" />
+		</restrictions>
+	</xsl:if>
+</xsl:template>
+
+
+<!-- references -->
+
+<xsl:template name="references">
+	<references source="#source">
+		<TLCOrganization eId="source" href="" showAs="" />
+		<xsl:call-template name="extent-locations" />
+<!-- 		<xsl:for-each-group select="//ukl:Term" group-by="local:make-term-id(.)">
+			<TLCTerm eId="{ local:make-term-id(.) }" showAs="{ normalize-space(.) }" href="" />
+		</xsl:for-each-group> -->
+	</references>
+</xsl:template>
+
+
+
+<!-- extent -->
+
+<xsl:function name="local:make-extent-id" as="xs:string">
+	<xsl:param name="value" as="xs:string" />
+	<xsl:value-of select="concat('extent-', lower-case(replace($value, '\.', '')))" />
+</xsl:function>
+
+<xsl:template name="extent-restrictions">
+	<xsl:for-each select="$elements-with-restrict-extent">
+		<restriction>
+			<xsl:if test="not(self::ukl:Legislation)">
+				<xsl:attribute name="href">
+					<xsl:text>#</xsl:text>
+					<xsl:value-of select="local:get-internal-id-for-ref(.)" />
+				</xsl:attribute>
+			</xsl:if>
+		<xsl:attribute name="refersTo">
+			<xsl:text>#</xsl:text>
+			<xsl:value-of select="local:make-extent-id(@RestrictExtent)" />
+		</xsl:attribute>
+		<xsl:attribute name="type">
+			<xsl:text>jurisdiction</xsl:text>
+		</xsl:attribute>
+		</restriction>
+	</xsl:for-each>
+</xsl:template>
+
+<xsl:template name="extent-locations">
+	<xsl:for-each-group select="$elements-with-restrict-extent" group-by="local:make-extent-id(@RestrictExtent)">
+		<TLCLocation>
+			<xsl:attribute name="eId">
+				<xsl:value-of select="local:make-extent-id(@RestrictExtent)" />
+			</xsl:attribute>
+			<xsl:attribute name="href"></xsl:attribute>
+			<xsl:attribute name="showAs">
+				<xsl:value-of select="@RestrictExtent" />
+			</xsl:attribute>
+		</TLCLocation>
+	</xsl:for-each-group>
+</xsl:template>
+
+<!-- <xsl:template name="add-restrict-extent-attr">
+	<xsl:param name="from" as="element()" select="." />
+	<xsl:if test="$from/@RestrictExtent">
+		<xsl:attribute name="ukl:RestrictExtent">
+			<xsl:value-of select="$from/@RestrictExtent" />
+		</xsl:attribute>
+	</xsl:if>
+</xsl:template>
+
+<xsl:template name="add-restriction-attrs">
+	<xsl:call-template name="add-restrict-extent-attr" />
+</xsl:template> -->
 
 </xsl:transform>

@@ -517,6 +517,7 @@
 
 <xsl:template match="Schedules">
 	<hcontainer name="schedules">
+		<xsl:call-template name="add-internal-id-if-necessary" />
 		<xsl:apply-templates />
 	</hcontainer>
 </xsl:template>

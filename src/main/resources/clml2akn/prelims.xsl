@@ -12,6 +12,7 @@
 
 <xsl:template match="PrimaryPrelims">
 	<preface>
+		<xsl:call-template name="add-internal-id-if-necessary" />
 		<xsl:apply-templates select="* except PrimaryPreamble" />
 	</preface>
 	<xsl:apply-templates select="PrimaryPreamble" />

@@ -47,6 +47,9 @@
 <xsl:template match="Primary | Secondary">
 	<xsl:apply-templates select="PrimaryPrelims | SecondaryPrelims" />
 	<body xmlns:ukakn="https://www.legislation.gov.uk/namespaces/UK-AKN">
+		<xsl:call-template name="add-internal-id-if-necessary">
+			<xsl:with-param name="from" select="Body" />
+		</xsl:call-template>
 		<xsl:apply-templates select="Body | Schedules" />
 	</body>
 	<xsl:if test="exists(*[not(self::PrimaryPrelims) and not(self::SecondaryPrelims) and not(self::Body) and not(self::Schedules)])">

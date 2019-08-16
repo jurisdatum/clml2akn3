@@ -129,6 +129,12 @@
 </xsl:function>
 
 
+<xsl:function name="local:p1group-collapses-into-p1" as="xs:boolean">
+	<xsl:param name="p1-group" as="element(P1group)" />
+	<xsl:sequence select="exists($p1-group/P1) and empty($p1-group/parent::*/P1group[count(P1) gt 1])" />
+</xsl:function>
+
+
 <!-- internal identifiers -->
 
 <xsl:function name="local:get-internal-id" as="xs:string">
@@ -148,20 +154,51 @@
 		<xsl:when test="exists($e/@id)">
 			<xsl:value-of select="$e/@id" />
 		</xsl:when>
+		<xsl:when test="$e/self::PrimaryPrelims or $e/self::SecondaryPrelims or $e/self::EUPrelims">
+			<xsl:text>preface</xsl:text>
+		</xsl:when>
+		<xsl:when test="$e/self::Body or $e/self::EUBody">
+			<xsl:text>body</xsl:text>
+		</xsl:when>
+		<xsl:when test="$e/self::Schedules">
+			<xsl:text>schedules</xsl:text>
+		</xsl:when>
 		<xsl:otherwise>
 			<xsl:value-of select="generate-id($e)" />
 		</xsl:otherwise>
 	</xsl:choose>
 </xsl:function>
 
+<!-- use this function only for creating internal references, not for populating eId attributes -->
+<xsl:function name="local:get-internal-id-for-ref" as="xs:string">
+	<xsl:param name="e" as="element()" />
+	<xsl:choose>
+		<xsl:when test="$e/self::P1group and local:p1group-collapses-into-p1($e)">
+			<xsl:value-of select="local:get-internal-id($e/P1)" />
+		</xsl:when>
+		<xsl:otherwise>
+			<xsl:value-of select="local:get-internal-id($e)" />
+		</xsl:otherwise>
+	</xsl:choose>
+</xsl:function>
+
 <xsl:template name="add-internal-id">
-	<xsl:if test="empty(ancestor::BlockAmendment) and empty(ancestor::BlockExtract)">
+	<xsl:param name="from" as="element()" select="." />
+	<xsl:if test="empty($from/ancestor::BlockAmendment) and empty($from/ancestor::BlockExtract)">
 		<xsl:attribute name="eId">
-			<xsl:value-of select="local:get-internal-id(.)" />
+			<xsl:value-of select="local:get-internal-id($from)" />
 		</xsl:attribute>
 	</xsl:if>
 </xsl:template>
 
+<xsl:template name="add-internal-id-if-necessary">
+	<xsl:param name="from" as="element()" select="." />
+	<xsl:if test="exists($from/@RestrictExtent)">
+		<xsl:call-template name="add-internal-id">
+			<xsl:with-param name="from" select="$from" />
+		</xsl:call-template>
+	</xsl:if>
+</xsl:template>
 
 
 <!-- variables -->
