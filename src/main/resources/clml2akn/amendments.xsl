@@ -10,30 +10,42 @@
 	xmlns:local="http://www.jurisdatum.com/tna/clml2akn"
 	exclude-result-prefixes="xs ukl ukakn local">
 
+<xsl:template name="add-quote-attributes">
+	<xsl:choose>
+		<xsl:when test="@Format = ('double', 'default')">
+			<xsl:attribute name="startQuote">
+				<xsl:text>“</xsl:text>
+			</xsl:attribute>
+			<xsl:attribute name="endQuote">
+				<xsl:text>”</xsl:text>
+			</xsl:attribute>
+		</xsl:when>
+		<xsl:when test="@Format = 'single'">
+			<xsl:attribute name="startQuote">
+				<xsl:text>‘</xsl:text>
+			</xsl:attribute>
+			<xsl:attribute name="endQuote">
+				<xsl:text>’</xsl:text>
+			</xsl:attribute>
+		</xsl:when>
+	</xsl:choose>
+</xsl:template>
 
 <xsl:template match="BlockAmendment">
 	<xsl:param name="context" as="xs:string*" tunnel="yes" />
 	<p>
 		<mod>
-			<quotedStructure ukl:TargetClass="{ @TargetClass }" ukl:TargetSubClass="{ @TargetSubClass }" ukl:Context="{ @Context }">
-				<xsl:choose>
-					<xsl:when test="@Format = ('double', 'default')">
-						<xsl:attribute name="startQuote">
-							<xsl:text>“</xsl:text>
-						</xsl:attribute>
-						<xsl:attribute name="endQuote">
-							<xsl:text>”</xsl:text>
-						</xsl:attribute>
-					</xsl:when>
-					<xsl:when test="@Format = 'single'">
-						<xsl:attribute name="startQuote">
-							<xsl:text>‘</xsl:text>
-						</xsl:attribute>
-						<xsl:attribute name="endQuote">
-							<xsl:text>’</xsl:text>
-						</xsl:attribute>
-					</xsl:when>
-				</xsl:choose>
+			<quotedStructure>
+				<xsl:call-template name="add-quote-attributes" />
+				<xsl:attribute name="ukl:TargetClass">
+					<xsl:value-of select="@TargetClass" />
+				</xsl:attribute>
+				<xsl:attribute name="ukl:TargetSubClass">
+					<xsl:value-of select="@TargetSubClass" />
+				</xsl:attribute>
+				<xsl:attribute name="ukl:Context">
+					<xsl:value-of select="@Context" />
+				</xsl:attribute>
 				<xsl:apply-templates>
 					<xsl:with-param name="context" select="('quotedStructure', $context)" tunnel="yes" />
 				</xsl:apply-templates>
@@ -73,6 +85,7 @@
 	<xsl:param name="context" as="xs:string*" tunnel="yes" />
 	<p>
 		<embeddedStructure>
+			<xsl:call-template name="add-quote-attributes" />
 			<xsl:attribute name="ukl:SourceClass">
 				<xsl:value-of select="@SourceClass" />
 			</xsl:attribute>
