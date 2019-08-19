@@ -10,12 +10,15 @@
 	xmlns:dc="http://purl.org/dc/elements/1.1/"
 	xmlns:dct="http://purl.org/dc/terms/"
 	xmlns:local="http://www.jurisdatum.com/tna/clml2akn"
+	xmlns:uk="https://www.legislation.gov.uk/namespaces/UK-AKN"
 	exclude-result-prefixes="xs ukl local">
 
 <xsl:template match="Metadata">
 	<meta>
 		<xsl:call-template name="identification" />
+		<xsl:call-template name="lifecycle" />
 		<xsl:call-template name="analysis" />
+		<xsl:call-template name="temporal-data" />
 		<xsl:call-template name="references" />
 		<xsl:call-template name="notes" />
 		<xsl:call-template name="proprietary" />
@@ -422,11 +425,32 @@
 </xsl:template>
 
 
+<xsl:variable name="elements-with-restrict-dates" as="element()*" select="//*[@RestrictStartDate or @RestrictEndDate]" />
+
+<!-- lifecycle -->
+
+<xsl:template name="lifecycle">
+	<xsl:if test="exists($elements-with-restrict-dates)">
+		<xsl:variable name="event-dates" as="xs:string*">
+			<xsl:for-each-group select="$elements-with-restrict-dates/@RestrictStartDate | $elements-with-restrict-dates/@RestrictEndDate" group-by=".">
+				<xsl:sort />
+				<xsl:value-of select="." />
+			</xsl:for-each-group>
+		</xsl:variable>
+		<lifecycle source="#source">
+			<xsl:for-each select="$event-dates">
+		        <eventRef date="{.}" eId="date-{.}" source="#source" />
+			</xsl:for-each>
+		</lifecycle>
+	</xsl:if>
+</xsl:template>
+
+
 <!-- analysis -->
 
 <xsl:variable name="elements-with-restrict-extent" as="element()*" select="//*[@RestrictExtent]" />
 
-<xsl:variable name="has-restrictions" as="xs:boolean" select="exists($elements-with-restrict-extent)" />
+<xsl:variable name="has-restrictions" as="xs:boolean" select="exists($elements-with-restrict-extent) or exists($elements-with-restrict-dates)" />
 
 <xsl:variable name="has-analysis" as="xs:boolean" select="$has-restrictions" />
 
@@ -442,8 +466,95 @@
 	<xsl:if test="$has-restrictions">
 		<restrictions source="#source">
 			<xsl:call-template name="extent-restrictions" />
+			<xsl:call-template name="temporal-restrictions" />
 		</restrictions>
 	</xsl:if>
+</xsl:template>
+
+
+<!-- temporal data -->
+
+<xsl:function name="local:make-period-id" as="xs:string">
+	<xsl:param name="restrict-start-date" as="xs:string?" />
+	<xsl:param name="restrict-end-date" as="xs:string?" />
+	<xsl:variable name="parts" as="xs:string*">
+		<xsl:text>period-</xsl:text>
+		<xsl:if test="exists($restrict-start-date)">
+			<xsl:text>from-</xsl:text>
+			<xsl:value-of select="$restrict-start-date" />
+		</xsl:if>
+		<xsl:if test="exists($restrict-start-date) and exists($restrict-end-date)">
+			<xsl:text>-</xsl:text>
+		</xsl:if>
+		<xsl:if test="exists($restrict-end-date)">
+			<xsl:text>to-</xsl:text>
+			<xsl:value-of select="$restrict-end-date" />
+		</xsl:if>
+	</xsl:variable>
+	<xsl:value-of select="string-join($parts, '')" />
+</xsl:function>
+
+<xsl:template name="temporal-data">
+	<xsl:if test="exists($elements-with-restrict-dates)">
+		<temporalData source="#source">
+			<xsl:for-each-group select="$elements-with-restrict-dates" group-by="concat(@RestrictStartDate, '-', @RestrictEndDate)">
+				<xsl:sort select="concat(@RestrictStartDate, '-', @RestrictEndDate)" />
+				<temporalGroup>
+					<xsl:attribute name="eId">
+						<xsl:text>period-</xsl:text>
+						<xsl:if test="exists(@RestrictStartDate)">
+							<xsl:text>from-</xsl:text>
+							<xsl:value-of select="@RestrictStartDate" />
+						</xsl:if>
+						<xsl:if test="exists(@RestrictStartDate) and exists(@RestrictEndDate)">
+							<xsl:text>-</xsl:text>
+						</xsl:if>
+						<xsl:if test="exists(@RestrictEndDate)">
+							<xsl:text>to-</xsl:text>
+							<xsl:value-of select="@RestrictEndDate" />
+						</xsl:if>
+					</xsl:attribute>
+					<timeInterval>
+						<xsl:if test="@RestrictStartDate">
+							<xsl:attribute name="start">
+								<xsl:text>#date-</xsl:text>
+								<xsl:value-of select="@RestrictStartDate" />
+							</xsl:attribute>
+						</xsl:if>
+						<xsl:if test="@RestrictEndDate">
+							<xsl:attribute name="end">
+								<xsl:text>#date-</xsl:text>
+								<xsl:value-of select="@RestrictEndDate" />
+							</xsl:attribute>
+						</xsl:if>
+						<xsl:attribute name="refersTo">
+							<xsl:text>#</xsl:text>
+						</xsl:attribute>
+					</timeInterval>
+				</temporalGroup>
+			</xsl:for-each-group>
+		</temporalData>
+	</xsl:if>
+</xsl:template>
+
+<xsl:template name="temporal-restrictions">
+	<xsl:for-each select="$elements-with-restrict-dates">
+		<restriction>
+			<xsl:if test="not(self::ukl:Legislation)">
+				<xsl:attribute name="href">
+					<xsl:text>#</xsl:text>
+					<xsl:value-of select="local:get-internal-id-for-ref(.)" />
+				</xsl:attribute>
+			</xsl:if>
+			<xsl:attribute name="refersTo">
+				<xsl:text>#</xsl:text>
+				<xsl:value-of select="local:make-period-id(@RestrictStartDate, @RestrictEndDate)" />
+			</xsl:attribute>
+			<xsl:attribute name="type">
+				<xsl:text>jurisdiction</xsl:text>
+			</xsl:attribute>
+		</restriction>
+	</xsl:for-each>
 </xsl:template>
 
 
@@ -453,12 +564,8 @@
 	<references source="#source">
 		<TLCOrganization eId="source" href="" showAs="" />
 		<xsl:call-template name="extent-locations" />
-<!-- 		<xsl:for-each-group select="//ukl:Term" group-by="local:make-term-id(.)">
-			<TLCTerm eId="{ local:make-term-id(.) }" showAs="{ normalize-space(.) }" href="" />
-		</xsl:for-each-group> -->
 	</references>
 </xsl:template>
-
 
 
 <!-- extent -->
@@ -477,13 +584,13 @@
 					<xsl:value-of select="local:get-internal-id-for-ref(.)" />
 				</xsl:attribute>
 			</xsl:if>
-		<xsl:attribute name="refersTo">
-			<xsl:text>#</xsl:text>
-			<xsl:value-of select="local:make-extent-id(@RestrictExtent)" />
-		</xsl:attribute>
-		<xsl:attribute name="type">
-			<xsl:text>jurisdiction</xsl:text>
-		</xsl:attribute>
+			<xsl:attribute name="refersTo">
+				<xsl:text>#</xsl:text>
+				<xsl:value-of select="local:make-extent-id(@RestrictExtent)" />
+			</xsl:attribute>
+			<xsl:attribute name="type">
+				<xsl:text>jurisdiction</xsl:text>
+			</xsl:attribute>
 		</restriction>
 	</xsl:for-each>
 </xsl:template>
@@ -501,18 +608,5 @@
 		</TLCLocation>
 	</xsl:for-each-group>
 </xsl:template>
-
-<!-- <xsl:template name="add-restrict-extent-attr">
-	<xsl:param name="from" as="element()" select="." />
-	<xsl:if test="$from/@RestrictExtent">
-		<xsl:attribute name="ukl:RestrictExtent">
-			<xsl:value-of select="$from/@RestrictExtent" />
-		</xsl:attribute>
-	</xsl:if>
-</xsl:template>
-
-<xsl:template name="add-restriction-attrs">
-	<xsl:call-template name="add-restrict-extent-attr" />
-</xsl:template> -->
 
 </xsl:transform>

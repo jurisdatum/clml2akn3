@@ -193,7 +193,7 @@
 
 <xsl:template name="add-internal-id-if-necessary">
 	<xsl:param name="from" as="element()" select="." />
-	<xsl:if test="exists($from/@RestrictExtent)">
+	<xsl:if test="exists($from/@RestrictExtent) or exists($from/@RestrictStartDate) or exists($from/@RestrictEndDate)">
 		<xsl:call-template name="add-internal-id">
 			<xsl:with-param name="from" select="$from" />
 		</xsl:call-template>
