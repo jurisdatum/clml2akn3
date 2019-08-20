@@ -539,21 +539,23 @@
 
 <xsl:template name="temporal-restrictions">
 	<xsl:for-each select="$elements-with-restrict-dates">
-		<restriction>
-			<xsl:if test="not(self::ukl:Legislation)">
-				<xsl:attribute name="href">
+		<xsl:if test="not(self::ukl:P1group and child::ukl:P1[@RestrictStartDate or @RestrictEndDate])"> <!-- asp/2000/1/2018-03-29 -->
+			<restriction>
+				<xsl:if test="not(self::ukl:Legislation)">
+					<xsl:attribute name="href">
+						<xsl:text>#</xsl:text>
+						<xsl:value-of select="local:get-internal-id-for-ref(.)" />
+					</xsl:attribute>
+				</xsl:if>
+				<xsl:attribute name="refersTo">
 					<xsl:text>#</xsl:text>
-					<xsl:value-of select="local:get-internal-id-for-ref(.)" />
+					<xsl:value-of select="local:make-period-id(@RestrictStartDate, @RestrictEndDate)" />
 				</xsl:attribute>
-			</xsl:if>
-			<xsl:attribute name="refersTo">
-				<xsl:text>#</xsl:text>
-				<xsl:value-of select="local:make-period-id(@RestrictStartDate, @RestrictEndDate)" />
-			</xsl:attribute>
-			<xsl:attribute name="type">
-				<xsl:text>jurisdiction</xsl:text>
-			</xsl:attribute>
-		</restriction>
+				<xsl:attribute name="type">
+					<xsl:text>jurisdiction</xsl:text>
+				</xsl:attribute>
+			</restriction>
+		</xsl:if>
 	</xsl:for-each>
 </xsl:template>
 
