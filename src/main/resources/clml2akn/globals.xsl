@@ -6,8 +6,9 @@
 	xpath-default-namespace="http://www.legislation.gov.uk/namespaces/legislation"
 	xmlns:ukm="http://www.legislation.gov.uk/namespaces/metadata"
 	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:html="http://www.w3.org/1999/xhtml"
 	xmlns:local="http://www.jurisdatum.com/tna/clml2akn"
-	exclude-result-prefixes="xs ukm dc local">
+	exclude-result-prefixes="xs ukm dc html local">
 
 
 <!-- keys -->
@@ -151,6 +152,9 @@
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:when>
+		<xsl:when test="exists($e/ancestor::BlockAmendment) or exists($e/ancestor::html:td)"> <!-- guards against two elements having the same @id, e.g., asp/2003/6/2003-12-16 -->
+			<xsl:value-of select="generate-id($e)" />
+		</xsl:when>
 		<xsl:when test="exists($e/@id)">
 			<xsl:value-of select="$e/@id" />
 		</xsl:when>
@@ -184,7 +188,9 @@
 
 <xsl:template name="add-internal-id">
 	<xsl:param name="from" as="element()" select="." />
-	<xsl:if test="empty($from/ancestor::BlockAmendment) and empty($from/ancestor::BlockExtract)">
+	<xsl:variable name="is-in-main-body" as="xs:boolean" select="empty($from/ancestor::BlockAmendment) and empty($from/ancestor::BlockExtract)" />
+	<xsl:variable name="is-necessary-for-metadata" as="xs:boolean" select="exists($from/@RestrictExtent) or exists($from/@RestrictStartDate) or exists($from/@RestrictEndDate)" />
+	<xsl:if test="$is-in-main-body or $is-necessary-for-metadata">
 		<xsl:attribute name="eId">
 			<xsl:value-of select="local:get-internal-id($from)" />
 		</xsl:attribute>
@@ -193,10 +199,11 @@
 
 <xsl:template name="add-internal-id-if-necessary">
 	<xsl:param name="from" as="element()" select="." />
-	<xsl:if test="exists($from/@RestrictExtent) or exists($from/@RestrictStartDate) or exists($from/@RestrictEndDate)">
-		<xsl:call-template name="add-internal-id">
-			<xsl:with-param name="from" select="$from" />
-		</xsl:call-template>
+	<xsl:variable name="is-necessary-for-metadata" as="xs:boolean" select="exists($from/@RestrictExtent) or exists($from/@RestrictStartDate) or exists($from/@RestrictEndDate)" />
+	<xsl:if test="$is-necessary-for-metadata">
+		<xsl:attribute name="eId">
+			<xsl:value-of select="local:get-internal-id($from)" />
+		</xsl:attribute>
 	</xsl:if>
 </xsl:template>
 
