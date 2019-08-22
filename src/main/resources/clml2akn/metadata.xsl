@@ -375,15 +375,15 @@
 			<FRBRprescriptive value="true" />
 		</FRBRWork>
 		<FRBRExpression>
-			<FRBRthis value="http://www.legislation.gov.uk/{ $doc-short-id }" />
-			<FRBRuri value="http://www.legislation.gov.uk/{ $doc-short-id }" />
+			<FRBRthis value="http://www.legislation.gov.uk/{ $doc-short-id }/{ $doc-version }" />
+			<FRBRuri value="http://www.legislation.gov.uk/{ $doc-short-id }/{ $doc-version }" />
 			<FRBRdate date="{ $expr-date }" name="{ $expr-date-name }" />
 			<FRBRauthor href="#source" />
 			<FRBRlanguage language="{ $lang }" />
 		</FRBRExpression>
 		<FRBRManifestation>
-			<FRBRthis value="http://www.legislation.gov.uk/{ $doc-short-id }/data.akn" />
-			<FRBRuri value="http://www.legislation.gov.uk/{ $doc-short-id }/data.akn" />
+			<FRBRthis value="http://www.legislation.gov.uk/{ $doc-short-id }/{ $doc-version }/data.akn" />
+			<FRBRuri value="http://www.legislation.gov.uk/{ $doc-short-id }/{ $doc-version }/data.akn" />
 			<FRBRdate date="{ current-date() }" name="transform" />
 			<FRBRauthor href="http://www.legislation.gov.uk" />
 			<FRBRformat value="application/akn+xml" />

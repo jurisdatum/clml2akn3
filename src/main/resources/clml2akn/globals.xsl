@@ -247,4 +247,9 @@
 	<xsl:value-of select="concat('http://www.legislation.gov.uk/id/', $doc-short-id)" />
 </xsl:variable>
 
+<xsl:variable name="doc-version" as="xs:string">
+	<xsl:variable name="dc-identifier" as="xs:string" select="(//dc:identifier)[1]" />
+	<xsl:value-of select="substring-after($dc-identifier, concat($doc-short-id, '/'))" />
+</xsl:variable>
+
 </xsl:transform>
