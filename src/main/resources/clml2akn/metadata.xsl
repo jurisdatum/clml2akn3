@@ -450,9 +450,13 @@
 
 <xsl:variable name="elements-with-restrict-extent" as="element()*" select="//*[@RestrictExtent]" />
 
+<xsl:variable name="elements-with-status" as="element()*" select="//*[@Status]" />
+<xsl:variable name="elements-with-confers-power" as="element()*" select="//*[@ConfersPower]" />
+<xsl:variable name="elements-with-match" as="element()*" select="//*[@Match]" />
+
 <xsl:variable name="has-restrictions" as="xs:boolean" select="exists($elements-with-restrict-extent) or exists($elements-with-restrict-dates)" />
 
-<xsl:variable name="has-analysis" as="xs:boolean" select="$has-restrictions" />
+<xsl:variable name="has-analysis" as="xs:boolean" select="$has-restrictions or exists($elements-with-status) or exists($elements-with-confers-power) or exists($elements-with-match)" />
 
 <xsl:template name="analysis">
 	<xsl:if test="$has-analysis">
@@ -468,6 +472,13 @@
 			<xsl:call-template name="extent-restrictions" />
 			<xsl:call-template name="temporal-restrictions" />
 		</restrictions>
+	</xsl:if>
+	<xsl:if test="exists($elements-with-status) or exists($elements-with-confers-power) or exists($elements-with-match)">
+		<otherAnalysis source="">
+			<xsl:call-template name="status-analysis" />
+			<xsl:call-template name="confers-power-analysis" />
+			<xsl:call-template name="match-analysis" />
+		</otherAnalysis>
 	</xsl:if>
 </xsl:template>
 
@@ -566,6 +577,7 @@
 	<references source="#source">
 		<TLCOrganization eId="source" href="" showAs="" />
 		<xsl:call-template name="extent-locations" />
+		<xsl:call-template name="status-concepts" />
 	</references>
 </xsl:template>
 
@@ -609,6 +621,71 @@
 			</xsl:attribute>
 		</TLCLocation>
 	</xsl:for-each-group>
+</xsl:template>
+
+
+<!-- status, confers power, match -->
+
+<xsl:function name="local:make-status-id" as="xs:string">
+	<xsl:param name="value" as="xs:string" />
+	<xsl:value-of select="concat('status-', lower-case($value))" />
+</xsl:function>
+
+<xsl:template name="status-analysis">
+	<xsl:for-each select="$elements-with-status">
+		<uk:status>
+			<xsl:attribute name="href">
+				<xsl:text>#</xsl:text>
+				<xsl:value-of select="local:get-internal-id-for-ref(.)" />
+			</xsl:attribute>
+			<xsl:attribute name="refersTo">
+				<xsl:text>#</xsl:text>
+				<xsl:value-of select="local:make-status-id(@Status)" />
+			</xsl:attribute>
+		</uk:status>
+	</xsl:for-each>
+</xsl:template>
+
+<xsl:template name="status-concepts">
+	<xsl:for-each-group select="$elements-with-status" group-by="@Status">
+		<TLCConcept>
+			<xsl:attribute name="eId">
+				<xsl:value-of select="local:make-status-id(@Status)" />
+			</xsl:attribute>
+			<xsl:attribute name="href"></xsl:attribute>
+			<xsl:attribute name="showAs">
+				<xsl:value-of select="@Status" />
+			</xsl:attribute>
+		</TLCConcept>
+	</xsl:for-each-group>
+</xsl:template>
+
+<xsl:template name="confers-power-analysis">
+	<xsl:for-each select="$elements-with-confers-power">
+		<uk:confersPower>
+			<xsl:attribute name="href">
+				<xsl:text>#</xsl:text>
+				<xsl:value-of select="local:get-internal-id-for-ref(.)" />
+			</xsl:attribute>
+			<xsl:attribute name="value">
+				<xsl:value-of select="@ConfersPower" />
+			</xsl:attribute>
+		</uk:confersPower>
+	</xsl:for-each>
+</xsl:template>
+
+<xsl:template name="match-analysis">
+	<xsl:for-each select="$elements-with-match">
+		<uk:match>
+			<xsl:attribute name="href">
+				<xsl:text>#</xsl:text>
+				<xsl:value-of select="local:get-internal-id-for-ref(.)" />
+			</xsl:attribute>
+			<xsl:attribute name="value">
+				<xsl:value-of select="@Match" />
+			</xsl:attribute>
+		</uk:match>
+	</xsl:for-each>
 </xsl:template>
 
 </xsl:transform>

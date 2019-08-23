@@ -188,8 +188,8 @@
 
 <xsl:template name="add-internal-id">
 	<xsl:param name="from" as="element()" select="." />
-	<xsl:variable name="is-in-main-body" as="xs:boolean" select="empty($from/ancestor::BlockAmendment) and empty($from/ancestor::BlockExtract)" />
-	<xsl:variable name="is-necessary-for-metadata" as="xs:boolean" select="exists($from/@RestrictExtent) or exists($from/@RestrictStartDate) or exists($from/@RestrictEndDate)" />
+	<xsl:variable name="is-in-main-body" as="xs:boolean" select="empty($from/ancestor::BlockAmendment) and empty($from/ancestor::BlockExtract) and empty($from/ancestor::html:td)" />
+	<xsl:variable name="is-necessary-for-metadata" as="xs:boolean" select="exists($from/@RestrictExtent) or exists($from/@RestrictStartDate) or exists($from/@RestrictEndDate) or exists($from/@Status) or exists(@ConfersPower) or exists(@Match)" />
 	<xsl:if test="$is-in-main-body or $is-necessary-for-metadata">
 		<xsl:attribute name="eId">
 			<xsl:value-of select="local:get-internal-id($from)" />
@@ -199,7 +199,7 @@
 
 <xsl:template name="add-internal-id-if-necessary">
 	<xsl:param name="from" as="element()" select="." />
-	<xsl:variable name="is-necessary-for-metadata" as="xs:boolean" select="exists($from/@RestrictExtent) or exists($from/@RestrictStartDate) or exists($from/@RestrictEndDate)" />
+	<xsl:variable name="is-necessary-for-metadata" as="xs:boolean" select="exists($from/@RestrictExtent) or exists($from/@RestrictStartDate) or exists($from/@RestrictEndDate) or exists($from/@Status) or exists(@ConfersPower) or exists(@Match)" />
 	<xsl:if test="$is-necessary-for-metadata">
 		<xsl:attribute name="eId">
 			<xsl:value-of select="local:get-internal-id($from)" />

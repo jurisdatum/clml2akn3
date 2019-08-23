@@ -34,6 +34,9 @@
 
 <xsl:template match="/">
 	<akomaNtoso xsi:schemaLocation="http://docs.oasis-open.org/legaldocml/ns/akn/3.0 http://docs.oasis-open.org/legaldocml/akn-core/v1.0/cos01/part2-specs/schemas/akomantoso30.xsd">
+		<xsl:namespace name="uk">
+			<xsl:text>https://www.legislation.gov.uk/namespaces/UK-AKN</xsl:text>
+		</xsl:namespace>
 		<xsl:apply-templates />
 	</akomaNtoso>
 </xsl:template>
@@ -46,7 +49,7 @@
 
 <xsl:template match="Primary | Secondary">
 	<xsl:apply-templates select="PrimaryPrelims | SecondaryPrelims" />
-	<body xmlns:ukakn="https://www.legislation.gov.uk/namespaces/UK-AKN">
+	<body>
 		<xsl:call-template name="add-internal-id-if-necessary">
 			<xsl:with-param name="from" select="Body" />
 		</xsl:call-template>
