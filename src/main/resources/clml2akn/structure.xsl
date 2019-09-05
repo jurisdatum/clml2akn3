@@ -352,16 +352,35 @@
 	</hcontainer>
 </xsl:template>
 
+<xsl:function name="local:heading-before-number" as="xs:boolean">
+	<xsl:param name="e" as="element()" />
+	<xsl:sequence select="$e/self::P1 and local:clml-is-within-schedule($e)" />
+</xsl:function>
+
 <xsl:template name="hcontainer">
 	<xsl:call-template name="add-structure-attributes" />
-	<xsl:apply-templates select="Number | Pnumber" />
-	<xsl:if test="self::P1 and parent::P1group and empty(parent::*/parent::*/P1group[count(P1) gt 1])">
-		<xsl:apply-templates select="parent::*/Title" />
-	</xsl:if>
-	<xsl:if test="self::P2 and parent::P2group and empty(parent::*/parent::*/P2group[count(P2) gt 1])">
-		<xsl:apply-templates select="parent::*/Title" />
-	</xsl:if>
-	<xsl:apply-templates select="Title | Subtitle" />
+	<xsl:choose>
+		<xsl:when test="local:heading-before-number(.)">
+			<xsl:if test="self::P1 and parent::P1group and empty(parent::*/parent::*/P1group[count(P1) gt 1])">
+				<xsl:apply-templates select="parent::*/Title" />
+			</xsl:if>
+			<xsl:if test="self::P2 and parent::P2group and empty(parent::*/parent::*/P2group[count(P2) gt 1])">
+				<xsl:apply-templates select="parent::*/Title" />
+			</xsl:if>
+			<xsl:apply-templates select="Title | Subtitle" />
+			<xsl:apply-templates select="Number | Pnumber" />
+		</xsl:when>
+		<xsl:otherwise>
+			<xsl:apply-templates select="Number | Pnumber" />
+			<xsl:if test="self::P1 and parent::P1group and empty(parent::*/parent::*/P1group[count(P1) gt 1])">
+				<xsl:apply-templates select="parent::*/Title" />
+			</xsl:if>
+			<xsl:if test="self::P2 and parent::P2group and empty(parent::*/parent::*/P2group[count(P2) gt 1])">
+				<xsl:apply-templates select="parent::*/Title" />
+			</xsl:if>
+			<xsl:apply-templates select="Title | Subtitle" />
+		</xsl:otherwise>
+	</xsl:choose>
 	<xsl:call-template name="hcontainer-body" />
 </xsl:template>
 
