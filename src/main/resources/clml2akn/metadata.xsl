@@ -401,6 +401,7 @@
 
 <xsl:template name="proprietary">
 	<proprietary source="#source">
+		<xsl:apply-templates select="/ukl:Legislation/Metadata/*/DocumentClassification/*" />
 		<xsl:apply-templates select="/ukl:Legislation/Metadata/*/Year" />
 		<xsl:apply-templates select="dc:* | dct:*" />
 	</proprietary>
@@ -633,16 +634,18 @@
 
 <xsl:template name="status-analysis">
 	<xsl:for-each select="$elements-with-status">
-		<uk:status>
-			<xsl:attribute name="href">
-				<xsl:text>#</xsl:text>
-				<xsl:value-of select="local:get-internal-id-for-ref(.)" />
-			</xsl:attribute>
-			<xsl:attribute name="refersTo">
-				<xsl:text>#</xsl:text>
-				<xsl:value-of select="local:make-status-id(@Status)" />
-			</xsl:attribute>
-		</uk:status>
+		<xsl:if test="not(self::ukl:P1group and child::ukl:P1[@Status])"> <!-- asp/2001/8/2011-04-01 -->
+			<uk:status>
+				<xsl:attribute name="href">
+					<xsl:text>#</xsl:text>
+					<xsl:value-of select="local:get-internal-id-for-ref(.)" />
+				</xsl:attribute>
+				<xsl:attribute name="refersTo">
+					<xsl:text>#</xsl:text>
+					<xsl:value-of select="local:make-status-id(@Status)" />
+				</xsl:attribute>
+			</uk:status>
+		</xsl:if>
 	</xsl:for-each>
 </xsl:template>
 
@@ -662,15 +665,17 @@
 
 <xsl:template name="confers-power-analysis">
 	<xsl:for-each select="$elements-with-confers-power">
-		<uk:confersPower>
-			<xsl:attribute name="href">
-				<xsl:text>#</xsl:text>
-				<xsl:value-of select="local:get-internal-id-for-ref(.)" />
-			</xsl:attribute>
-			<xsl:attribute name="value">
-				<xsl:value-of select="@ConfersPower" />
-			</xsl:attribute>
-		</uk:confersPower>
+		<xsl:if test="not(self::ukl:P1group and child::ukl:P1[@ConfersPower])"> <!-- asp/2010/2/2014-08-01 -->
+			<uk:confersPower>
+				<xsl:attribute name="href">
+					<xsl:text>#</xsl:text>
+					<xsl:value-of select="local:get-internal-id-for-ref(.)" />
+				</xsl:attribute>
+				<xsl:attribute name="value">
+					<xsl:value-of select="@ConfersPower" />
+				</xsl:attribute>
+			</uk:confersPower>
+		</xsl:if>
 	</xsl:for-each>
 </xsl:template>
 
