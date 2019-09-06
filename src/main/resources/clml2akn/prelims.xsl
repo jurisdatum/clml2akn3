@@ -13,23 +13,33 @@
 <xsl:template match="PrimaryPrelims">
 	<preface>
 		<xsl:call-template name="add-internal-id-if-necessary" />
-		<xsl:apply-templates select="* except PrimaryPreamble" />
+		<xsl:apply-templates select="Title | Number" />
+		<xsl:choose>
+			<xsl:when test="$doc-short-type = 'asp'">
+				<xsl:apply-templates select="DateOfEnactment" />
+				<xsl:apply-templates select="LongTitle" />
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:apply-templates select="LongTitle | DateOfEnactment" />
+			</xsl:otherwise>
+		</xsl:choose>
 	</preface>
 	<xsl:apply-templates select="PrimaryPreamble" />
-	<xsl:if test="exists(PrimaryPreamble/following-sibling::node())">
-		<xsl:message terminate="yes" />
-	</xsl:if>
 </xsl:template>
 
 <xsl:template match="PrimaryPrelims/Title">
 	<block name="title">
-		<xsl:apply-templates />
+		<shortTitle>
+			<xsl:apply-templates />
+		</shortTitle>
 	</block>
 </xsl:template>
 
 <xsl:template match="PrimaryPrelims/Number">
 	<block name="number">
-		<xsl:apply-templates />
+		<docNumber>
+			<xsl:apply-templates />
+		</docNumber>
 	</block>
 </xsl:template>
 
