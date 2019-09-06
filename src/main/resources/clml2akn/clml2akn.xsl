@@ -78,7 +78,7 @@
 </xsl:template>
 
 <xsl:template match="Para | P1para | P2para | P3para | P4para | P5para | P6para | P7para">
-	<xsl:apply-templates />
+	<xsl:call-template name="para-with-amendment" />
 </xsl:template>
 
 <xsl:template match="Text">
@@ -203,11 +203,11 @@
 			<xsl:call-template name="add-punctuation-to-number" />
 		</xsl:when>
 		<xsl:otherwise>
-			<xsl:if test="starts-with(., ' ')">
+			<xsl:if test="matches(., '^\s')">
 				<xsl:text> </xsl:text>
 			</xsl:if>
 			<xsl:value-of select="normalize-space(.)" />
-			<xsl:if test="ends-with(., ' ')">
+			<xsl:if test="matches(., '\s$')">
 				<xsl:text> </xsl:text>
 			</xsl:if>
 		</xsl:otherwise>
