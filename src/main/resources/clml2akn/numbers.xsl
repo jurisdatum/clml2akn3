@@ -8,21 +8,29 @@
 	xmlns:local="http://www.jurisdatum.com/tna/clml2akn"
 	exclude-result-prefixes="xs local">
 
-
 <xsl:function name="local:should-add-punctuation-to-number" as="xs:boolean">
 	<xsl:param name="text" as="text()" />
 	<xsl:param name="context" as="xs:string*" />
 	<xsl:choose>
-		<xsl:when test="empty($text/parent::Pnumber)">
+		<xsl:when test="empty($text/ancestor::Pnumber)">
 			<xsl:value-of select="false()" />
 		</xsl:when>
-		<xsl:when test="exists($text/parent::Pnumber/parent::P1)">
+		<xsl:when test="not($text/ancestor::Pnumber/descendant::text()[normalize-space()][last()] is $text)">
 			<xsl:value-of select="false()" />
 		</xsl:when>
-		<xsl:when test="matches(normalize-space($text), '^\d+[A-Z]?$')">
+		<xsl:when test="exists($text/ancestor::Pnumber/@PuncBefore) or exists($text/ancestor::Pnumber/@PuncAfter)">
+			<xsl:value-of select="true()" />
+		</xsl:when>
+		<xsl:when test="exists($text/ancestor::Pnumber/parent::P1)">
+			<xsl:value-of select="false()" />
+		</xsl:when>
+		<xsl:when test="matches(normalize-space($text), '^\d+[A-Z]*$')">
 			<xsl:value-of select="true()" />
 		</xsl:when>
 		<xsl:when test="matches(normalize-space($text), '^[a-z]+$')">
+			<xsl:value-of select="true()" />
+		</xsl:when>
+		<xsl:when test="matches(normalize-space($text), '^[A-Z]+$')">
 			<xsl:value-of select="true()" />
 		</xsl:when>
 		<xsl:otherwise>
@@ -35,12 +43,28 @@
 		<xsl:if test="starts-with(., ' ')">
 			<xsl:text> </xsl:text>
 		</xsl:if>
-		<xsl:text>(</xsl:text>
+		<xsl:choose>
+			<xsl:when test="exists(ancestor::Pnumber/@PuncBefore)">
+				<xsl:value-of select="ancestor::Pnumber/@PuncBefore" />
+			</xsl:when>
+			<xsl:when test="exists(ancestor::Pnumber/parent::P1)" />
+			<xsl:otherwise>
+				<xsl:text>(</xsl:text>
+			</xsl:otherwise>
+		</xsl:choose>
 		<xsl:value-of select="normalize-space(.)" />
+		<xsl:choose>
+			<xsl:when test="exists(ancestor::Pnumber/@PuncAfter)">
+				<xsl:value-of select="ancestor::Pnumber/@PuncAfter" />
+			</xsl:when>
+			<xsl:when test="exists(ancestor::Pnumber/parent::P1)" />
+			<xsl:otherwise>
+				<xsl:text>)</xsl:text>
+			</xsl:otherwise>
+		</xsl:choose>
 		<xsl:if test="ends-with(., ' ')">
 			<xsl:text> </xsl:text>
 		</xsl:if>
-		<xsl:text>)</xsl:text>
 </xsl:template>
 
 <xsl:function name="local:format-list-number" as="xs:string?">
