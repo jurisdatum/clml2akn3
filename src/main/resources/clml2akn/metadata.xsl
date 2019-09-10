@@ -401,9 +401,9 @@
 
 <xsl:template name="proprietary">
 	<proprietary source="#source">
-		<xsl:apply-templates select="/ukl:Legislation/Metadata/*/DocumentClassification/*" />
+<!-- 		<xsl:apply-templates select="/ukl:Legislation/Metadata/*/DocumentClassification/*" /> -->
 		<xsl:apply-templates select="/ukl:Legislation/Metadata/*/Year" />
-		<xsl:apply-templates select="dc:* | dct:*" />
+<!-- 		<xsl:apply-templates select="dc:* | dct:*" /> -->
 	</proprietary>
 </xsl:template>
 
