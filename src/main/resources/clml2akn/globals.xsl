@@ -116,7 +116,7 @@
 <xsl:function name="local:parse-date" as="xs:date?">
 	<xsl:param name="text" as="xs:string" />
 	<xsl:variable name="temp" as="xs:date*">
-		<xsl:analyze-string regex="(\d{{1,2}})(st|nd|th)?( day of)? (January|February|March|April|May|June|July|August|September|October|November|December) (\d{{4}})" select="normalize-space($text)">
+		<xsl:analyze-string regex="(\d{{1,2}})(st|nd|rd|th)?( day of)? (January|February|March|April|May|June|July|August|September|October|November|December) (\d{{4}})" select="normalize-space($text)">
 			<xsl:matching-substring>
 				<xsl:variable name="day" as="xs:string" select="format-number(number(regex-group(1)), '00')" />
 				<xsl:variable name="months" as="xs:string*" select="('January','February','March','April','May','June','July','August','September','October','November','December')" />
@@ -224,14 +224,12 @@
 
 <xsl:variable name="doc-minor-type" as="xs:string?" select="/Legislation/ukm:Metadata/ukm:*/ukm:DocumentClassification/ukm:DocumentMinorType/@Value" />
 
-<xsl:variable name="doc-year" as="xs:integer">
+<xsl:variable name="doc-year" as="xs:integer?">
+	<xsl:variable name="ukm-year" as="element(ukm:Year)?" select="/Legislation/ukm:Metadata/(ukm:PrimaryMetadata | ukm:SecondaryMetadata | ukm:EUMetadata)/ukm:Year" />
 	<xsl:choose>
-		<xsl:when test="exists(/Legislation/ukm:Metadata/ukm:*/ukm:Year)">
-			<xsl:value-of select="xs:integer(/Legislation/ukm:Metadata/ukm:*/ukm:Year/@Value)" />
+		<xsl:when test="exists($ukm-year)">
+			<xsl:value-of select="xs:integer($ukm-year/@Value)" />
 		</xsl:when>
-		<xsl:otherwise>
-			<xsl:value-of select="xs:integer(/Legislation/ukm:Metadata/ukm:*/ukm:Year/@Value)" />
-		</xsl:otherwise>
 	</xsl:choose>
 </xsl:variable>
 

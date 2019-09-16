@@ -28,6 +28,14 @@
 	</foreign>
 </xsl:template>
 
+<xsl:template match="Span[exists(child::math:*)]">
+	<subFlow name="inlineMathWrapper">
+		<foreign>
+			<xsl:apply-templates />
+		</foreign>
+	</subFlow>
+</xsl:template>
+
 <xsl:template match="math:math">
 	<xsl:element name="{local-name()}" namespace="http://www.w3.org/1998/Math/MathML">
 		<xsl:copy-of select="@*"/>

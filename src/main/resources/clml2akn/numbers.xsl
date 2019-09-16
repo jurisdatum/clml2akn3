@@ -21,6 +21,9 @@
 		<xsl:when test="exists($text/ancestor::Pnumber/@PuncBefore) or exists($text/ancestor::Pnumber/@PuncAfter)">
 			<xsl:value-of select="true()" />
 		</xsl:when>
+		<xsl:when test="exists($text/ancestor::Pnumber/parent::P1) and $doc-short-type = 'ssi'">
+			<xsl:value-of select="true()" />
+		</xsl:when>
 		<xsl:when test="exists($text/ancestor::Pnumber/parent::P1)">
 			<xsl:value-of select="false()" />
 		</xsl:when>
@@ -40,31 +43,34 @@
 </xsl:function>
 
 <xsl:template name="add-punctuation-to-number">
-		<xsl:if test="starts-with(., ' ')">
-			<xsl:text> </xsl:text>
-		</xsl:if>
-		<xsl:choose>
-			<xsl:when test="exists(ancestor::Pnumber/@PuncBefore)">
-				<xsl:value-of select="ancestor::Pnumber/@PuncBefore" />
-			</xsl:when>
-			<xsl:when test="exists(ancestor::Pnumber/parent::P1)" />
-			<xsl:otherwise>
-				<xsl:text>(</xsl:text>
-			</xsl:otherwise>
-		</xsl:choose>
-		<xsl:value-of select="normalize-space(.)" />
-		<xsl:choose>
-			<xsl:when test="exists(ancestor::Pnumber/@PuncAfter)">
-				<xsl:value-of select="ancestor::Pnumber/@PuncAfter" />
-			</xsl:when>
-			<xsl:when test="exists(ancestor::Pnumber/parent::P1)" />
-			<xsl:otherwise>
-				<xsl:text>)</xsl:text>
-			</xsl:otherwise>
-		</xsl:choose>
-		<xsl:if test="ends-with(., ' ')">
-			<xsl:text> </xsl:text>
-		</xsl:if>
+	<xsl:if test="matches(., '^\s')">
+		<xsl:text> </xsl:text>
+	</xsl:if>
+	<xsl:choose>
+		<xsl:when test="exists(ancestor::Pnumber/@PuncBefore)">
+			<xsl:value-of select="ancestor::Pnumber/@PuncBefore" />
+		</xsl:when>
+		<xsl:when test="exists(ancestor::Pnumber/parent::P1)" />
+		<xsl:otherwise>
+			<xsl:text>(</xsl:text>
+		</xsl:otherwise>
+	</xsl:choose>
+	<xsl:value-of select="normalize-space(.)" />
+	<xsl:choose>
+		<xsl:when test="exists(ancestor::Pnumber/@PuncAfter)">
+			<xsl:value-of select="ancestor::Pnumber/@PuncAfter" />
+		</xsl:when>
+		<xsl:when test="exists(ancestor::Pnumber/parent::P1) and $doc-short-type = 'ssi'">
+			<xsl:text>.</xsl:text>
+		</xsl:when>
+		<xsl:when test="exists(ancestor::Pnumber/parent::P1)" />
+		<xsl:otherwise>
+			<xsl:text>)</xsl:text>
+		</xsl:otherwise>
+	</xsl:choose>
+	<xsl:if test="matches(., '\s$')">
+		<xsl:text> </xsl:text>
+	</xsl:if>
 </xsl:template>
 
 <xsl:function name="local:format-list-number" as="xs:string?">

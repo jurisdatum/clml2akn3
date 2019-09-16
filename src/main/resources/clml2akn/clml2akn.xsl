@@ -26,6 +26,9 @@
 <xsl:include href="amendments.xsl" />
 <xsl:include href="citations.xsl" />
 <xsl:include href="forms.xsl" />
+<xsl:include href="footnotes.xsl" />
+<xsl:include href="signatures.xsl" />
+<xsl:include href="explanatory.xsl" />
 <xsl:include href="changes.xsl" />
 <xsl:include href="math.xsl" />
 <xsl:include href="commentaries.xsl" />
@@ -43,19 +46,44 @@
 
 <xsl:template match="Legislation">
 	<act name="{ $doc-short-type }">
-		<xsl:apply-templates select="*[not(self::Versions)][not(self::Resources)]" />
+		<xsl:apply-templates select="*[not(self::Footnotes) and not(self::Versions) and not(self::Resources)]" />
 	</act>
 </xsl:template>
 
-<xsl:template match="Primary | Secondary">
-	<xsl:apply-templates select="PrimaryPrelims | SecondaryPrelims" />
+<xsl:template match="Primary">
+	<xsl:apply-templates select="PrimaryPrelims" />
 	<body>
 		<xsl:call-template name="add-internal-id-if-necessary">
 			<xsl:with-param name="from" select="Body" />
 		</xsl:call-template>
-		<xsl:apply-templates select="Body | Schedules" />
+		<xsl:apply-templates select="Body | Appendix | Schedules" />
 	</body>
-	<xsl:if test="exists(*[not(self::PrimaryPrelims) and not(self::SecondaryPrelims) and not(self::Body) and not(self::Schedules)])">
+	<xsl:if test="exists(ExplanatoryNotes | Include)">
+		<conclusions>
+			<xsl:apply-templates select="ExplanatoryNotes | Include" />
+		</conclusions>
+	</xsl:if>
+	<xsl:if test="exists(*[not(self::PrimaryPrelims) and not(self::Body) and not(self::Appendix) and not(self::Schedules) and not(self::ExplanatoryNotes) and not (self::Include)])">
+		<xsl:message terminate="yes">
+			<xsl:sequence select="*/local-name()" />
+		</xsl:message>
+	</xsl:if>
+</xsl:template>
+
+<xsl:template match="Secondary">
+	<xsl:apply-templates select="SecondaryPrelims" />
+	<body>
+		<xsl:call-template name="add-internal-id-if-necessary">
+			<xsl:with-param name="from" select="Body" />
+		</xsl:call-template>
+		<xsl:apply-templates select="Body | Appendix | Schedules" />
+	</body>
+	<xsl:if test="exists(ExplanatoryNotes | EarlierOrders | Include)">
+		<conclusions>
+			<xsl:apply-templates select="ExplanatoryNotes | EarlierOrders | Include" />
+		</conclusions>
+	</xsl:if>
+	<xsl:if test="exists(*[not(self::SecondaryPrelims) and not(self::Body) and not(self::Appendix) and not(self::Schedules) and not(self::ExplanatoryNotes) and not(self::EarlierOrders) and not (self::Include)])">
 		<xsl:message terminate="yes">
 			<xsl:sequence select="*/local-name()" />
 		</xsl:message>
@@ -160,6 +188,12 @@
 	<def>
 		<xsl:apply-templates />
 	</def>
+</xsl:template>
+
+<xsl:template match="Span">
+	<span>
+		<xsl:apply-templates />
+	</span>
 </xsl:template>
 
 <xsl:template match="Character">

@@ -167,6 +167,7 @@
 	<xsl:for-each select="$parent/*">
 		<xsl:choose>
 			<xsl:when test="self::Number or self::Pnumber or self::Title or self::Subtitle" />
+			<xsl:when test="self::Reference" /> <!-- for schedule parts -->
 			<xsl:when test="local:element-is-para(.)">
 				<xsl:sequence select="local:flatten-children(.)" />
 			</xsl:when>
@@ -340,7 +341,7 @@
 		<xsl:otherwise>
 			<xsl:variable name="headings" as="element()*" select="Number | Pnumber | Title | Subtitle" />
 			<content>
-				<xsl:apply-templates select="* except $headings" />
+				<xsl:apply-templates select="* except ($headings | Reference)" />
 			</content>
 		</xsl:otherwise>
 	</xsl:choose>
@@ -354,7 +355,17 @@
 
 <xsl:function name="local:heading-before-number" as="xs:boolean">
 	<xsl:param name="e" as="element()" />
-	<xsl:sequence select="$e/self::P1 and local:clml-is-within-schedule($e)" />
+	<xsl:choose>
+		<xsl:when test="$doc-short-type = 'ssi' and $e/self::P1 and empty($e/ancestor::BlockAmendment)">
+			<xsl:sequence select="true()" />
+		</xsl:when>
+		<xsl:when test="$e/self::P1 and local:clml-is-within-schedule($e)">
+			<xsl:sequence select="true()" />
+		</xsl:when>
+		<xsl:otherwise>
+			<xsl:sequence select="false()" />
+		</xsl:otherwise>
+	</xsl:choose>
 </xsl:function>
 
 <xsl:template name="hcontainer">
@@ -446,7 +457,12 @@
 				</xsl:message>
 			</xsl:if>
 			<xsl:variable name="name" as="xs:string" select="local:make-hcontainer-name(., $context)" />
-			<xsl:element name="{ $name }">
+			<xsl:element name="{ if ($name = $unsupported) then 'hcontainer' else $name }">
+				<xsl:if test="$name = $unsupported">
+					<xsl:attribute name="name">
+						<xsl:value-of select="$name" />
+					</xsl:attribute>
+				</xsl:if>
 				<xsl:call-template name="add-structure-attributes" />
 				<xsl:if test="normalize-space(Title)">
 					<xsl:apply-templates select="Title">
@@ -555,7 +571,7 @@
 	<xsl:call-template name="hcontainer-body" />
 </xsl:template>
 
-<xsl:template match="Schedule/Number">
+<xsl:template match="Schedule/Number | Schedule/ScheduleBody/Part/Number">
 	<num>
 		<xsl:apply-templates />
 		<xsl:apply-templates select="../Reference" />

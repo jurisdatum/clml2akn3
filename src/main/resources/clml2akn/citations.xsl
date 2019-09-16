@@ -154,12 +154,9 @@
 </xsl:template>
 
 <xsl:template match="ExternalLink">
-	<ref href="{ @URI }">
+	<a href="{ @URI }">
 		<xsl:apply-templates />
-	</ref>
-<!-- 	<a href="#{ @URI }">
-		<xsl:apply-templates />
-	</a> -->
+	</a>
 </xsl:template>
 
 </xsl:transform>

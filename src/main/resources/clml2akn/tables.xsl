@@ -30,6 +30,12 @@
 	</foreign>
 </xsl:template>
 
+<xsl:template match="html:tfoot">
+	<xsl:if test="exists(html:tr/html:td/node()[not(self::ukl:Footnote)])">
+		<xsl:next-match />
+	</xsl:if>
+</xsl:template>
+
 <xsl:template match="html:*">
 	<xsl:copy>
 		<xsl:copy-of select="@*" />

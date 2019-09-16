@@ -360,7 +360,7 @@
 
 
 <xsl:template name="identification">
-	<identification source="#source">
+	<identification source="#">
 		<FRBRWork>
 			<FRBRthis value="{ $doc-long-id }" />
 			<FRBRuri value="{ $doc-long-id }" />
@@ -378,7 +378,7 @@
 			<FRBRthis value="http://www.legislation.gov.uk/{ $doc-short-id }/{ $doc-version }" />
 			<FRBRuri value="http://www.legislation.gov.uk/{ $doc-short-id }/{ $doc-version }" />
 			<FRBRdate date="{ $expr-date }" name="{ $expr-date-name }" />
-			<FRBRauthor href="#source" />
+			<FRBRauthor href="#" />
 			<FRBRlanguage language="{ $lang }" />
 		</FRBRExpression>
 		<FRBRManifestation>
@@ -392,17 +392,19 @@
 </xsl:template>
 
 <xsl:template name="notes">
-	<xsl:if test="/ukl:Legislation/ukl:Commentaries/ukl:Commentary">
-		<notes source="#source">
-			<xsl:apply-templates select="/ukl:Legislation/ukl:Commentaries/ukl:Commentary" />
+	<xsl:variable name="notes" as="element()*" select="//ukl:Footnote | /ukl:Legislation/ukl:Commentaries/ukl:Commentary" />
+	<xsl:if test="exists($notes)">
+		<notes source="#">
+			<xsl:apply-templates select="$notes" />
 		</notes>
 	</xsl:if>
 </xsl:template>
 
 <xsl:template name="proprietary">
-	<proprietary source="#source">
+	<proprietary source="#">
 <!-- 		<xsl:apply-templates select="/ukl:Legislation/Metadata/*/DocumentClassification/*" /> -->
-		<xsl:apply-templates select="/ukl:Legislation/Metadata/*/Year" />
+		<xsl:apply-templates select="/ukl:Legislation/Metadata/(PrimaryMetadata | SecondaryMetadata | EUMetadata)/Year" />
+		<xsl:apply-templates select="/ukl:Legislation/Metadata/(PrimaryMetadata | SecondaryMetadata | EUMetadata)/ISBN" />
 <!-- 		<xsl:apply-templates select="dc:* | dct:*" /> -->
 	</proprietary>
 </xsl:template>
@@ -431,19 +433,65 @@
 <!-- lifecycle -->
 
 <xsl:template name="lifecycle">
-	<xsl:if test="exists($elements-with-restrict-dates)">
-		<xsl:variable name="event-dates" as="xs:string*">
-			<xsl:for-each-group select="$elements-with-restrict-dates/@RestrictStartDate | $elements-with-restrict-dates/@RestrictEndDate" group-by=".">
-				<xsl:sort />
-				<xsl:value-of select="." />
-			</xsl:for-each-group>
-		</xsl:variable>
-		<lifecycle source="#source">
+	<lifecycle source="#">
+		<xsl:apply-templates select="PrimaryMetadata/EnactmentDate" mode="event-ref" />
+		<xsl:apply-templates select="SecondaryMetadata/(Made | Laid | ComingIntoForce)" mode="event-ref" />
+		<xsl:if test="exists($elements-with-restrict-dates)">
+			<xsl:variable name="event-dates" as="xs:string*">
+				<xsl:for-each-group select="$elements-with-restrict-dates/@RestrictStartDate | $elements-with-restrict-dates/@RestrictEndDate" group-by=".">
+					<xsl:sort />
+					<xsl:value-of select="." />
+				</xsl:for-each-group>
+			</xsl:variable>
 			<xsl:for-each select="$event-dates">
-		        <eventRef date="{.}" eId="date-{.}" source="#source" />
+		        <eventRef date="{.}" eId="date-{.}" source="#" />
 			</xsl:for-each>
-		</lifecycle>
-	</xsl:if>
+		</xsl:if>
+	</lifecycle>
+</xsl:template>
+
+<xsl:template match="EnactmentDate" mode="tlc-event">
+	<TLCEvent eId="enactment" href="" showAs="EnactementDate" />
+</xsl:template>
+<xsl:template match="EnactmentDate" mode="event-ref">
+	<eventRef refersTo="#enactment" date="{ @Date }" eId="date-enacted" source="#" />
+</xsl:template>
+
+<xsl:template match="Made" mode="tlc-event">
+	<TLCEvent eId="made" href="" showAs="Made" />
+</xsl:template>
+<xsl:template match="Made" mode="event-ref">
+	<eventRef refersTo="#made" date="{ @Date }" eId="date-made" source="#" />
+</xsl:template>
+
+<xsl:function name="local:lisp-case" as="xs:string">
+	<xsl:param name="s" as="xs:string" />
+	<xsl:variable name="s" as="xs:string" select="normalize-space($s)" />
+	<xsl:variable name="s" as="xs:string" select="translate($s, ' ', '-')" />
+	<xsl:variable name="s2" as="xs:string" select="replace($s, '([A-Z])', concat('-', '$1'))" />
+	<xsl:variable name="s2" as="xs:string" select="lower-case($s2)" />
+	<xsl:value-of select="if (starts-with($s2, '-')) then substring($s2, 2) else $s2" />
+</xsl:function>
+
+<xsl:template match="Laid" mode="tlc-organization">
+	<TLCOrganization eId="{ local:lisp-case(@Class) }" href="" showAs="{ @Class }" />
+</xsl:template>
+<xsl:template match="Laid" mode="tlc-event">
+	<TLCEvent eId="laid" href="" showAs="Laid" />
+</xsl:template>
+<xsl:template match="Laid" mode="event-ref">
+	<eventRef refersTo="#laid" date="{ @Date }" eId="date-laid-{ count(preceding-sibling::Laid) + 1 }" source="#{ local:lisp-case(@Class) }" />
+</xsl:template>
+
+<xsl:template match="ComingIntoForce" mode="tlc-event">
+	<TLCEvent eId="cif" href="" showAs="ComingIntoForce" />
+</xsl:template>
+<xsl:template match="ComingIntoForce" mode="event-ref">
+	<xsl:apply-templates mode="event-ref" />
+</xsl:template>
+
+<xsl:template match="ComingIntoForce/DateTime" mode="event-ref">
+	<eventRef refersTo="#coming-into-force" date="{ @Date }" eId="date-cif-{ count(preceding-sibling::DateTime) + 1 }" source="#" />
 </xsl:template>
 
 
@@ -461,7 +509,7 @@
 
 <xsl:template name="analysis">
 	<xsl:if test="$has-analysis">
-		<analysis source="#source">
+		<analysis source="#">
 			<xsl:call-template name="restrictions" />
 		</analysis>
 	</xsl:if>
@@ -469,7 +517,7 @@
 
 <xsl:template name="restrictions">
 	<xsl:if test="$has-restrictions">
-		<restrictions source="#source">
+		<restrictions source="#">
 			<xsl:call-template name="extent-restrictions" />
 			<xsl:call-template name="temporal-restrictions" />
 		</restrictions>
@@ -508,7 +556,7 @@
 
 <xsl:template name="temporal-data">
 	<xsl:if test="exists($elements-with-restrict-dates)">
-		<temporalData source="#source">
+		<temporalData source="#">
 			<xsl:for-each-group select="$elements-with-restrict-dates" group-by="concat(@RestrictStartDate, '-', @RestrictEndDate)">
 				<xsl:sort select="concat(@RestrictStartDate, '-', @RestrictEndDate)" />
 				<temporalGroup>
@@ -575,8 +623,10 @@
 <!-- references -->
 
 <xsl:template name="references">
-	<references source="#source">
-		<TLCOrganization eId="source" href="" showAs="" />
+	<references source="#">
+		<xsl:apply-templates select="SecondaryMetadata/Laid" mode="tlc-organization" />
+		<xsl:apply-templates select="PrimaryMetadata/EnactmentDate" mode="tlc-event" />
+		<xsl:apply-templates select="SecondaryMetadata/(Made | Laid | ComingIntoForce)" mode="tlc-event" />
 		<xsl:call-template name="extent-locations" />
 		<xsl:call-template name="status-concepts" />
 	</references>
