@@ -164,6 +164,16 @@
 		<xsl:when test="$e/self::Body or $e/self::EUBody">
 			<xsl:text>body</xsl:text>
 		</xsl:when>
+		<xsl:when test="$e/self::SignedSection">
+			<xsl:choose>
+				<xsl:when test="$e/parent::Body/parent::*/parent::Legislation">
+					<xsl:text>signatures</xsl:text>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:value-of select="concat(local:get-internal-id($e/parent::*), '-signatures')" />
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:when>
 		<xsl:when test="$e/self::Schedules">
 			<xsl:text>schedules</xsl:text>
 		</xsl:when>
