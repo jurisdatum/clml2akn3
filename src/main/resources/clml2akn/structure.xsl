@@ -606,6 +606,10 @@
 	</num>
 </xsl:template>
 
+<xsl:template match="TitleBlock">
+	<xsl:apply-templates />
+</xsl:template>
+
 <xsl:template match="Title">
 	<xsl:param name="context" as="xs:string*" tunnel="yes" />
 	<heading>
@@ -623,8 +627,13 @@
 	</heading>
 </xsl:template>
 
-<xsl:template match="TitleBlock">
-	<xsl:apply-templates />
+<xsl:template match="Subtitle">
+	<xsl:param name="context" as="xs:string*" tunnel="yes" />
+	<subheading>
+		<xsl:apply-templates>
+			<xsl:with-param name="context" select="('subheading', $context)" tunnel="yes" />
+		</xsl:apply-templates>
+	</subheading>
 </xsl:template>
 
 </xsl:transform>
