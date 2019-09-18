@@ -32,13 +32,24 @@
 	<xsl:value-of select="xs:integer(round($pt div $pixels-in-a-point))" />
 </xsl:function>
 
+<xsl:function name="local:em-to-px" as="xs:integer">
+	<xsl:param name="em" />
+	<xsl:variable name="pixels-in-an-em" as="xs:integer" select="12" />
+	<xsl:value-of select="xs:integer(round($em * $pixels-in-an-em))" />
+</xsl:function>
+
 <xsl:template match="Image">
 	<xsl:variable name="src" as="xs:string" select="key('id',@ResourceRef)/ExternalVersion/@URI" />
 	<p>
 		<img src="{ $src }">
 			<xsl:if test="exists(@Width)">
 				<xsl:choose>
-					<xsl:when test="@Width = 'auto'" />
+					<xsl:when test="@Width = ''" />
+					<xsl:when test="@Width castable as xs:integer">
+						<xsl:attribute name="width">
+							<xsl:value-of select="@Width" />
+						</xsl:attribute>
+					</xsl:when>
 					<xsl:when test="ends-with(@Width, 'pt')">
 						<xsl:attribute name="width">
 							<xsl:value-of select="local:pt-to-px(number(substring-before(@Width,'pt')))" />
@@ -47,8 +58,16 @@
 							<xsl:value-of select="@Width" />
 						</xsl:attribute>
 					</xsl:when>
-					<xsl:otherwise>
+					<xsl:when test="ends-with(@Width, 'em')">
 						<xsl:attribute name="width">
+							<xsl:value-of select="local:em-to-px(number(substring-before(@Width,'em')))" />
+						</xsl:attribute>
+						<xsl:attribute name="ukl:Width">
+							<xsl:value-of select="@Width" />
+						</xsl:attribute>
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:attribute name="ukl:Width">
 							<xsl:value-of select="@Width" />
 						</xsl:attribute>
 					</xsl:otherwise>
@@ -56,7 +75,12 @@
 			</xsl:if>
 			<xsl:if test="exists(@Height)">
 				<xsl:choose>
-					<xsl:when test="@Height = 'auto'" />
+					<xsl:when test="@Height = ''" />
+					<xsl:when test="@Height castable as xs:integer">
+						<xsl:attribute name="height">
+							<xsl:value-of select="@Height" />
+						</xsl:attribute>
+					</xsl:when>
 					<xsl:when test="ends-with(@Height, 'pt')">
 						<xsl:attribute name="height">
 							<xsl:value-of select="local:pt-to-px(number(substring-before(@Height,'pt')))" />
@@ -65,8 +89,16 @@
 							<xsl:value-of select="@Height" />
 						</xsl:attribute>
 					</xsl:when>
-					<xsl:otherwise>
+					<xsl:when test="ends-with(@Height, 'em')">
 						<xsl:attribute name="height">
+							<xsl:value-of select="local:em-to-px(number(substring-before(@Height,'em')))" />
+						</xsl:attribute>
+						<xsl:attribute name="ukl:Height">
+							<xsl:value-of select="@Height" />
+						</xsl:attribute>
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:attribute name="ukl:Height">
 							<xsl:value-of select="@Height" />
 						</xsl:attribute>
 					</xsl:otherwise>
