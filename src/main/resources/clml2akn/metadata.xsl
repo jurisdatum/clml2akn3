@@ -435,7 +435,7 @@
 <xsl:template name="lifecycle">
 	<lifecycle source="#">
 		<xsl:apply-templates select="PrimaryMetadata/EnactmentDate" mode="event-ref" />
-		<xsl:apply-templates select="SecondaryMetadata/(Made | Laid | ComingIntoForce)" mode="event-ref" />
+		<xsl:apply-templates select="SecondaryMetadata/(Sifted | Made | Laid | ComingIntoForce)" mode="event-ref" />
 		<xsl:if test="exists($elements-with-restrict-dates)">
 			<xsl:variable name="event-dates" as="xs:string*">
 				<xsl:for-each-group select="$elements-with-restrict-dates/@RestrictStartDate | $elements-with-restrict-dates/@RestrictEndDate" group-by=".">
@@ -455,6 +455,13 @@
 </xsl:template>
 <xsl:template match="EnactmentDate" mode="event-ref">
 	<eventRef refersTo="#enactment" date="{ @Date }" eId="date-enacted" source="#" />
+</xsl:template>
+
+<xsl:template match="Sifted" mode="tlc-event">
+	<TLCEvent eId="sifted" href="" showAs="Sifted" />
+</xsl:template>
+<xsl:template match="Sifted" mode="event-ref">
+	<eventRef refersTo="#sifted" date="{ @Date }" eId="date-sifted" source="#" />
 </xsl:template>
 
 <xsl:template match="Made" mode="tlc-event">
@@ -626,7 +633,7 @@
 	<references source="#">
 		<xsl:apply-templates select="SecondaryMetadata/Laid" mode="tlc-organization" />
 		<xsl:apply-templates select="PrimaryMetadata/EnactmentDate" mode="tlc-event" />
-		<xsl:apply-templates select="SecondaryMetadata/(Made | Laid | ComingIntoForce)" mode="tlc-event" />
+		<xsl:apply-templates select="SecondaryMetadata/(Sifted | Made | Laid | ComingIntoForce)" mode="tlc-event" />
 		<xsl:call-template name="extent-locations" />
 		<xsl:call-template name="status-concepts" />
 	</references>
