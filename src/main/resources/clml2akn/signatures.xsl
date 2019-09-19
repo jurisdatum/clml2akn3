@@ -19,20 +19,22 @@
 <xsl:template match="Signatory">
 	<xsl:choose>
 		<xsl:when test="empty(preceding-sibling::*) and empty(following-sibling::*)">
-			<xsl:apply-templates />
+			<xsl:call-template name="signatory" />
 		</xsl:when>
 		<xsl:otherwise>
 			<hcontainer name="signatureGroup">
-				<xsl:apply-templates />
+				<xsl:call-template name="signatory" />
 			</hcontainer>
 		</xsl:otherwise>
 	</xsl:choose>
 </xsl:template>
-
-<xsl:template match="Signatory/Para">
-	<intro>
-		<xsl:apply-templates />
-	</intro>
+<xsl:template name="signatory">
+	<xsl:if test="exists(Para)">
+		<intro>
+			<xsl:apply-templates select="Para" />
+		</intro>
+	</xsl:if>
+	<xsl:apply-templates select="Signee" />
 </xsl:template>
 
 <xsl:template match="Signee">
