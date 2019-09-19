@@ -106,24 +106,26 @@
 </xsl:template>
 
 <xsl:template match="LSseal">
-	<xsl:choose>
-		<xsl:when test="@ResourceRef">
-			<img class="seal" src="" />
-		</xsl:when>
-		<xsl:when test="@Date">
-			<date class="seal" date="{ @Date }">
-				<xsl:apply-templates />
-			</date>
-		</xsl:when>
-		<xsl:when test="text()">
-			<inline name="seal">
-				<xsl:apply-templates />
-			</inline>
-		</xsl:when>
-		<xsl:otherwise>
-			<marker name="seal" />
-		</xsl:otherwise>
-	</xsl:choose>
+	<p>
+		<xsl:choose>
+			<xsl:when test="@ResourceRef">
+				<img class="seal" src="{ key('id', @ResourceRef)/ExternalVersion/@URI }" />
+			</xsl:when>
+			<xsl:when test="@Date">
+				<date class="seal" date="{ @Date }">
+					<xsl:apply-templates />
+				</date>
+			</xsl:when>
+			<xsl:when test="text()">
+				<inline name="seal">
+					<xsl:apply-templates />
+				</inline>
+			</xsl:when>
+			<xsl:otherwise>
+				<marker name="seal" />
+			</xsl:otherwise>
+		</xsl:choose>
+	</p>
 </xsl:template>
 
 </xsl:transform>
