@@ -104,8 +104,20 @@
 
 <xsl:template name="banner">
 	<xsl:choose>
+		<xsl:when test="$doc-short-type = 'uksi'">
+			<block name="banner">Statutory Instruments</block>
+		</xsl:when>
 		<xsl:when test="$doc-short-type = 'ssi'">
 			<block name="banner">Scottish Statutory Instruments</block>
+		</xsl:when>
+		<xsl:when test="$doc-short-type = 'wsi'">
+			<block name="banner">Welsh Statutory Instruments</block>
+		</xsl:when>
+		<xsl:when test="$doc-short-type = 'ukmo'">
+			<block name="banner">Ministerial Order</block>
+		</xsl:when>
+		<xsl:when test="$doc-short-type = 'ukmd'">
+			<block name="banner">Ministerial Directions</block>
 		</xsl:when>
 	</xsl:choose>
 </xsl:template>
@@ -119,13 +131,6 @@
 <xsl:template match="Correction/Para | Draft/Para">
 	<xsl:call-template name="collapse-para" />
 </xsl:template>
-
-<!-- <xsl:template match="Correction/Para/Text | Draft/Para/Text">
-	<block name="{ lower-case(local-name(../..)) }">
-		<xsl:apply-templates />
-	</block>
-</xsl:template> -->
-
 
 <xsl:template match="SubjectInformation">
 	<container name="subjects">
