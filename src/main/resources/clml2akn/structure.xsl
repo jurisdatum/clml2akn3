@@ -420,7 +420,7 @@
 
 <xsl:template match="Pblock">
 	<xsl:param name="context" as="xs:string*" tunnel="yes" />
-	<hcontainer name="crossheading">
+	<hcontainer name="crossheading" ukl:Name="Pblock">
 		<xsl:call-template name="add-structure-attributes" />
 		<xsl:apply-templates>
 			<xsl:with-param name="context" select="('crossheading', $context)" tunnel="yes" />
@@ -430,7 +430,7 @@
 
 <xsl:template match="PsubBlock">
 	<xsl:param name="context" as="xs:string*" tunnel="yes" />
-	<hcontainer name="subheading">
+	<hcontainer name="subheading" ukl:Name="PsubBlock">
 		<xsl:call-template name="add-structure-attributes" />
 		<xsl:apply-templates>
 			<xsl:with-param name="context" select="('subheading', $context)" tunnel="yes" />
@@ -442,7 +442,7 @@
 	<xsl:param name="context" as="xs:string*" tunnel="yes" />
 	<xsl:choose>
 		<xsl:when test="exists(parent::*/P1group[count(P1) gt 1])">
-			<hcontainer name="{ if ($context[1] = 'crossheading') then 'subheading' else 'crossheading' }">  <!-- class="p1group" -->
+			<hcontainer name="{ if ($context[1] = 'crossheading') then 'subheading' else 'crossheading' }" ukl:Name="P1group">
 				<xsl:call-template name="add-structure-attributes" />
 				<xsl:apply-templates>
 					<xsl:with-param name="context" select="('crossheading', $context)" tunnel="yes" />
@@ -513,7 +513,7 @@
 	<xsl:param name="context" as="xs:string*" tunnel="yes" />
 	<xsl:choose>
 		<xsl:when test="exists(parent::*/P2group[count(P2) gt 1])">
-			<level>
+			<level class="P2group">
 				<xsl:call-template name="add-structure-attributes" />
 				<xsl:apply-templates />
 			</level>
@@ -631,7 +631,7 @@
 	<xsl:param name="context" as="xs:string*" tunnel="yes" />
 	<subheading>
 		<xsl:apply-templates>
-			<xsl:with-param name="context" select="('subheading', $context)" tunnel="yes" />
+			<xsl:with-param name="context" select="('heading', $context)" tunnel="yes" /> <!-- didn't use 'subheading' to distinguish from hcontainer[@name='subheading'] -->
 		</xsl:apply-templates>
 	</subheading>
 </xsl:template>
