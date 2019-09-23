@@ -12,7 +12,12 @@
 
 <xsl:template match="SignedSection">
 	<hcontainer name="signatures">
-		<xsl:apply-templates />
+		<xsl:if test="exists(Para)">
+			<intro>
+				<xsl:apply-templates select="Para" />
+			</intro>
+		</xsl:if>
+		<xsl:apply-templates select="Signatory" />
 	</hcontainer>
 </xsl:template>
 
