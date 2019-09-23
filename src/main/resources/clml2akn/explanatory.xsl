@@ -37,7 +37,7 @@
 	</block>
 </xsl:template>
 
-<xsl:template match="ExplanatoryNotes/P1group | ExplanatoryNotes//P3 | ExplanatoryNotes//P[P3]">
+<xsl:template match="ExplanatoryNotes//P1group | ExplanatoryNotes//P3 | ExplanatoryNotes//P4 | ExplanatoryNotes//P[P3]">
 	<blockContainer class="{ local-name() }">
 		<xsl:apply-templates />
 	</blockContainer>
