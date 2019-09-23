@@ -40,7 +40,7 @@
 
 <xsl:template match="Image">
 	<xsl:variable name="src" as="xs:string" select="key('id',@ResourceRef)/ExternalVersion/@URI" />
-	<p>
+	<xsl:variable name="clml" as="element()">
 		<img src="{ $src }">
 			<xsl:if test="exists(@Width)">
 				<xsl:choose>
@@ -110,7 +110,17 @@
 				</xsl:attribute>
 			</xsl:if>
 		</img>
-	</p>
+	</xsl:variable>
+	<xsl:choose>
+		<xsl:when test="parent::Text">
+			<xsl:copy-of select="$clml" />
+		</xsl:when>
+		<xsl:otherwise>
+			<p>
+				<xsl:copy-of select="$clml" />
+			</p>
+		</xsl:otherwise>
+	</xsl:choose>
 </xsl:template>
 
 </xsl:transform>
