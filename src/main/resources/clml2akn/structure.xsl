@@ -527,7 +527,12 @@
 <xsl:template match="P2 | P3 | P4 | P5 | Pblock/P">
 	<xsl:param name="context" as="xs:string*" tunnel="yes" />
 	<xsl:variable name="name" as="xs:string" select="local:make-hcontainer-name(., $context)" />
-	<xsl:element name="{ $name }">
+	<xsl:element name="{ if ($name = $unsupported) then 'hcontainer' else $name }">
+		<xsl:if test="$name = $unsupported">
+			<xsl:attribute name="name">
+				<xsl:value-of select="$name" />
+			</xsl:attribute>
+		</xsl:if>
 		<!-- add the LDAPP class attributes where necessary -->
 		<xsl:if test="self::P3 and local:clml-is-within-schedule(.)">
 			<xsl:attribute name="class">
