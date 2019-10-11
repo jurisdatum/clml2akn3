@@ -141,7 +141,17 @@
 <xsl:template match="InternalLink">
 	<xsl:choose>
 		<xsl:when test="empty(@EndRef)">
-			<ref href="#{ @Ref }">
+			<xsl:variable name="target" as="element()?" select="key('id', @Ref)[1]" />
+			<xsl:variable name="target" as="element()?" select="if ($target/self::P1group[P1]) then $target/P1[1] else $target" />
+			<xsl:if test="empty($target)">
+				<xsl:message>
+					<xsl:text>unable to identify target of internal link </xsl:text>
+				</xsl:message>
+				<xsl:message>
+					<xsl:sequence select="." />
+				</xsl:message>
+			</xsl:if>
+			<ref href="#{ local:get-internal-id($target) }">
 				<xsl:apply-templates />
 			</ref>
 		</xsl:when>

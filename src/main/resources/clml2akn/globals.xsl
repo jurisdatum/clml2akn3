@@ -196,11 +196,17 @@
 	</xsl:choose>
 </xsl:function>
 
+<xsl:key name="internal-links" match="InternalLink" use="@Ref" />
+
 <xsl:template name="add-internal-id">
 	<xsl:param name="from" as="element()" select="." />
 	<xsl:variable name="is-in-main-body" as="xs:boolean" select="empty($from/ancestor::BlockAmendment) and empty($from/ancestor::BlockExtract) and empty($from/ancestor::html:td)" />
 	<xsl:variable name="is-necessary-for-metadata" as="xs:boolean" select="exists($from/@RestrictExtent) or exists($from/@RestrictStartDate) or exists($from/@RestrictEndDate) or exists($from/@Status) or exists(@ConfersPower) or exists(@Match)" />
-	<xsl:if test="$is-in-main-body or $is-necessary-for-metadata">
+	<xsl:variable name="is-necessary-for-reference" as="xs:boolean">
+		<xsl:variable name="from" as="element()" select="if ($from/self::P1 and empty($from/@id) and exists($from/parent::P1group/@id)) then $from/parent::* else $from" />
+		<xsl:sequence select="exists($from/@id) and exists(key('internal-links', $from/@id, root($from)))" />
+	</xsl:variable>
+	<xsl:if test="$is-in-main-body or $is-necessary-for-metadata or $is-necessary-for-reference">
 		<xsl:attribute name="eId">
 			<xsl:value-of select="local:get-internal-id($from)" />
 		</xsl:attribute>
@@ -210,7 +216,8 @@
 <xsl:template name="add-internal-id-if-necessary">
 	<xsl:param name="from" as="element()" select="." />
 	<xsl:variable name="is-necessary-for-metadata" as="xs:boolean" select="exists($from/@RestrictExtent) or exists($from/@RestrictStartDate) or exists($from/@RestrictEndDate) or exists($from/@Status) or exists(@ConfersPower) or exists(@Match)" />
-	<xsl:if test="$is-necessary-for-metadata">
+	<xsl:variable name="is-necessary-for-reference" as="xs:boolean" select="exists($from/@id) and exists(key('internal-links', $from/@id, root($from)))" />
+	<xsl:if test="$is-necessary-for-metadata or $is-necessary-for-reference">
 		<xsl:attribute name="eId">
 			<xsl:value-of select="local:get-internal-id($from)" />
 		</xsl:attribute>
