@@ -62,21 +62,21 @@
 
 <xsl:function name="local:make-hcontainer-name" as="xs:string?">
 	<xsl:param name="doc-class" as="xs:string" />
-	<xsl:param name="doc-subclass" as="xs:string" />
+	<xsl:param name="doc-subclass" as="xs:string?" />
 	<xsl:param name="schedule" as="xs:boolean" />
 	<xsl:param name="clml-element-name" as="xs:string" />
-	<xsl:variable name="doc-subclass" as="xs:string" select="if ($doc-subclass = 'unknown') then 'order' else $doc-subclass" />
 	<xsl:choose>
 		<xsl:when test="$schedule">
-			<xsl:value-of select="$mapping/*:schedule/*[local-name()=$clml-element-name]/@akn" />
+			<xsl:sequence select="$mapping/*:schedule/*[local-name()=$clml-element-name]/@akn" />
 		</xsl:when>
 		<xsl:when test="$doc-class = 'secondary'">
-			<xsl:value-of select="$mapping/*:secondary/*[local-name()=$doc-subclass]/*[local-name()=$clml-element-name]/@akn" />
+			<xsl:variable name="doc-subclass" as="xs:string" select="if (empty($doc-subclass) or ($doc-subclass = 'unknown')) then 'order' else $doc-subclass" />
+			<xsl:sequence select="$mapping/*:secondary/*[local-name()=$doc-subclass]/*[local-name()=$clml-element-name]/@akn" />
 		</xsl:when>
 		<xsl:when test="$doc-class = 'euretained'">
 		</xsl:when>
 		<xsl:otherwise>
-			<xsl:value-of select="$mapping/*:primary/*[local-name()=$clml-element-name]/@akn" />
+			<xsl:sequence select="$mapping/*:primary/*[local-name()=$clml-element-name]/@akn" />
 		</xsl:otherwise>
 	</xsl:choose>
 </xsl:function>
@@ -85,16 +85,16 @@
 	<xsl:param name="clml" as="element()" />
 	<xsl:choose>
 		<xsl:when test="empty($clml/parent::*)">
-			<xsl:value-of select="false()" />
+			<xsl:sequence select="false()" />
 		</xsl:when>
 		<xsl:when test="$clml/parent::Schedule">
-			<xsl:value-of select="true()" />
+			<xsl:sequence select="true()" />
 		</xsl:when>
 		<xsl:when test="$clml/parent::BlockAmendment">
-			<xsl:value-of select="$clml/parent::*/@Context = 'schedule'" />
+			<xsl:sequence select="$clml/parent::*/@Context = 'schedule'" />
 		</xsl:when>
 		<xsl:when test="$clml/parent::html:td">
-			<xsl:value-of select="false()" />
+			<xsl:sequence select="false()" />
 		</xsl:when>
 		<xsl:otherwise>
 			<xsl:sequence select="local:clml-is-within-schedule($clml/parent::*)" />
@@ -109,20 +109,20 @@
 	<xsl:variable name="doc-class" as="xs:string">
 		<xsl:choose>
 			<xsl:when test="exists($block-amendment)">
-				<xsl:value-of select="$block-amendment/@TargetClass" />
+				<xsl:sequence select="$block-amendment/@TargetClass" />
 			</xsl:when>
 			<xsl:otherwise>
-				<xsl:value-of select="$doc-category" />
+				<xsl:sequence select="$doc-category" />
 			</xsl:otherwise>
 		</xsl:choose>
 	</xsl:variable>
 	<xsl:variable name="doc-subclass" as="xs:string?">
 		<xsl:choose>
 			<xsl:when test="exists($block-amendment)">
-				<xsl:value-of select="$block-amendment/@TargetSubClass" />
+				<xsl:sequence select="$block-amendment/@TargetSubClass" />
 			</xsl:when>
 			<xsl:otherwise>
-				<xsl:value-of select="$doc-minor-type" />
+				<xsl:sequence select="$doc-minor-type" />
 			</xsl:otherwise>
 		</xsl:choose>
 	</xsl:variable>
@@ -144,11 +144,11 @@
 			<xsl:when test="ends-with(local-name($clml), 'group')">
 				<xsl:value-of select="substring-before(local-name($clml), 'group')" />
 			</xsl:when>
-			<xsl:when test="$clml/self::P/parent::Pblock">
-				<xsl:value-of select="'P1'" />
+			<xsl:when test="$clml/self::P/parent::Pblock or $clml/self::P/parent::PsubBlock">
+				<xsl:sequence select="'P1'" />
 			</xsl:when>
 			<xsl:otherwise>
-				<xsl:value-of select="local-name($clml)" />
+				<xsl:sequence select="local-name($clml)" />
 			</xsl:otherwise>
 		</xsl:choose>
 	</xsl:variable>
@@ -524,7 +524,7 @@
 	</xsl:choose>
 </xsl:template>
 
-<xsl:template match="P2 | P3 | P4 | P5 | Pblock/P">
+<xsl:template match="P2 | P3 | P4 | P5 | Pblock/P | PsubBlock/P">
 	<xsl:param name="context" as="xs:string*" tunnel="yes" />
 	<xsl:variable name="name" as="xs:string" select="local:make-hcontainer-name(., $context)" />
 	<xsl:element name="{ if ($name = $unsupported) then 'hcontainer' else $name }">
