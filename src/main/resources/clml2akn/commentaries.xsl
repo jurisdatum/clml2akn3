@@ -45,7 +45,7 @@
 <xsl:function name="local:should-skip-commentary-ref" as="xs:boolean">
 	<xsl:param name="cref" as="element(CommentaryRef)" />
 	<xsl:variable name="next-element" as="element()?" select="local:get-first-element-after-commentary-ref($cref)" />
-	<xsl:value-of select="$next-element/self::Number or $next-element/self::Pnumber or $next-element/self::Title" />
+	<xsl:value-of select="$next-element/self::Number or $next-element/self::Pnumber or $next-element/self::Title or $next-element/self::Text" />
 </xsl:function>
 
 <xsl:function name="local:get-skipped-commentary-refs" as="element(CommentaryRef)*">

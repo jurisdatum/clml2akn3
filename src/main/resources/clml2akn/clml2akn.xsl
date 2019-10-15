@@ -111,6 +111,9 @@
 
 <xsl:template match="Text">
 	<p>
+		<xsl:apply-templates select="local:get-skipped-commentary-refs(.)">
+			<xsl:with-param name="force" select="true()" />
+		</xsl:apply-templates>
 		<xsl:apply-templates />
 	</p>
 </xsl:template>
