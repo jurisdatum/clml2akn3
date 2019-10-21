@@ -12,12 +12,21 @@
 
 <xsl:template match="SignedSection">
 	<hcontainer name="signatures">
-		<xsl:if test="exists(Para)">
-			<intro>
-				<xsl:apply-templates select="Para" />
-			</intro>
-		</xsl:if>
-		<xsl:apply-templates select="Signatory" />
+		<xsl:choose>
+			<xsl:when test="empty(Signatory)"> <!-- P is invalid but exists in uksi/2018/15/2018-04-06 -->
+				<content>
+					<xsl:apply-templates />
+				</content>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:if test="exists(Para)">
+					<intro>
+						<xsl:apply-templates select="Para" />
+					</intro>
+				</xsl:if>
+				<xsl:apply-templates select="Signatory" />
+			</xsl:otherwise>
+		</xsl:choose>
 	</hcontainer>
 </xsl:template>
 
