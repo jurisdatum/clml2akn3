@@ -136,6 +136,20 @@
 </xsl:function>
 
 
+<xsl:function name="local:get-first-index-of-node" as="xs:integer?">
+	<xsl:param name="n" as="node()" />
+	<xsl:param name="nodes" as="node()*" />
+	<xsl:variable name="index" as="xs:integer*">
+		<xsl:for-each select="$nodes">
+			<xsl:if test=". is $n">
+				<xsl:value-of select="position()" />
+			</xsl:if>
+		</xsl:for-each>
+	</xsl:variable>
+	<xsl:value-of select="$index[1]" />
+</xsl:function>
+
+
 <!-- internal identifiers -->
 
 <xsl:function name="local:get-internal-id" as="xs:string">

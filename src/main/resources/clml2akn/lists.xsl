@@ -84,14 +84,55 @@
 		</xsl:when>
 		<xsl:otherwise>
 			<hcontainer name="definition">
-				<content>
-					<xsl:apply-templates>
-						<xsl:with-param name="context" select="('content', 'definition', $context)" tunnel="yes" />
-					</xsl:apply-templates>
-				</content>
+				<xsl:choose>
+					<xsl:when test="empty(*[not(self::Para)]) and exists(Para/OrderedList[@Decoration='parens'][@Type='alpha'])">
+						<xsl:variable name="children" as="element()+" select="Para/*" />
+						<xsl:variable name="sublist" as="element(OrderedList)" select="($children/self::OrderedList[@Decoration='parens'][@Type='alpha'])[1]" />
+						<xsl:variable name="index" as="xs:integer" select="local:get-first-index-of-node($sublist, $children)" />
+						<xsl:variable name="intro" as="element()*" select="$children[position() lt $index]" />
+						<xsl:variable name="wrap-up" as="element()*" select="$children[position() gt $index]" />
+						<xsl:if test="exists($intro)">
+							<intro>
+								<xsl:apply-templates select="$intro" />
+							</intro>
+						</xsl:if>
+						<xsl:apply-templates select="$sublist/*" mode="paragraph" />
+						<xsl:if test="exists($wrap-up)">
+							<wrapUp>
+								<xsl:apply-templates select="$wrap-up" />
+							</wrapUp>
+						</xsl:if>
+					</xsl:when>
+					<xsl:otherwise>
+						<content>
+							<xsl:apply-templates>
+								<xsl:with-param name="context" select="('content', 'definition', $context)" tunnel="yes" />
+							</xsl:apply-templates>
+						</content>
+					</xsl:otherwise>
+				</xsl:choose>
 			</hcontainer>
 		</xsl:otherwise>
 	</xsl:choose>
+</xsl:template>
+
+<xsl:template match="ListItem" mode="paragraph">
+	<paragraph>
+		<num>
+			<xsl:choose>
+				<xsl:when test="parent::*/@Decoration = 'parens'">
+					<xsl:text>(</xsl:text>
+				</xsl:when>
+			</xsl:choose>
+			<xsl:number value="count(preceding-sibling::ListItem) + 1" format="a" />
+			<xsl:choose>
+				<xsl:when test="parent::*/@Decoration = 'parens'">
+					<xsl:text>)</xsl:text>
+				</xsl:when>
+			</xsl:choose>
+		</num>
+		<xsl:call-template name="hcontainer-body" />
+	</paragraph>
 </xsl:template>
 
 </xsl:transform>
