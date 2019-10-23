@@ -15,8 +15,28 @@
 
 <xsl:key name="id" match="*" use="@id" />
 
+<xsl:key name="short-id" match="*" use="@shortId" />
+
 
 <!-- functions -->
+
+<xsl:function name="local:get-elements-by-id" as="element()*">
+	<xsl:param name="id" as="xs:string" />
+	<xsl:param name="top" as="node()" />
+	<xsl:sequence select="(key('id', $id, $top), key('short-id', $id, $top))" />
+</xsl:function>
+
+<xsl:function name="local:get-elements-for-ref" as="element()*">
+	<xsl:param name="ref" as="attribute()" />
+	<xsl:variable name="id" as="xs:string" select="string($ref)" />
+	<xsl:variable name="root" as="document-node()" select="root($ref)" />
+	<xsl:sequence select="local:get-elements-by-id($id, $root)" />
+</xsl:function>
+
+<xsl:function name="local:get-element-for-ref" as="element()?">
+	<xsl:param name="ref" as="attribute()" />
+	<xsl:sequence select="local:get-elements-for-ref($ref)[1]" />
+</xsl:function>
 
 <xsl:variable name="short-types" as="element()">
 	<shortTypes

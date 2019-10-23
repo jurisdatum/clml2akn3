@@ -69,8 +69,8 @@
 <xsl:template match="CitationSubRef">
 	<xsl:variable name="parent" as="element()?">
 		<xsl:choose>
-			<xsl:when test="exists(@CitationRef) and exists(key('id', @CitationRef))">
-				<xsl:sequence select="key('id', @CitationRef)[1]" />
+			<xsl:when test="exists(@CitationRef)">
+				<xsl:sequence select="local:get-element-for-ref(@CitationRef)" />
 			</xsl:when>
 			<xsl:when test="exists(parent::Citation)">
 				<xsl:sequence select="parent::Citation" />
@@ -141,7 +141,7 @@
 <xsl:template match="InternalLink">
 	<xsl:choose>
 		<xsl:when test="empty(@EndRef)">
-			<xsl:variable name="target" as="element()?" select="key('id', @Ref)[1]" />
+			<xsl:variable name="target" as="element()?" select="local:get-element-for-ref(@Ref)" />
 			<xsl:variable name="target" as="element()?" select="if ($target/self::P1group[P1]) then $target/P1[1] else $target" />
 			<xsl:if test="empty($target)">
 				<xsl:message>
