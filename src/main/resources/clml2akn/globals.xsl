@@ -173,46 +173,49 @@
 <!-- internal identifiers -->
 
 <xsl:function name="local:get-internal-id" as="xs:string">
-	<xsl:param name="e" as="element()" />
+	<xsl:param name="e" as="element()?" />
 	<xsl:choose>
+		<xsl:when test="empty($e)">
+			<xsl:sequence select="''" />
+		</xsl:when>
 		<xsl:when test="exists($e/ancestor::Version)">
 			<xsl:variable name="version" as="element(Version)" select="$e/ancestor::Version" />
 			<xsl:choose>
 				<xsl:when test="exists($e/@id) and exists($version/@Description)">
-					<xsl:value-of select="concat($e/@id, '-', lower-case($version/@Description))" />
+					<xsl:sequence select="concat($e/@id, '-', lower-case($version/@Description))" />
 				</xsl:when>
 				<xsl:otherwise>
-					<xsl:value-of select="generate-id($e)" />
+					<xsl:sequence select="generate-id($e)" />
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:when>
 		<xsl:when test="exists($e/ancestor::BlockAmendment) or exists($e/ancestor::html:td)"> <!-- guards against two elements having the same @id, e.g., asp/2003/6/2003-12-16 -->
-			<xsl:value-of select="generate-id($e)" />
+			<xsl:sequence select="generate-id($e)" />
 		</xsl:when>
 		<xsl:when test="exists($e/@id)">
-			<xsl:value-of select="$e/@id" />
+			<xsl:sequence select="$e/@id" />
 		</xsl:when>
 		<xsl:when test="$e/self::PrimaryPrelims or $e/self::SecondaryPrelims or $e/self::EUPrelims">
-			<xsl:text>preface</xsl:text>
+			<xsl:sequence select="'preface'" />
 		</xsl:when>
 		<xsl:when test="$e/self::Body or $e/self::EUBody">
-			<xsl:text>body</xsl:text>
+			<xsl:sequence select="'body'" />
 		</xsl:when>
 		<xsl:when test="$e/self::SignedSection">
 			<xsl:choose>
 				<xsl:when test="$e/parent::Body/parent::*/parent::Legislation">
-					<xsl:text>signatures</xsl:text>
+					<xsl:sequence select="'signatures'" />
 				</xsl:when>
 				<xsl:otherwise>
-					<xsl:value-of select="concat(local:get-internal-id($e/parent::*), '-signatures')" />
+					<xsl:sequence select="concat(local:get-internal-id($e/parent::*), '-signatures')" />
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:when>
 		<xsl:when test="$e/self::Schedules">
-			<xsl:text>schedules</xsl:text>
+			<xsl:sequence select="'schedules'" />
 		</xsl:when>
 		<xsl:otherwise>
-			<xsl:value-of select="generate-id($e)" />
+			<xsl:sequence select="generate-id($e)" />
 		</xsl:otherwise>
 	</xsl:choose>
 </xsl:function>
