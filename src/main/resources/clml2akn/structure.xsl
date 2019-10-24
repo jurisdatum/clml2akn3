@@ -442,11 +442,11 @@
 	<xsl:param name="context" as="xs:string*" tunnel="yes" />
 	<xsl:choose>
 		<xsl:when test="exists(parent::*/P1group[count(P1) gt 1])">
-			<hcontainer name="{ if ($context[1] = 'crossheading') then 'subheading' else 'crossheading' }" ukl:Name="P1group">
-				<xsl:call-template name="add-structure-attributes" />
-				<xsl:apply-templates>
-					<xsl:with-param name="context" select="('crossheading', $context)" tunnel="yes" />
-				</xsl:apply-templates>
+			<xsl:variable name="name" as="xs:string" select="if ($context[1] = 'crossheading') then 'subheading' else 'crossheading'" />
+			<hcontainer name="{ $name }" ukl:Name="P1group">
+				<xsl:call-template name="hcontainer">
+					<xsl:with-param name="context" select="($name, $context)" tunnel="yes" />
+				</xsl:call-template>
 			</hcontainer>
 			<xsl:call-template name="insert-alt-versions" />
 		</xsl:when>
