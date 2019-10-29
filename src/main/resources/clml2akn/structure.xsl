@@ -421,20 +421,18 @@
 <xsl:template match="Pblock">
 	<xsl:param name="context" as="xs:string*" tunnel="yes" />
 	<hcontainer name="crossheading" ukl:Name="Pblock">
-		<xsl:call-template name="add-structure-attributes" />
-		<xsl:apply-templates>
+		<xsl:call-template name="hcontainer">
 			<xsl:with-param name="context" select="('crossheading', $context)" tunnel="yes" />
-		</xsl:apply-templates>
+		</xsl:call-template>
 	</hcontainer>
 </xsl:template>
 
 <xsl:template match="PsubBlock">
 	<xsl:param name="context" as="xs:string*" tunnel="yes" />
 	<hcontainer name="subheading" ukl:Name="PsubBlock">
-		<xsl:call-template name="add-structure-attributes" />
-		<xsl:apply-templates>
+		<xsl:call-template name="hcontainer">
 			<xsl:with-param name="context" select="('subheading', $context)" tunnel="yes" />
-		</xsl:apply-templates>
+		</xsl:call-template>
 	</hcontainer>
 </xsl:template>
 
@@ -469,6 +467,12 @@
 						<xsl:with-param name="context" select="($name, $context)" tunnel="yes" />
 					</xsl:apply-templates>
 				</xsl:if>
+				<!-- add the LDAPP class attributes where necessary -->
+				<xsl:if test="local:clml-is-within-schedule(.)">
+					<xsl:attribute name="class">
+						<xsl:text>schProv1</xsl:text>
+					</xsl:attribute>
+				</xsl:if>
 				<xsl:call-template name="hcontainer-body">
 					<xsl:with-param name="context" select="($name, $context)" tunnel="yes" />
 				</xsl:call-template>
@@ -500,6 +504,12 @@
 		<xsl:call-template name="add-alt-attr">
 			<xsl:with-param name="e" select="$alt-version-anchor" />
 		</xsl:call-template>
+		<!-- add the LDAPP class attributes where necessary -->
+		<xsl:if test="local:clml-is-within-schedule(.)">
+			<xsl:attribute name="class">
+				<xsl:text>schProv1</xsl:text>
+			</xsl:attribute>
+		</xsl:if>
 		<xsl:call-template name="hcontainer">
 			<xsl:with-param name="context" select="($name, $context)" tunnel="yes" />
 		</xsl:call-template>
@@ -534,6 +544,11 @@
 			</xsl:attribute>
 		</xsl:if>
 		<!-- add the LDAPP class attributes where necessary -->
+		<xsl:if test="self::P2 and local:clml-is-within-schedule(.)">
+			<xsl:attribute name="class">
+				<xsl:text>schProv2</xsl:text>
+			</xsl:attribute>
+		</xsl:if>
 		<xsl:if test="self::P3 and local:clml-is-within-schedule(.)">
 			<xsl:attribute name="class">
 				<xsl:text>para1</xsl:text>
