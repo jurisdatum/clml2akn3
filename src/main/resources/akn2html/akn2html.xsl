@@ -782,13 +782,13 @@
 			<xsl:with-param name="end-quote-attr" as="attribute()?" select="@endQuote" tunnel="yes" />
 			<xsl:with-param name="first-text-node-of-quote" select="$text-nodes[1]" tunnel="yes" />
 			<xsl:with-param name="last-text-node-of-quote" select="$text-nodes[last()]" tunnel="yes" />
-			<xsl:with-param name="append-text" select="following-sibling::*[1][@name='AppendText']" tunnel="yes" />
+			<xsl:with-param name="append-text" select="following-sibling::*[1][@name='appendText']" tunnel="yes" />
 			<xsl:with-param name="indent" select="$indent + 1" tunnel="yes" />
 		</xsl:apply-templates>
 	</blockquote>
 </xsl:template>
 
-<xsl:template match="inline[@name='AppendText']" />
+<xsl:template match="inline[@name='appendText']" />
 
 
 <!-- contents -->

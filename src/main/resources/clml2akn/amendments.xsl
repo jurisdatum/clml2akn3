@@ -157,7 +157,7 @@
 <xsl:template match="AppendText" />
 
 <xsl:template match="AppendText" mode="force">
-	<inline name="AppendText">
+	<inline name="appendText">
 		<xsl:apply-templates />
 	</inline>
 </xsl:template>
