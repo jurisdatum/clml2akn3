@@ -5,10 +5,9 @@
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xpath-default-namespace="http://www.legislation.gov.uk/namespaces/legislation"
 	xmlns:ukl="http://www.legislation.gov.uk/namespaces/legislation"
-	xmlns:ukakn="https://www.legislation.gov.uk/namespaces/UK-AKN"
 	xmlns="http://docs.oasis-open.org/legaldocml/ns/akn/3.0"
 	xmlns:local="http://www.jurisdatum.com/tna/clml2akn"
-	exclude-result-prefixes="xs ukl ukakn local">
+	exclude-result-prefixes="xs ukl local">
 
 
 <xsl:template name="para-with-amendment">

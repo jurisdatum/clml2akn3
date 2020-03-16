@@ -392,18 +392,13 @@
 </xsl:template>
 
 <xsl:template name="notes">
-	<xsl:variable name="notes" as="element()*" select="//ukl:Footnote | /ukl:Legislation/ukl:Commentaries/ukl:Commentary" />
-	<xsl:if test="exists($notes)">
-		<notes source="#">
-			<xsl:apply-templates select="$notes" />
-		</notes>
-	</xsl:if>
 </xsl:template>
 
 <xsl:template name="proprietary">
 	<proprietary source="#">
 <!-- 		<xsl:apply-templates select="/ukl:Legislation/Metadata/*/DocumentClassification/*" /> -->
 		<xsl:apply-templates select="/ukl:Legislation/Metadata/(PrimaryMetadata | SecondaryMetadata | EUMetadata)/Year" />
+		<xsl:apply-templates select="/ukl:Legislation/Metadata/SecondaryMetadata/AlternativeNumber" />
 		<xsl:apply-templates select="/ukl:Legislation/Metadata/(PrimaryMetadata | SecondaryMetadata | EUMetadata)/ISBN" />
 <!-- 		<xsl:apply-templates select="dc:* | dct:*" /> -->
 	</proprietary>

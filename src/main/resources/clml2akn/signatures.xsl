@@ -19,9 +19,9 @@
 				</content>
 			</xsl:when>
 			<xsl:otherwise>
-				<xsl:if test="exists(Para)">
+				<xsl:if test="exists(Signatory[1]/preceding-sibling::*)">
 					<intro>
-						<xsl:apply-templates select="Para" />
+						<xsl:apply-templates select="Signatory[1]/preceding-sibling::*" />
 					</intro>
 				</xsl:if>
 				<xsl:apply-templates select="Signatory" />
@@ -31,36 +31,19 @@
 </xsl:template>
 
 <xsl:template match="Signatory">
-	<xsl:choose>
-		<xsl:when test="empty(preceding-sibling::*) and empty(following-sibling::*)">
-			<xsl:call-template name="signatory" />
-		</xsl:when>
-		<xsl:otherwise>
-			<hcontainer name="signatureGroup">
-				<xsl:call-template name="signatory" />
-			</hcontainer>
-		</xsl:otherwise>
-	</xsl:choose>
-</xsl:template>
-<xsl:template name="signatory">
-	<xsl:if test="exists(Para)">
-		<intro>
-			<xsl:apply-templates select="Para" />
-		</intro>
-	</xsl:if>
-	<xsl:apply-templates select="Signee" />
-</xsl:template>
-
-<xsl:template match="Signee">
-	<hcontainer name="signature">
+	<hcontainer name="signatureBlock">
 		<content>
 			<xsl:apply-templates />
 		</content>
 	</hcontainer>
 </xsl:template>
 
+<xsl:template match="Signee">
+	<xsl:apply-templates />
+</xsl:template>
+
 <xsl:template match="PersonName">
-	<block name="signee">
+	<block name="signature">
 		<person refersTo="#">
 			<xsl:apply-templates />
 		</person>
@@ -68,7 +51,7 @@
 </xsl:template>
 
 <xsl:template match="JobTitle">
-	<block name="jobTitle">
+	<block name="role">
 		<role refersTo="#">
 			<xsl:apply-templates />
 		</role>
@@ -76,7 +59,7 @@
 </xsl:template>
 
 <xsl:template match="Department">
-	<block name="department">
+	<block name="organization">
 		<organization refersTo="#">
 			<xsl:apply-templates />
 		</organization>

@@ -19,28 +19,13 @@
 </xsl:template>
 
 <xsl:template match="Comment/Para">
-	<xsl:choose>
-		<xsl:when test="empty(preceding-sibling::*) and empty(following-sibling::*)">
-			<xsl:apply-templates />
-		</xsl:when>
-		<xsl:otherwise>
-			<container name="para">
-				<xsl:apply-templates />
-			</container>
-		</xsl:otherwise>
-	</xsl:choose>
+	<xsl:apply-templates />
 </xsl:template>
 
 <xsl:template match="Comment/Para/Text">
-	<block name="comment">
+	<subheading>
 		<xsl:apply-templates />
-	</block>
-</xsl:template>
-
-<xsl:template match="ExplanatoryNotes//P1group | ExplanatoryNotes//P3 | ExplanatoryNotes//P4 | ExplanatoryNotes//P[P3]">
-	<blockContainer class="{ local-name() }">
-		<xsl:apply-templates />
-	</blockContainer>
+	</subheading>
 </xsl:template>
 
 <xsl:template match="ExplanatoryNotes//UnorderedList[@Class='Definition']" priority="1">
@@ -57,6 +42,39 @@
 
 <xsl:template match="EarlierOrders">
 	<blockContainer class="earlierOrders">
+		<xsl:apply-templates />
+	</blockContainer>
+</xsl:template>
+
+
+<!--  -->
+
+<xsl:template match="ExplanatoryNotes//P1group | ExplanatoryNotes//P | EarlierOrders//P1group | EarlierOrders//P">
+	<blockContainer>
+		<xsl:apply-templates />
+	</blockContainer>
+</xsl:template>
+
+<xsl:template match="ExplanatoryNotes//P3 | EarlierOrders//P3">
+	<blockContainer class="para1">
+		<xsl:apply-templates />
+	</blockContainer>
+</xsl:template>
+
+<xsl:template match="ExplanatoryNotes//P4 | EarlierOrders//P4">
+	<blockContainer class="para2">
+		<xsl:apply-templates />
+	</blockContainer>
+</xsl:template>
+
+<xsl:template match="ExplanatoryNotes//P5 | EarlierOrders//P5">
+	<blockContainer class="para3">
+		<xsl:apply-templates />
+	</blockContainer>
+</xsl:template>
+
+<xsl:template match="ExplanatoryNotes//P6 | EarlierOrders//P6">
+	<blockContainer class="para4">
 		<xsl:apply-templates />
 	</blockContainer>
 </xsl:template>

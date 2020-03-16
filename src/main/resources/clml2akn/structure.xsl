@@ -16,46 +16,28 @@
 		<primary>
 			<P1 akn="section" />
 			<P2 akn="subsection" />
-			<P3 akn="paragraph" />
-			<P4 akn="subparagraph" />
-			<P5 akn="clause" />
-			<P6 akn="subclause" />
 		</primary>
 		<secondary>
 			<order> <!-- use if 'unknown' -->
 				<P1 akn="article" />
 				<P2 akn="paragraph" />
-				<P3 akn="subparagraph" />
-				<P4 akn="clause" />
-				<P5 akn="subclause" />
-				<P6 akn="point" />
 			</order>
 			<regulation>
 				<P1 akn="regulation" />
 				<P2 akn="paragraph" />
-				<P3 akn="subparagraph" />
-				<P4 akn="clause" />
-				<P5 akn="subclause" />
-				<P6 akn="point" />
 			</regulation>
 			<rule>
 				<P1 akn="rule" />
 				<P2 akn="paragraph" />
-				<P3 akn="subparagraph" />
-				<P4 akn="clause" />
-				<P5 akn="subclause" />
-				<P6 akn="point" />
 			</rule>
 		</secondary>
 		<schedule>
 			<P1 akn="paragraph" />
 			<P2 akn="subparagraph" />
-			<P3 akn="paragraph" class="para1" />
-			<P4 akn="subparagraph" class="para2" />
-			<P5 akn="clause" />
-			<P6 akn="subclause" />
 		</schedule>
 		<euretained>
+			<P1 akn="article" />
+			<P2 akn="paragraph" />
 		</euretained>
 	</Legislation>
 </xsl:variable>
@@ -66,6 +48,9 @@
 	<xsl:param name="schedule" as="xs:boolean" />
 	<xsl:param name="clml-element-name" as="xs:string" />
 	<xsl:choose>
+		<xsl:when test="$clml-element-name = ('P3', 'P4', 'P5', 'P6')">
+			<xsl:sequence select="'level'" />
+		</xsl:when>
 		<xsl:when test="$schedule">
 			<xsl:sequence select="$mapping/*:schedule/*[local-name()=$clml-element-name]/@akn" />
 		</xsl:when>
@@ -74,10 +59,29 @@
 			<xsl:sequence select="$mapping/*:secondary/*[local-name()=$doc-subclass]/*[local-name()=$clml-element-name]/@akn" />
 		</xsl:when>
 		<xsl:when test="$doc-class = 'euretained'">
+			<xsl:sequence select="$mapping/*:euretained/*[local-name()=$clml-element-name]/@akn" />
 		</xsl:when>
 		<xsl:otherwise>
 			<xsl:sequence select="$mapping/*:primary/*[local-name()=$clml-element-name]/@akn" />
 		</xsl:otherwise>
+	</xsl:choose>
+</xsl:function>
+
+<xsl:function name="local:make-hcontainer-class" as="xs:string?">
+	<xsl:param name="clml-element-name" as="xs:string" />
+	<xsl:choose>
+		<xsl:when test="$clml-element-name = 'P3'">
+			<xsl:sequence select="'para1'" />
+		</xsl:when>
+		<xsl:when test="$clml-element-name = 'P4'">
+			<xsl:sequence select="'para2'" />
+		</xsl:when>
+		<xsl:when test="$clml-element-name = 'P5'">
+			<xsl:sequence select="'para3'" />
+		</xsl:when>
+		<xsl:when test="$clml-element-name = 'P6'">
+			<xsl:sequence select="'para4'" />
+		</xsl:when>
 	</xsl:choose>
 </xsl:function>
 
@@ -102,20 +106,32 @@
 	</xsl:choose>
 </xsl:function>
 
+<xsl:function name="local:effective-document-class" as="xs:string">
+	<xsl:param name="clml" as="element()" />
+	<xsl:variable name="block-amendment" as="element()?" select="$clml/ancestor::BlockAmendment[1]" />
+	<xsl:choose>
+		<xsl:when test="exists($block-amendment)">
+			<xsl:variable name="target-class" as="attribute()?" select="$block-amendment/@TargetClass" />
+			<xsl:choose>
+				<xsl:when test="exists($target-class)">
+					<xsl:sequence select="string($target-class)" />
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:sequence select="'unknown'" />
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:when>
+		<xsl:otherwise>
+			<xsl:sequence select="$doc-category" />
+		</xsl:otherwise>
+	</xsl:choose>
+</xsl:function>
+
 <xsl:function name="local:make-hcontainer-name" as="xs:string?">
 	<xsl:param name="clml" as="element()" />
 	<xsl:param name="context" as="xs:string*" />
 	<xsl:variable name="block-amendment" as="element()?" select="$clml/ancestor::BlockAmendment[1]" />
-	<xsl:variable name="doc-class" as="xs:string">
-		<xsl:choose>
-			<xsl:when test="exists($block-amendment)">
-				<xsl:sequence select="$block-amendment/@TargetClass" />
-			</xsl:when>
-			<xsl:otherwise>
-				<xsl:sequence select="$doc-category" />
-			</xsl:otherwise>
-		</xsl:choose>
-	</xsl:variable>
+	<xsl:variable name="doc-class" as="xs:string" select="local:effective-document-class($clml)" />
 	<xsl:variable name="doc-subclass" as="xs:string?">
 		<xsl:choose>
 			<xsl:when test="exists($block-amendment)">
@@ -420,20 +436,42 @@
 
 <xsl:template match="Pblock">
 	<xsl:param name="context" as="xs:string*" tunnel="yes" />
-	<hcontainer name="crossheading" ukl:Name="Pblock">
-		<xsl:call-template name="hcontainer">
-			<xsl:with-param name="context" select="('crossheading', $context)" tunnel="yes" />
-		</xsl:call-template>
-	</hcontainer>
+	<xsl:choose>
+		<xsl:when test="exists(Number) and (local:effective-document-class(.) = 'secondary' or local:clml-is-within-schedule(.))">
+			<section ukl:Name="Pblock">
+				<xsl:call-template name="hcontainer">
+					<xsl:with-param name="context" select="('section', $context)" tunnel="yes" />
+				</xsl:call-template>
+			</section>
+		</xsl:when>
+		<xsl:otherwise>
+			<hcontainer name="crossheading" ukl:Name="Pblock">
+				<xsl:call-template name="hcontainer">
+					<xsl:with-param name="context" select="('crossheading', $context)" tunnel="yes" />
+				</xsl:call-template>
+			</hcontainer>
+		</xsl:otherwise>
+	</xsl:choose>
 </xsl:template>
 
 <xsl:template match="PsubBlock">
 	<xsl:param name="context" as="xs:string*" tunnel="yes" />
-	<hcontainer name="subheading" ukl:Name="PsubBlock">
-		<xsl:call-template name="hcontainer">
-			<xsl:with-param name="context" select="('subheading', $context)" tunnel="yes" />
-		</xsl:call-template>
-	</hcontainer>
+	<xsl:choose>
+		<xsl:when test="exists(Number) and (local:effective-document-class(.) = 'secondary' or local:clml-is-within-schedule(.))">
+			<subsection ukl:Name="PsubBlock">
+				<xsl:call-template name="hcontainer">
+					<xsl:with-param name="context" select="('subsection', $context)" tunnel="yes" />
+				</xsl:call-template>
+			</subsection>
+		</xsl:when>
+		<xsl:otherwise>
+			<hcontainer name="subheading" ukl:Name="PsubBlock">
+				<xsl:call-template name="hcontainer">
+					<xsl:with-param name="context" select="('subheading', $context)" tunnel="yes" />
+				</xsl:call-template>
+			</hcontainer>
+		</xsl:otherwise>
+	</xsl:choose>
 </xsl:template>
 
 <xsl:template match="P1group">
@@ -523,10 +561,10 @@
 	<xsl:param name="context" as="xs:string*" tunnel="yes" />
 	<xsl:choose>
 		<xsl:when test="exists(parent::*/P2group[count(P2) gt 1])">
-			<level class="P2group">
+			<hcontainer name="P2group">
 				<xsl:call-template name="add-structure-attributes" />
 				<xsl:apply-templates />
-			</level>
+			</hcontainer>
 		</xsl:when>
 		<xsl:otherwise>
 			<xsl:apply-templates select="*[not(self::Title)]" />
@@ -543,20 +581,9 @@
 				<xsl:value-of select="$name" />
 			</xsl:attribute>
 		</xsl:if>
-		<!-- add the LDAPP class attributes where necessary -->
-		<xsl:if test="self::P2 and local:clml-is-within-schedule(.)">
+		<xsl:if test="$name = 'level'">
 			<xsl:attribute name="class">
-				<xsl:text>schProv2</xsl:text>
-			</xsl:attribute>
-		</xsl:if>
-		<xsl:if test="self::P3 and local:clml-is-within-schedule(.)">
-			<xsl:attribute name="class">
-				<xsl:text>para1</xsl:text>
-			</xsl:attribute>
-		</xsl:if>
-		<xsl:if test="self::P4 and local:clml-is-within-schedule(.)">
-			<xsl:attribute name="class">
-				<xsl:text>para2</xsl:text>
+				<xsl:value-of select="local:make-hcontainer-class(local-name(.))" />
 			</xsl:attribute>
 		</xsl:if>
 		<xsl:call-template name="hcontainer" />

@@ -29,27 +29,18 @@
 
 <xsl:template match="PrimaryPrelims/Title | SecondaryPrelims/Title">
 	<block name="title">
-		<shortTitle>
+		<docTitle>
 			<xsl:apply-templates />
-		</shortTitle>
+		</docTitle>
 	</block>
 </xsl:template>
 
-<xsl:template match="PrimaryPrelims/Number | SecondaryPrelims/Number">
+<xsl:template match="PrimaryPrelims/Number">
 	<block name="number">
 		<docNumber>
 			<xsl:apply-templates />
 		</docNumber>
 	</block>
-</xsl:template>
-
-<xsl:template match="SecondaryPrelims">
-	<preface>
-		<xsl:call-template name="add-internal-id-if-necessary" />
-		<xsl:call-template name="banner" />
-		<xsl:apply-templates select="* except SecondaryPreamble" />
-	</preface>
-	<xsl:apply-templates select="SecondaryPreamble" />
 </xsl:template>
 
 <xsl:template match="LongTitle">
@@ -102,6 +93,18 @@
 
 <!-- secondary -->
 
+
+<xsl:template match="SecondaryPrelims">
+	<preface>
+		<xsl:call-template name="add-internal-id-if-necessary" />
+		<xsl:apply-templates select="* except (LaidDraft | SiftedDate | MadeDate | LaidDate | ComingIntoForce | SecondaryPreamble)" />
+		<container name="dates">
+			<xsl:apply-templates select="LaidDraft | SiftedDate | MadeDate | LaidDate | ComingIntoForce" />
+		</container>
+	</preface>
+	<xsl:apply-templates select="SecondaryPreamble" />
+</xsl:template>
+
 <xsl:template name="banner">
 	<xsl:choose>
 		<xsl:when test="$doc-short-type = 'uksi'">
@@ -109,6 +112,9 @@
 		</xsl:when>
 		<xsl:when test="$doc-short-type = 'ssi'">
 			<block name="banner">Scottish Statutory Instruments</block>
+		</xsl:when>
+		<xsl:when test="$doc-short-type = 'sdsi'">
+			<block name="banner">Draft Scottish Statutory Instruments</block>
 		</xsl:when>
 		<xsl:when test="$doc-short-type = 'wsi'">
 			<block name="banner">Welsh Statutory Instruments</block>
@@ -122,14 +128,40 @@
 	</xsl:choose>
 </xsl:template>
 
-<xsl:template match="Correction | Draft">
-	<container name="{ lower-case(local-name()) }">
-		<xsl:apply-templates />
-	</container>
+<xsl:template match="SecondaryPrelims/Number">
+	<xsl:call-template name="banner" />
+	<block name="number">
+		<docNumber>
+			<xsl:apply-templates />
+		</docNumber>
+	</block>
 </xsl:template>
 
-<xsl:template match="Correction/Para | Draft/Para">
-	<xsl:call-template name="collapse-para" />
+<xsl:template match="Correction">
+	<xsl:apply-templates />
+</xsl:template>
+
+<xsl:template match="Correction/Para">
+</xsl:template>
+
+<xsl:template match="Correction/Para/Text">
+	<block name="correctionRubric">
+		<xsl:apply-templates />
+	</block>
+</xsl:template>
+
+<xsl:template match="Draft">
+	<xsl:apply-templates />
+</xsl:template>
+
+<xsl:template match="Draft/Para">
+	<xsl:apply-templates />
+</xsl:template>
+
+<xsl:template match="Draft/Para/Text">
+	<block name="proceduralRubric">
+		<xsl:apply-templates />
+	</block>
 </xsl:template>
 
 <xsl:template match="SubjectInformation">
@@ -153,7 +185,7 @@
 </xsl:template>
 
 <xsl:template match="Approved">
-	<block name="approved">
+	<block name="approval">
 		<xsl:apply-templates />
 	</block>
 </xsl:template>
@@ -163,72 +195,66 @@
 	<xsl:value-of select="concat(lower-case(substring($s, 1, 1)), substring($s, 2))" />
 </xsl:function>
 
-<xsl:template match="LaidDraft | SiftedDate | MadeDate | LaidDate | ComingIntoForce[not(ComingIntoForceClauses)] | ComingIntoForceClauses">
-	<block name="{ local:lower-camel-case(local-name()) }">
+<xsl:template match="LaidDraft | SiftedDate | MadeDate | LaidDate | ComingIntoForce[empty(ComingIntoForceClauses)] | ComingIntoForceClauses">
+	<block>
+		<xsl:attribute name="name">
+			<xsl:choose>
+				<xsl:when test="self::LaidDraft">
+					<xsl:text>laidInDraft</xsl:text>
+				</xsl:when>
+				<xsl:when test="self::ComingIntoForce or self::ComingIntoForceClauses">
+					<xsl:text>commenceDate</xsl:text>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:value-of select="local:lower-camel-case(local-name())" />
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:attribute>
 		<xsl:apply-templates />
 	</block>
 </xsl:template>
-<xsl:template match="ComingIntoForce[ComingIntoForceClauses]">
-	<container name="{ local:lower-camel-case(local-name()) }">
-		<xsl:apply-templates />
-	</container>
+<xsl:template match="ComingIntoForce[exists(ComingIntoForceClauses)]">
+	<xsl:apply-templates />
 </xsl:template>
 
-<xsl:template match="LaidDraft/Text | SiftedDate/Text | MadeDate/Text | LaidDate/Text | ComingIntoForce[not(ComingIntoForceClauses)]/Text | ComingIntoForceClauses/Text">
+<xsl:template match="LaidDraft/Text | SiftedDate/Text | MadeDate/Text | LaidDate/Text | ComingIntoForce[empty(ComingIntoForceClauses)]/Text | ComingIntoForceClauses/Text">
 	<span>
 		<xsl:apply-templates />
 	</span>
 </xsl:template>
-<xsl:template match="ComingIntoForce[ComingIntoForceClauses]/Text">
-	<p>
-		<xsl:apply-templates />
-	</p>
+<xsl:template match="ComingIntoForce[exists(ComingIntoForceClauses)]/Text">
+	<block name="commenceDate">
+		<span>
+			<xsl:apply-templates />
+		</span>
+	</block>
 </xsl:template>
 
 <xsl:template match="SiftedDate/DateText | MadeDate/DateText | LaidDate/DateText | ComingIntoForce/DateText | ComingIntoForceClauses/DateText">
 	<docDate>
 		<xsl:attribute name="date">
+			<xsl:variable name="from-text" as="xs:date?" select="local:parse-date(.)" />
 			<xsl:choose>
+				<xsl:when test="exists($from-text)">
+					<xsl:value-of select="$from-text" />
+				</xsl:when>
 				<xsl:when test="parent::SiftedDate">
 					<xsl:value-of select="/Legislation/ukm:Metadata/ukm:*/ukm:Sifted/@Date" />
 				</xsl:when>
 				<xsl:when test="parent::MadeDate">
 					<xsl:variable name="ukm-made" as="element(ukm:Made)?" select="/Legislation/ukm:Metadata/ukm:SecondaryMetadata/ukm:Made" />
-					<xsl:choose>
-						<xsl:when test="exists($ukm-made)">
-							<xsl:value-of select="$ukm-made/@Date" />
-						</xsl:when>
-						<xsl:otherwise>
-							<xsl:value-of select="local:parse-date(.)" />
-						</xsl:otherwise>
-					</xsl:choose>
+					<xsl:value-of select="$ukm-made/@Date" />
 				</xsl:when>
 				<xsl:when test="parent::LaidDate">
-					<xsl:variable name="from-text" as="xs:date?" select="local:parse-date(.)" />
-					<xsl:choose>
-						<xsl:when test="exists($from-text)">
-							<xsl:value-of select="$from-text" />
-						</xsl:when>
-						<xsl:otherwise>
-							<xsl:variable name="pos" as="xs:integer" select="count(parent::*/preceding-sibling::LaidDate) + 1" />
-							<xsl:value-of select="/Legislation/ukm:Metadata/ukm:SecondaryMetadata/ukm:Laid[$pos]/@Date" />
-						</xsl:otherwise>
-					</xsl:choose>
+					<xsl:variable name="pos" as="xs:integer" select="count(parent::*/preceding-sibling::LaidDate) + 1" />
+					<xsl:value-of select="/Legislation/ukm:Metadata/ukm:SecondaryMetadata/ukm:Laid[$pos]/@Date" />
 				</xsl:when>
 				<xsl:when test="parent::ComingIntoForce">
 					<xsl:value-of select="/Legislation/ukm:Metadata/ukm:*/ukm:ComingIntoForce/ukm:DateTime/@Date" />
 				</xsl:when>
 				<xsl:when test="parent::ComingIntoForceClauses">
-					<xsl:variable name="from-text" as="xs:date?" select="local:parse-date(.)" />
-					<xsl:choose>
-						<xsl:when test="exists($from-text)">
-							<xsl:value-of select="$from-text" />
-						</xsl:when>
-						<xsl:otherwise>
-							<xsl:variable name="pos" as="xs:integer" select="count(../preceding-sibling::ComingIntoForceClauses) + 1" />
-							<xsl:value-of select="/Legislation/ukm:Metadata/ukm:SecondaryMetadata/ukm:ComingIntoForce/ukm:DateTime[$pos]/@Date" />
-						</xsl:otherwise>
-					</xsl:choose>
+					<xsl:variable name="pos" as="xs:integer" select="count(../preceding-sibling::ComingIntoForceClauses) + 1" />
+					<xsl:value-of select="/Legislation/ukm:Metadata/ukm:SecondaryMetadata/ukm:ComingIntoForce/ukm:DateTime[$pos]/@Date" />
 				</xsl:when>
 			</xsl:choose>
 		</xsl:attribute>
@@ -272,6 +298,12 @@
 			</container>
 		</xsl:otherwise>
 	</xsl:choose> -->
+</xsl:template>
+
+<xsl:template match="Resolution">
+	<block name="resolution">
+		<xsl:apply-templates />
+	</block>
 </xsl:template>
 
 <xsl:template match="IntroductoryText">

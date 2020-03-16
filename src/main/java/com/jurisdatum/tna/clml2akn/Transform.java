@@ -46,7 +46,7 @@ public class Transform implements com.jurisdatum.xml.Transform {
 		}
 	}
 	
-	private void transform(Source clml, Destination destination) {
+	public void transform(Source clml, Destination destination) {
 		XsltTransformer transform = executable.load();
 		try {
 			transform.setSource(clml);

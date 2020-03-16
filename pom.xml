@@ -13,6 +13,14 @@
       <name>Clojars repository</name>
       <url>https://clojars.org/repo/</url>
     </repository>
+
+<!-- <repositories>
+    <repository>
+        <id>local-maven-repo</id>
+        <url>file:///${project.basedir}/lib</url>
+    </repository>
+</repositories> -->
+
   </repositories>
   <dependencies>
 	<dependency> <!-- https://mvnrepository.com/artifact/net.sourceforge.saxon/saxon -->
@@ -25,5 +33,67 @@
 	    <artifactId>saxon9-s9api</artifactId>
 	    <version>9.1.0.8</version>
 	</dependency>
+
+
+<!-- https://mvnrepository.com/artifact/nu.validator/validator -->
+<!-- <dependency>
+    <groupId>nu.validator</groupId>
+    <artifactId>validator</artifactId>
+    <version>18.11.5</version>
+</dependency> -->
+
+
+
+	<dependency>
+		<scope>test</scope>
+		<groupId>mysql</groupId>
+		<artifactId>mysql-connector-java</artifactId>
+		<version>5.1.45</version>
+	</dependency>
+<!-- 	<dependency> https://mvnrepository.com/artifact/com.thaiopensource/jing
+		<scope>test</scope>
+	    <groupId>com.thaiopensource</groupId>
+	    <artifactId>jing</artifactId>
+	    <version>20091111</version>
+	</dependency> -->
+<dependency>
+  <scope>test</scope>
+  <groupId>org.relaxng</groupId>
+  <artifactId>jing</artifactId>
+  <version>20181222</version>
+</dependency>
+
+
+<!-- <dependency>
+<groupId>jim</groupId>
+<artifactId>jim</artifactId>
+<version>1</version>
+<scope>system</scope>
+<systemPath>${project.basedir}/lib/vnu.jar</systemPath>
+</dependency> -->
+
+
+
   </dependencies>
+  
+  
+  
+  
+<!--     <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>1.6.0</version>
+    <configuration>
+        <additionalClasspathElements>
+            <additionalClasspathElement>${project.basedir}/lib/vnu.jar</additionalClasspathElement>
+        </additionalClasspathElements>
+    </configuration>
+      </plugin>
+    </plugins>
+  </build> -->
+  
+  
+  
 </project>
