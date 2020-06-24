@@ -505,7 +505,7 @@
 <!-- pure containers: part, chapter, crossheading -->
 
 <xsl:template match="hcontainer[@name='group'] | title | part | chapter | hcontainer[@name='crossheading'] | hcontainer[@name='subheading'] | hcontainer[@name='P1group'] |
-		hcontainer[@name='schedules'] | level">
+		hcontainer[@name='schedules']">
 	<section>
 		<xsl:call-template name="attrs" />
 		<xsl:if test="exists(num | heading | subheading)">
@@ -608,7 +608,7 @@
 	</section>
 </xsl:template>
 
-<xsl:template match="paragraph | subparagraph | clause | subclause | point">
+<xsl:template match="paragraph | subparagraph | clause | subclause | point | level">
 	<xsl:param name="indent" as="xs:integer" select="3" tunnel="yes" />
 	<xsl:param name="plevel" as="xs:integer" select="3" tunnel="no" />
 	<div>
