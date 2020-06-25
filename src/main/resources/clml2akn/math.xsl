@@ -29,7 +29,7 @@
 </xsl:template>
 
 <xsl:template match="Span[exists(child::math:*)]">
-	<subFlow name="inlineMathWrapper">
+	<subFlow name="formula">
 		<foreign>
 			<xsl:apply-templates />
 		</foreign>

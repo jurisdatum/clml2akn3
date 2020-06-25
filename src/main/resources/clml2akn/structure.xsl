@@ -372,7 +372,7 @@
 <xsl:function name="local:heading-before-number" as="xs:boolean">
 	<xsl:param name="e" as="element()" />
 	<xsl:choose>
-		<xsl:when test="$doc-short-type = 'ssi' and $e/self::P1 and empty($e/ancestor::BlockAmendment)">
+		<xsl:when test="$e/self::P1 and local:effective-document-class($e) = 'secondary'">
 			<xsl:sequence select="true()" />
 		</xsl:when>
 		<xsl:when test="$e/self::P1 and local:clml-is-within-schedule($e)">
@@ -444,6 +444,8 @@
 				</xsl:call-template>
 			</section>
 		</xsl:when>
+		<!-- consider treating as P1group in certain cases, e.g., asp/2018/9/2018-06-02 -->
+		<!-- exists(previous-sibling::P1) and exists(Title) and exists(P1) and (every $child in * satisfies $child]) and (count(P1) eq 1) -->
 		<xsl:otherwise>
 			<hcontainer name="crossheading" ukl:Name="Pblock">
 				<xsl:call-template name="hcontainer">
@@ -500,16 +502,16 @@
 					</xsl:attribute>
 				</xsl:if>
 				<xsl:call-template name="add-structure-attributes" />
-				<xsl:if test="normalize-space(Title)">
-					<xsl:apply-templates select="Title">
-						<xsl:with-param name="context" select="($name, $context)" tunnel="yes" />
-					</xsl:apply-templates>
-				</xsl:if>
 				<!-- add the LDAPP class attributes where necessary -->
 				<xsl:if test="local:clml-is-within-schedule(.)">
 					<xsl:attribute name="class">
 						<xsl:text>schProv1</xsl:text>
 					</xsl:attribute>
+				</xsl:if>
+				<xsl:if test="normalize-space(Title)">
+					<xsl:apply-templates select="Title">
+						<xsl:with-param name="context" select="($name, $context)" tunnel="yes" />
+					</xsl:apply-templates>
 				</xsl:if>
 				<xsl:call-template name="hcontainer-body">
 					<xsl:with-param name="context" select="($name, $context)" tunnel="yes" />
@@ -644,9 +646,6 @@
 				<xsl:value-of select="parent::*/@Context" />
 			</xsl:attribute>
 		</xsl:if>
-		<xsl:apply-templates select="local:get-skipped-commentary-refs(.)">
-			<xsl:with-param name="force" select="true()" />
-		</xsl:apply-templates>
 		<xsl:apply-templates>
 			<xsl:with-param name="context" select="('num', $context)" tunnel="yes" />
 		</xsl:apply-templates>
@@ -665,9 +664,6 @@
 				<xsl:value-of select="parent::*/@Context" />
 			</xsl:attribute>
 		</xsl:if>
-		<xsl:apply-templates select="local:get-skipped-commentary-refs(.)">
-			<xsl:with-param name="force" select="true()" />
-		</xsl:apply-templates>
 		<xsl:apply-templates>
 			<xsl:with-param name="context" select="('heading', $context)" tunnel="yes" />
 		</xsl:apply-templates>

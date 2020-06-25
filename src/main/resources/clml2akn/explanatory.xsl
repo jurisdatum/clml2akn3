@@ -5,7 +5,8 @@
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xpath-default-namespace="http://www.legislation.gov.uk/namespaces/legislation"
 	xmlns="http://docs.oasis-open.org/legaldocml/ns/akn/3.0"
-	exclude-result-prefixes="xs">
+	xmlns:ukl="http://www.legislation.gov.uk/namespaces/legislation"
+	exclude-result-prefixes="xs ukl">
 
 
 <xsl:template match="ExplanatoryNotes">
@@ -49,32 +50,44 @@
 
 <!--  -->
 
-<xsl:template match="ExplanatoryNotes//P1group | ExplanatoryNotes//P | EarlierOrders//P1group | EarlierOrders//P">
-	<blockContainer>
+<xsl:template match="ExplanatoryNotes//P1group | EarlierOrders//P1group">
+	<blockContainer ukl:Name="{ local-name(.) }" >
+		<xsl:apply-templates />
+	</blockContainer>
+</xsl:template>
+
+<xsl:template match="ExplanatoryNotes//P1 | EarlierOrders//P1">
+	<blockContainer ukl:Name="{ local-name(.) }" >
+		<xsl:apply-templates />
+	</blockContainer>
+</xsl:template>
+
+<xsl:template match="ExplanatoryNotes//P | EarlierOrders//P">
+	<blockContainer ukl:Name="{ local-name(.) }" >
 		<xsl:apply-templates />
 	</blockContainer>
 </xsl:template>
 
 <xsl:template match="ExplanatoryNotes//P3 | EarlierOrders//P3">
-	<blockContainer class="para1">
+	<blockContainer ukl:Name="P3" class="para1">
 		<xsl:apply-templates />
 	</blockContainer>
 </xsl:template>
 
 <xsl:template match="ExplanatoryNotes//P4 | EarlierOrders//P4">
-	<blockContainer class="para2">
+	<blockContainer ukl:Name="P4" class="para2">
 		<xsl:apply-templates />
 	</blockContainer>
 </xsl:template>
 
 <xsl:template match="ExplanatoryNotes//P5 | EarlierOrders//P5">
-	<blockContainer class="para3">
+	<blockContainer ukl:Name="P5" class="para3">
 		<xsl:apply-templates />
 	</blockContainer>
 </xsl:template>
 
 <xsl:template match="ExplanatoryNotes//P6 | EarlierOrders//P6">
-	<blockContainer class="para4">
+	<blockContainer ukl:Name="P6" class="para4">
 		<xsl:apply-templates />
 	</blockContainer>
 </xsl:template>

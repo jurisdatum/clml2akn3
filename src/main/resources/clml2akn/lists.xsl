@@ -4,14 +4,32 @@
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xpath-default-namespace="http://www.legislation.gov.uk/namespaces/legislation"
+	xmlns:ukl="http://www.legislation.gov.uk/namespaces/legislation"
 	xmlns="http://docs.oasis-open.org/legaldocml/ns/akn/3.0"
 	xmlns:local="http://www.jurisdatum.com/tna/clml2akn"
-	exclude-result-prefixes="xs local">
+	exclude-result-prefixes="xs ukl local">
 
 
 <xsl:template match="UnorderedList | OrderedList">
 	<xsl:param name="context" as="xs:string*" tunnel="yes" />
 	<blockList>
+		<xsl:attribute name="class">
+			<xsl:value-of select="lower-case(substring-before(local-name(.), 'List'))" />
+			<xsl:if test="exists(@Type)">
+				<xsl:text> </xsl:text>
+				<xsl:value-of select="lower-case(@Type)" />
+			</xsl:if>
+			<xsl:text> </xsl:text>
+			<xsl:value-of select="lower-case(@Decoration)" />
+		</xsl:attribute>
+		<xsl:if test="self::OrderedList">
+			<xsl:attribute name="ukl:Type">
+				<xsl:value-of select="@Type" />
+			</xsl:attribute>
+		</xsl:if>
+		<xsl:attribute name="ukl:Decoration">
+			<xsl:value-of select="@Decoration" />
+		</xsl:attribute>
 		<xsl:apply-templates>
 			<xsl:with-param name="context" select="('blockList', $context)" tunnel="yes" />
 		</xsl:apply-templates>
@@ -117,7 +135,7 @@
 </xsl:template>
 
 <xsl:template match="ListItem" mode="paragraph">
-	<paragraph>
+	<level class="para1">
 		<num>
 			<xsl:choose>
 				<xsl:when test="parent::*/@Decoration = 'parens'">
@@ -132,7 +150,7 @@
 			</xsl:choose>
 		</num>
 		<xsl:call-template name="hcontainer-body" />
-	</paragraph>
+	</level>
 </xsl:template>
 
 </xsl:transform>

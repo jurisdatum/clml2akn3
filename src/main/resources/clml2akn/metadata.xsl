@@ -392,16 +392,19 @@
 </xsl:template>
 
 <xsl:template name="notes">
+	<xsl:apply-templates select="/ukl:Legislation/ukl:Commentaries" mode="metadata" />
 </xsl:template>
 
 <xsl:template name="proprietary">
 	<proprietary source="#">
-<!-- 		<xsl:apply-templates select="/ukl:Legislation/Metadata/*/DocumentClassification/*" /> -->
-		<xsl:apply-templates select="/ukl:Legislation/Metadata/(PrimaryMetadata | SecondaryMetadata | EUMetadata)/Year" />
-		<xsl:apply-templates select="/ukl:Legislation/Metadata/SecondaryMetadata/AlternativeNumber" />
-		<xsl:apply-templates select="/ukl:Legislation/Metadata/(PrimaryMetadata | SecondaryMetadata | EUMetadata)/ISBN" />
-<!-- 		<xsl:apply-templates select="dc:* | dct:*" /> -->
+		<xsl:apply-templates select="/ukl:Legislation/Metadata/dc:*" />
+		<xsl:apply-templates select="/ukl:Legislation/Metadata/dct:*" />
+		<xsl:apply-templates select="/ukl:Legislation/Metadata/ukm:*" />
 	</proprietary>
+</xsl:template>
+
+<xsl:template match="ukm:PrimaryMetadata | ukm:SecondaryMetadata | ukm:EUMetadata | ukm:DocumentClassification">
+	<xsl:apply-templates />
 </xsl:template>
 
 <xsl:template match="ukm:*">
@@ -409,6 +412,8 @@
 		<xsl:copy-of select="@*" />
 	</xsl:element>
 </xsl:template>
+
+<xsl:template match="ukm:UnappliedEffects | ukm:Notes | ukm:Alternatives | ukm:Statistics" />
 
 <xsl:template match="dc:*">
 	<xsl:element name="dc:{ local-name() }">
@@ -510,11 +515,9 @@
 <xsl:variable name="has-analysis" as="xs:boolean" select="$has-restrictions or exists($elements-with-status) or exists($elements-with-confers-power) or exists($elements-with-match)" />
 
 <xsl:template name="analysis">
-	<xsl:if test="$has-analysis">
-		<analysis source="#">
-			<xsl:call-template name="restrictions" />
-		</analysis>
-	</xsl:if>
+	<analysis source="#">
+		<xsl:call-template name="restrictions" />
+	</analysis>
 </xsl:template>
 
 <xsl:template name="restrictions">
@@ -524,13 +527,12 @@
 			<xsl:call-template name="temporal-restrictions" />
 		</restrictions>
 	</xsl:if>
-	<xsl:if test="exists($elements-with-status) or exists($elements-with-confers-power) or exists($elements-with-match)">
-		<otherAnalysis source="">
-			<xsl:call-template name="status-analysis" />
-			<xsl:call-template name="confers-power-analysis" />
-			<xsl:call-template name="match-analysis" />
-		</otherAnalysis>
-	</xsl:if>
+	<otherAnalysis source="">
+		<xsl:call-template name="status-analysis" />
+		<xsl:call-template name="confers-power-analysis" />
+		<xsl:call-template name="match-analysis" />
+		<xsl:apply-templates select="/" mode="other-analysis" />
+	</otherAnalysis>
 </xsl:template>
 
 

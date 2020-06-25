@@ -13,31 +13,31 @@
 	<xsl:param name="context" as="xs:string*" />
 	<xsl:choose>
 		<xsl:when test="empty($text/ancestor::Pnumber)">
-			<xsl:value-of select="false()" />
+			<xsl:sequence select="false()" />
 		</xsl:when>
 		<xsl:when test="not($text/ancestor::Pnumber/descendant::text()[normalize-space()][last()] is $text)">
-			<xsl:value-of select="false()" />
+			<xsl:sequence select="false()" />
 		</xsl:when>
 		<xsl:when test="exists($text/ancestor::Pnumber/@PuncBefore) or exists($text/ancestor::Pnumber/@PuncAfter)">
-			<xsl:value-of select="true()" />
+			<xsl:sequence select="true()" />
 		</xsl:when>
-		<xsl:when test="exists($text/ancestor::Pnumber/parent::P1) and $doc-short-type = 'ssi'">
-			<xsl:value-of select="true()" />
+		<xsl:when test="exists($text/ancestor::Pnumber/parent::P1) and $doc-category = 'secondary'">
+			<xsl:sequence select="true()" />
 		</xsl:when>
 		<xsl:when test="exists($text/ancestor::Pnumber/parent::P1)">
-			<xsl:value-of select="false()" />
+			<xsl:sequence select="false()" />
 		</xsl:when>
 		<xsl:when test="matches(normalize-space($text), '^\d+[A-Z]*$')">
-			<xsl:value-of select="true()" />
+			<xsl:sequence select="true()" />
 		</xsl:when>
 		<xsl:when test="matches(normalize-space($text), '^[a-z]+$')">
-			<xsl:value-of select="true()" />
+			<xsl:sequence select="true()" />
 		</xsl:when>
 		<xsl:when test="matches(normalize-space($text), '^[A-Z]+$')">
-			<xsl:value-of select="true()" />
+			<xsl:sequence select="true()" />
 		</xsl:when>
 		<xsl:otherwise>
-			<xsl:value-of select="false()" />
+			<xsl:sequence select="false()" />
 		</xsl:otherwise>
 	</xsl:choose>
 </xsl:function>
@@ -60,7 +60,7 @@
 		<xsl:when test="exists(ancestor::Pnumber/@PuncAfter)">
 			<xsl:value-of select="ancestor::Pnumber/@PuncAfter" />
 		</xsl:when>
-		<xsl:when test="exists(ancestor::Pnumber/parent::P1) and $doc-short-type = 'ssi'">
+		<xsl:when test="exists(ancestor::Pnumber/parent::P1) and $doc-category = 'secondary'">
 			<xsl:text>.</xsl:text>
 		</xsl:when>
 		<xsl:when test="exists(ancestor::Pnumber/parent::P1)" />

@@ -100,7 +100,7 @@
 <!-- blocks -->
 
 <xsl:template match="BlockText">
-	<blockContainer>
+	<blockContainer ukl:Name="BlockText">
 		<xsl:apply-templates />
 	</blockContainer>
 </xsl:template>
@@ -111,9 +111,6 @@
 
 <xsl:template match="Text">
 	<p>
-		<xsl:apply-templates select="local:get-skipped-commentary-refs(.)">
-			<xsl:with-param name="force" select="true()" />
-		</xsl:apply-templates>
 		<xsl:apply-templates />
 	</p>
 </xsl:template>
@@ -188,7 +185,7 @@
 </xsl:template>
 
 <xsl:template match="Definition">
-	<def>
+	<def ukl:Name="Definition">
 		<xsl:apply-templates />
 	</def>
 </xsl:template>

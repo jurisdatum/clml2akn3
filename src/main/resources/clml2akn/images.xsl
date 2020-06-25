@@ -105,8 +105,16 @@
 				</xsl:choose>
 			</xsl:if>
 			<xsl:if test="exists(@Description)">
-				<xsl:attribute name="title">
+				<xsl:attribute name="alt">
 					<xsl:value-of select="@Description" />
+				</xsl:attribute>
+			</xsl:if>
+			<xsl:if test="exists(@Width) and exists(@Height) and ends-with(@Width, 'em') and ends-with(@Height, 'em')">
+				<xsl:attribute name="style">
+					<xsl:text>width:</xsl:text>
+					<xsl:value-of select="@Width" />
+					<xsl:text>;height:</xsl:text>
+					<xsl:value-of select="@Height" />
 				</xsl:attribute>
 			</xsl:if>
 		</img>

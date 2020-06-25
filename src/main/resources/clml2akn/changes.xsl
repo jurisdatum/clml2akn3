@@ -4,10 +4,11 @@
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xpath-default-namespace="http://www.legislation.gov.uk/namespaces/legislation"
+	xmlns:uk="https://www.legislation.gov.uk/namespaces/UK-AKN"
 	xmlns:ukl="http://www.legislation.gov.uk/namespaces/legislation"
 	xmlns="http://docs.oasis-open.org/legaldocml/ns/akn/3.0"
 	xmlns:local="http://www.jurisdatum.com/tna/clml2akn"
-	exclude-result-prefixes="xs ukl local">
+	exclude-result-prefixes="xs uk ukl local">
 
 
 <xsl:key name="change" match="Addition[not(ancestor::Footnote)] | Repeal[not(ancestor::Footnote)] | Substitution[not(ancestor::Footnote)]" use="@ChangeId" />
@@ -25,11 +26,12 @@
 </xsl:template>
 
 <xsl:template name="change">
+	<xsl:variable name="first" as="xs:boolean" select=". is key('change', @ChangeId)[1]" />
 	<xsl:variable name="classes" as="xs:string*">
 		<xsl:if test="self::Substitution">
 			<xsl:sequence select="lower-case(local-name())" />
 		</xsl:if>
-		<xsl:if test=". is key('change', @ChangeId)[1]">
+		<xsl:if test="$first">
 			<xsl:sequence select="'first'" />
 		</xsl:if>
 		<xsl:if test=". is key('change', @ChangeId)[last()]">
@@ -41,6 +43,9 @@
 	</xsl:attribute>
 	<xsl:apply-templates select="@ChangeId" />
 	<xsl:apply-templates select="@CommentaryRef" />
+	<xsl:if test="$first">
+		<noteRef uk:name="commentary" href="#{ @CommentaryRef }" class="commentary" />
+	</xsl:if>
 	<xsl:apply-templates />
 </xsl:template>
 

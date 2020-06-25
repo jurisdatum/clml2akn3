@@ -110,20 +110,34 @@
 		<xsl:when test="$doc-short-type = 'uksi'">
 			<block name="banner">Statutory Instruments</block>
 		</xsl:when>
+		<xsl:when test="$doc-short-type = 'nisr'">
+			<block name="banner">Statutory Rules of Northern Ireland</block>
+		</xsl:when>
+		<xsl:when test="$doc-short-type = 'nisro'">
+		</xsl:when>
 		<xsl:when test="$doc-short-type = 'ssi'">
 			<block name="banner">Scottish Statutory Instruments</block>
 		</xsl:when>
-		<xsl:when test="$doc-short-type = 'sdsi'">
-			<block name="banner">Draft Scottish Statutory Instruments</block>
-		</xsl:when>
 		<xsl:when test="$doc-short-type = 'wsi'">
 			<block name="banner">Welsh Statutory Instruments</block>
+		</xsl:when>
+		<xsl:when test="$doc-short-type = 'nisi'">
+			<block name="banner">Statutory Instruments</block>
+		</xsl:when>
+		<xsl:when test="$doc-short-type = 'uksro'">
+			<block name="banner">Statutory Instruments</block>
 		</xsl:when>
 		<xsl:when test="$doc-short-type = 'ukmo'">
 			<block name="banner">Ministerial Order</block>
 		</xsl:when>
 		<xsl:when test="$doc-short-type = 'ukmd'">
 			<block name="banner">Ministerial Directions</block>
+		</xsl:when>
+		<xsl:when test="$doc-short-type = 'ukci'">
+			<block name="banner">Church Instruments</block>
+		</xsl:when>
+		<xsl:when test="$doc-short-type = 'sdsi'">
+			<block name="banner">Draft Scottish Statutory Instruments</block>
 		</xsl:when>
 	</xsl:choose>
 </xsl:template>
@@ -142,6 +156,7 @@
 </xsl:template>
 
 <xsl:template match="Correction/Para">
+	<xsl:apply-templates />
 </xsl:template>
 
 <xsl:template match="Correction/Para/Text">

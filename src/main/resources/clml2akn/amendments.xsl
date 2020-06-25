@@ -92,6 +92,9 @@
 	<xsl:attribute name="ukl:Context">
 		<xsl:value-of select="@Context" />
 	</xsl:attribute>
+	<xsl:attribute name="ukl:Format">
+		<xsl:value-of select="@Format" />
+	</xsl:attribute>
 </xsl:template>
 
 <xsl:template match="BlockAmendment" mode="wrapped">
@@ -137,8 +140,8 @@
 				<xsl:apply-templates select="." mode="wrapped">
 					<xsl:with-param name="context" select="('mod', $context)" tunnel="yes" />
 				</xsl:apply-templates>
+				<xsl:apply-templates select="following-sibling::*[1][self::AppendText]" mode="force" />
 			</mod>
-			<xsl:apply-templates select="following-sibling::*[1][self::AppendText]" mode="force" />
 		</xsl:when>
 		<xsl:otherwise>
 			<p>
@@ -146,8 +149,8 @@
 					<xsl:apply-templates select="." mode="wrapped">
 						<xsl:with-param name="context" select="('mod', 'p', $context)" tunnel="yes" />
 					</xsl:apply-templates>
+					<xsl:apply-templates select="following-sibling::*[1][self::AppendText]" mode="force" />
 				</mod>
-				<xsl:apply-templates select="following-sibling::*[1][self::AppendText]" mode="force" />
 			</p>
 		</xsl:otherwise>
 	</xsl:choose>
