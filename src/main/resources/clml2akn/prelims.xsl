@@ -52,7 +52,7 @@
 </xsl:template>
 
 <xsl:template match="DateOfEnactment">
-	<block name="dateOfEnactment">
+	<block name="dateOfEnactment" refersTo="#date-enacted">
 		<xsl:apply-templates />
 	</block>
 </xsl:template>
@@ -225,6 +225,25 @@
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:attribute>
+		<xsl:choose>
+			<xsl:when test="self::MadeDate">
+				<xsl:attribute name="refersTo">
+					<xsl:text>#date-made</xsl:text>
+				</xsl:attribute>
+			</xsl:when>
+			<xsl:when test="self::LaidDate">
+				<xsl:attribute name="refersTo">
+					<xsl:text>#date-laid-</xsl:text>
+					<xsl:value-of select="count(preceding-sibling::LaidDate) + 1" />
+				</xsl:attribute>
+			</xsl:when>
+			<xsl:when test="self::ComingIntoForce">
+				<xsl:attribute name="refersTo">
+					<xsl:text>#date-cif-</xsl:text>
+					<xsl:value-of select="count(preceding-sibling::ComingIntoForce) + 1" />
+				</xsl:attribute>
+			</xsl:when>
+		</xsl:choose>
 		<xsl:apply-templates />
 	</block>
 </xsl:template>
