@@ -103,17 +103,17 @@
 </xsl:template>
 
 <xsl:template match="LSseal">
-	<p>
+	<block name="seal">
+		<xsl:if test="@ResourceRef">
+			<img class="seal" src="{ key('id', @ResourceRef)/ExternalVersion/@URI }" />
+		</xsl:if>
 		<xsl:choose>
-			<xsl:when test="@ResourceRef">
-				<img class="seal" src="{ key('id', @ResourceRef)/ExternalVersion/@URI }" />
-			</xsl:when>
 			<xsl:when test="@Date">
 				<date class="seal" date="{ @Date }">
 					<xsl:apply-templates />
 				</date>
 			</xsl:when>
-			<xsl:when test="text()">
+			<xsl:when test="exists(child::node())">
 				<inline name="seal">
 					<xsl:apply-templates />
 				</inline>
@@ -122,7 +122,7 @@
 				<marker name="seal" />
 			</xsl:otherwise>
 		</xsl:choose>
-	</p>
+	</block>
 </xsl:template>
 
 </xsl:transform>
