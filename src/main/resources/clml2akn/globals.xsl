@@ -43,6 +43,7 @@
 		UnitedKingdomPublicGeneralAct = "ukpga"
 		UnitedKingdomLocalAct = "ukla"
 		ScottishAct = "asp"
+		WelshParliamentAct = "asc"
 		WelshNationalAssemblyAct = "anaw"
 		WelshAssemblyMeasure = "mwa"
 		UnitedKingdomChurchMeasure = "ukcm"
