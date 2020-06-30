@@ -226,6 +226,11 @@
 			</xsl:choose>
 		</xsl:attribute>
 		<xsl:choose>
+			<xsl:when test="self::SiftedDate">
+				<xsl:attribute name="refersTo">
+					<xsl:text>#date-sifted</xsl:text>
+				</xsl:attribute>
+			</xsl:when>
 			<xsl:when test="self::MadeDate">
 				<xsl:attribute name="refersTo">
 					<xsl:text>#date-made</xsl:text>
