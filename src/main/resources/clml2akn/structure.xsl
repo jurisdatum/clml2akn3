@@ -574,7 +574,7 @@
 	</xsl:choose>
 </xsl:template>
 
-<xsl:template match="P2 | P3 | P4 | P5 | Pblock/P | PsubBlock/P">
+<xsl:template match="P2 | P3 | P4 | P5 | P6 | Pblock/P | PsubBlock/P">
 	<xsl:param name="context" as="xs:string*" tunnel="yes" />
 	<xsl:variable name="name" as="xs:string" select="local:make-hcontainer-name(., $context)" />
 	<xsl:element name="{ if ($name = $unsupported) then 'hcontainer' else $name }">
