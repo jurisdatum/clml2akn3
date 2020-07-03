@@ -72,7 +72,7 @@
 </xsl:template>
 
 <xsl:template match="Part | Chapter | Pblock | PsubBlock" mode="other-analysis">
-	<xsl:variable name="id" as="xs:string" select="@id" />
+	<xsl:variable name="id" as="xs:string" select="if (exists(@id)) then @id else generate-id()" />
 	<xsl:variable name="all-commentary-ids-with-duplicates" as="xs:string*">
 		<xsl:variable name="all-elements" as="element()*" select="( self::*[exists(@CommentaryRef)] | child::CommentaryRef | Number/descendant-or-self::*[exists(@CommentaryRef)] | Number/descendant::CommentaryRef | Title/descendant-or-self::*[exists(@CommentaryRef)] | Title/descendant::CommentaryRef )" />
 		<xsl:for-each select="$all-elements">
@@ -93,7 +93,7 @@
 </xsl:template>
 
 <xsl:template match="P1" mode="other-analysis">
-	<xsl:variable name="id" as="xs:string" select="@id" />
+	<xsl:variable name="id" as="xs:string" select="if (exists(@id)) then @id else generate-id()" />
 	<xsl:variable name="all-commentary-ids-with-duplicates" as="xs:string*">
 		<xsl:variable name="all-elements" as="element()*" select="( descendant-or-self::*[exists(@CommentaryRef)] | descendant::CommentaryRef )" />
 		<xsl:for-each select="$all-elements">

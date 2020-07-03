@@ -244,7 +244,8 @@
 		<xsl:variable name="from" as="element()" select="if ($from/self::P1 and empty($from/@id) and exists($from/parent::P1group/@id)) then $from/parent::* else $from" />
 		<xsl:sequence select="exists($from/@id) and exists(key('internal-links', $from/@id, root($from)))" />
 	</xsl:variable>
-	<xsl:if test="($is-in-main-body and exists($from/@id)) or $is-necessary-for-metadata or $is-necessary-for-reference">
+	<!-- this may now be overly complex -->
+	<xsl:if test="$is-in-main-body or exists($from/@id) or $is-necessary-for-metadata or $is-necessary-for-reference">
 		<xsl:attribute name="eId">
 			<xsl:value-of select="local:get-internal-id($from)" />
 		</xsl:attribute>
