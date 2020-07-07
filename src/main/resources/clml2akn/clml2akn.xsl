@@ -8,9 +8,10 @@
 	xmlns:ukl="http://www.legislation.gov.uk/namespaces/legislation"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:local="http://www.jurisdatum.com/tna/clml2akn"
-	exclude-result-prefixes="xs local">
+	xmlns:saxon="http://saxon.sf.net/"
+	exclude-result-prefixes="xs local saxon">
 
-<xsl:output method="xml" version="1.0" encoding="utf-8" omit-xml-declaration="no" indent="yes" />
+<xsl:output method="xml" version="1.0" encoding="utf-8" omit-xml-declaration="no" indent="yes" saxon:suppress-indentation="block p num heading subheading" />
 
 <xsl:strip-space elements="*" />
 

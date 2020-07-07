@@ -60,6 +60,7 @@ public class Transform implements com.jurisdatum.xml.Transform {
 	private static Properties properties = new Properties();
 	static {
 		properties.setProperty(Property.INDENT.toString(), "yes");
+		properties.setProperty(Property.SAXON_SUPPRESS_INDENTATION.toString(), "{http://docs.oasis-open.org/legaldocml/ns/akn/3.0}block {http://docs.oasis-open.org/legaldocml/ns/akn/3.0}p {http://docs.oasis-open.org/legaldocml/ns/akn/3.0}num {http://docs.oasis-open.org/legaldocml/ns/akn/3.0}heading {http://docs.oasis-open.org/legaldocml/ns/akn/3.0}subheading");
 	}
 	
 	public void transform(Source clml, Result akn) {
