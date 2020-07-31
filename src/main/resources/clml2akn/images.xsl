@@ -120,7 +120,7 @@
 		</img>
 	</xsl:variable>
 	<xsl:choose>
-		<xsl:when test="parent::Text">
+		<xsl:when test="ancestor::Text">
 			<xsl:copy-of select="$clml" />
 		</xsl:when>
 		<xsl:otherwise>

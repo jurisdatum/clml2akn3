@@ -101,14 +101,38 @@
 	</xsl:choose>
 </xsl:function>
 
-<xsl:function name="local:format-list-number" as="xs:string?">
-	<xsl:param name="item" as="element(ListItem)" />
-	<xsl:param name="list-type" as="attribute(Type)" />
-	<xsl:param name="list-decor" as="attribute(Decoration)" />
+<xsl:function name="local:format-number-override" as="xs:string?">
+	<xsl:param name="number-override" as="attribute(NumberOverride)" />
+	<xsl:param name="list-decor" as="attribute(Decoration)?" />
+	<xsl:variable name="number" as="xs:string" select="string($number-override)" />
 	<xsl:choose>
-		<xsl:when test="exists($item/@NumberOverride)">
-			<xsl:value-of select="local:format-list-number(string($item/@NumberOverride), $list-decor)" />
+		<xsl:when test="empty($list-decor)">
+			<xsl:sequence select="$number" />
 		</xsl:when>
+		<xsl:when test="$list-decor = 'none'">
+			<xsl:sequence select="$number" />
+		</xsl:when>
+		<xsl:when test="$list-decor = 'parens' and not(starts-with($number, '(')) and not(ends-with($number, ')'))">
+			<xsl:sequence select="concat('(', $number, ')')" />
+		</xsl:when>
+		<xsl:when test="$list-decor = 'parenRight' and not(ends-with($number, ')'))">
+			<xsl:sequence select="concat($number, ')')" />
+		</xsl:when>
+		<xsl:when test="$list-decor = 'brackets' and not(starts-with($number, '[')) and not(ends-with($number, ']'))">
+			<xsl:sequence select="concat('[', $number, ']')" />
+		</xsl:when>
+		<xsl:when test="$list-decor = 'bracketRight' and not(ends-with($number, ']'))">
+			<xsl:sequence select="concat($number, ']')" />
+		</xsl:when>
+		<xsl:when test="$list-decor = 'period' and not(ends-with($number, '.'))">
+			<xsl:sequence select="concat($number, '.')" />
+		</xsl:when>
+		<xsl:when test="$list-decor = 'colon' and not(ends-with($number, ':'))">
+			<xsl:sequence select="concat($number, ':')" />
+		</xsl:when>
+		<xsl:otherwise>
+			<xsl:sequence select="$number" />
+		</xsl:otherwise>
 	</xsl:choose>
 </xsl:function>
 

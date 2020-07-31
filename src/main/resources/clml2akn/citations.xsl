@@ -40,7 +40,12 @@
 			</rref>
 		</xsl:when>
 		<xsl:otherwise>
-			<ref eId="{ @id }">
+			<ref>
+				<xsl:if test="exists(@id)">
+					<xsl:attribute name="eId">
+						<xsl:value-of select="@id" />
+					</xsl:attribute>
+				</xsl:if>
 				<xsl:attribute name="href">
 					<xsl:choose>
 						<xsl:when test="exists(@URI)">

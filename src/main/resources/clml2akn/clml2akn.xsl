@@ -34,6 +34,7 @@
 <xsl:include href="math.xsl" />
 <xsl:include href="commentaries.xsl" />
 <xsl:include href="resources.xsl" />
+<xsl:include href="euretained.xsl" />
 
 
 <xsl:template match="/">
@@ -139,6 +140,24 @@
 
 <xsl:template match="SmallCaps">
 	<inline name="smallCaps">
+		<xsl:apply-templates />
+	</inline>
+</xsl:template>
+
+<xsl:template match="Uppercase">
+	<inline name="uppercase">
+		<xsl:apply-templates />
+	</inline>
+</xsl:template>
+
+<xsl:template match="Strike">
+	<inline name="strike">
+		<xsl:apply-templates />
+	</inline>
+</xsl:template>
+
+<xsl:template match="Expanded">
+	<inline name="expanded">
 		<xsl:apply-templates />
 	</inline>
 </xsl:template>

@@ -22,6 +22,9 @@
 			<xsl:text> </xsl:text>
 			<xsl:value-of select="lower-case(@Decoration)" />
 		</xsl:attribute>
+		<xsl:attribute name="ukl:Name">
+			<xsl:value-of select="local-name()" />
+		</xsl:attribute>
 		<xsl:if test="self::OrderedList">
 			<xsl:attribute name="ukl:Type">
 				<xsl:value-of select="@Type" />
@@ -42,14 +45,7 @@
 		<xsl:choose>
 			<xsl:when test="exists(@NumberOverride)">
 				<num>
-					<xsl:choose>
-						<xsl:when test="exists(parent::*/@Type) and exists(parent::*/@Decoration)">
-							<xsl:value-of select="local:format-list-number(., parent::*/@Type, parent::*/@Decoration)" />
-						</xsl:when>
-						<xsl:otherwise>
-							<xsl:value-of select="@NumberOverride" />
-						</xsl:otherwise>
-					</xsl:choose>
+					<xsl:value-of select="local:format-number-override(@NumberOverride, parent::*/@Decoration)" />
 				</num>
 			</xsl:when>
 			<xsl:when test="parent::OrderedList">
@@ -151,6 +147,36 @@
 		</num>
 		<xsl:call-template name="hcontainer-body" />
 	</level>
+</xsl:template>
+
+
+<!-- KeyLists -->
+
+<xsl:template match="KeyList">
+	<blockList ukl:Name="KeyList">
+		<xsl:if test="exists(@Separator)">
+			<xsl:attribute name="ukl:Separator">
+				<xsl:value-of select="@Separator" />
+			</xsl:attribute>
+		</xsl:if>
+		<xsl:apply-templates />
+	</blockList>
+</xsl:template>
+
+<xsl:template match="KeyListItem">
+	<item>
+		<xsl:apply-templates />
+	</item>
+</xsl:template>
+
+<xsl:template match="KeyListItem/Key">
+	<heading>
+		<xsl:apply-templates />
+	</heading>
+</xsl:template>
+
+<xsl:template match="KeyListItem/ListItem">
+	<xsl:apply-templates />
 </xsl:template>
 
 </xsl:transform>

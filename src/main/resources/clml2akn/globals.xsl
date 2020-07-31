@@ -87,6 +87,9 @@
 		<xsl:when test="$name = ('Group', 'Part', 'Chapter', 'Pblock', 'PsubBlock')">
 			<xsl:value-of select="true()" />
 		</xsl:when>
+		<xsl:when test="$name = ('EUPart', 'EUTitle', 'EUChapter', 'EUSection', 'EUSubsection', 'Division')">
+			<xsl:value-of select="true()" />
+		</xsl:when>
 		<xsl:when test="$name = ('P1group', 'P2group', 'P3group')">
 			<xsl:value-of select="true()" />
 		</xsl:when>

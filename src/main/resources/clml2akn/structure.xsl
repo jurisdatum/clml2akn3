@@ -106,22 +106,43 @@
 	</xsl:choose>
 </xsl:function>
 
+<!-- better would be to pass this down as a tunnel parameter as in akn2html -->
 <xsl:function name="local:effective-document-class" as="xs:string">
 	<xsl:param name="clml" as="element()" />
-	<xsl:variable name="block-amendment" as="element()?" select="$clml/ancestor::BlockAmendment[1]" />
+	<xsl:variable name="block-amendment" as="element(BlockAmendment)?" select="$clml/ancestor::BlockAmendment[1]" />
 	<xsl:choose>
 		<xsl:when test="exists($block-amendment)">
 			<xsl:variable name="target-class" as="attribute()?" select="$block-amendment/@TargetClass" />
 			<xsl:choose>
-				<xsl:when test="exists($target-class)">
-					<xsl:sequence select="string($target-class)" />
+				<xsl:when test="empty($target-class)">
+					<xsl:sequence select="$doc-category" />
+				</xsl:when>
+				<xsl:when test="$target-class = 'unknown'">
+					<xsl:sequence select="$doc-category" />
 				</xsl:when>
 				<xsl:otherwise>
-					<xsl:sequence select="'unknown'" />
+					<xsl:sequence select="string($target-class)" />
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:when>
 		<xsl:otherwise>
+			<xsl:variable name="block-extract" as="element(BlockExtract)?" select="$clml/ancestor::BlockExtract[1]" />
+			<xsl:choose>
+				<xsl:when test="exists($block-extract)">
+					<xsl:variable name="source-class" as="attribute()?" select="$block-extract/@SourceClass" />
+					<xsl:choose>
+						<xsl:when test="empty($source-class)">
+							<xsl:sequence select="$doc-category" />
+						</xsl:when>
+						<xsl:when test="$source-class = 'unknown'">
+							<xsl:sequence select="$doc-category" />
+						</xsl:when>
+						<xsl:otherwise>
+							<xsl:sequence select="string($source-class)" />
+						</xsl:otherwise>
+					</xsl:choose>
+				</xsl:when>
+			</xsl:choose>
 			<xsl:sequence select="$doc-category" />
 		</xsl:otherwise>
 	</xsl:choose>
@@ -644,6 +665,11 @@
 		<xsl:if test="parent::FragmentNumber">
 			<xsl:attribute name="ukl:Context">
 				<xsl:value-of select="parent::*/@Context" />
+			</xsl:attribute>
+		</xsl:if>
+		<xsl:if test="exists(parent::BlockAmendment) or exists(parent::BlockExtract)">
+			<xsl:attribute name="ukl:Name">
+				<xsl:value-of select="local-name(.)" />
 			</xsl:attribute>
 		</xsl:if>
 		<xsl:apply-templates>

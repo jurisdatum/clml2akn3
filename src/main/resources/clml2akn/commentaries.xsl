@@ -71,7 +71,7 @@
 	</note>
 </xsl:template>
 
-<xsl:template match="Part | Chapter | Pblock | PsubBlock" mode="other-analysis">
+<xsl:template match="Group | Part | Chapter | Pblock | PsubBlock | EUPart | EUTitle | EUChapter | EUSection | EUSubsection" mode="other-analysis">
 	<xsl:variable name="id" as="xs:string" select="if (exists(@id)) then @id else generate-id()" />
 	<xsl:variable name="all-commentary-ids-with-duplicates" as="xs:string*">
 		<xsl:variable name="all-elements" as="element()*" select="( self::*[exists(@CommentaryRef)] | child::CommentaryRef | Number/descendant-or-self::*[exists(@CommentaryRef)] | Number/descendant::CommentaryRef | Title/descendant-or-self::*[exists(@CommentaryRef)] | Title/descendant::CommentaryRef )" />
