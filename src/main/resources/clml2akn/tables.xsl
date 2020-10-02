@@ -30,10 +30,29 @@
 	</foreign>
 </xsl:template>
 
-<xsl:template match="html:tfoot">
-	<xsl:if test="exists(html:tr/html:td/node()[not(self::ukl:Footnote)])">
-		<xsl:next-match />
-	</xsl:if>
+<xsl:template match="html:tfoot[every $n in html:tr/html:*/node() satisfies $n/self::Footnote[local:footnote-has-ref(.)]]" />
+
+<xsl:template match="html:tfoot/html:tr[every $n in html:*/node() satisfies $n/self::Footnote[local:footnote-has-ref(.)]]" />
+
+<xsl:template match="html:tfoot//Footnote[not(local:footnote-has-ref(.))]">
+	<authorialNote placement="inline" ukl:Name="Footnote">
+		<xsl:attribute name="eId">
+			<xsl:value-of select="@id" />
+		</xsl:attribute>
+		<xsl:attribute name="marker">
+			<xsl:choose>
+				<xsl:when test="exists(Number)">
+					<xsl:value-of select="normalize-space(Number)" />
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:value-of select="number(substring(@id , 2))" />
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:attribute>
+		<xsl:apply-templates>
+			<xsl:with-param name="context" select="'authorialNote'" tunnel="yes" />
+		</xsl:apply-templates>
+	</authorialNote>
 </xsl:template>
 
 <xsl:template match="html:*">

@@ -48,16 +48,25 @@
 		<xsl:when test="$doc-category = 'secondary'">
 			<xsl:choose>
 				<xsl:when test="exists(/ukl:Legislation/Metadata/SecondaryMetadata/Made)">
-					<xsl:value-of select="/ukl:Legislation/Metadata/SecondaryMetadata/Made/@Date" />
+					<xsl:sequence select="/ukl:Legislation/Metadata/SecondaryMetadata/Made/@Date" />
 				</xsl:when>
 				<xsl:otherwise>
-					<xsl:variable name="prelim-date" as="xs:date?" select="local:parse-date(/ukl:Legislation/ukl:Secondary/ukl:SecondaryPrelims/ukl:MadeDate/ukl:DateText)" />
+					<xsl:variable name="from-prelims" as="xs:date?" select="local:parse-date(/ukl:Legislation/ukl:Secondary/ukl:SecondaryPrelims/ukl:MadeDate/ukl:DateText)" />
 					<xsl:choose>
-						<xsl:when test="exists($prelim-date)">
-							<xsl:value-of select="$prelim-date" />
+						<xsl:when test="exists($from-prelims)">
+							<xsl:sequence select="string($from-prelims)" />
+						</xsl:when>
+						<xsl:when test="exists(/ukl:Legislation/Metadata/SecondaryMetadata/Laid)">
+							<xsl:sequence select="/ukl:Legislation/Metadata/SecondaryMetadata/Laid/@Date" />
+						</xsl:when>
+						<xsl:when test="exists(/ukl:Legislation/Metadata/SecondaryMetadata/ComingIntoForce/DateTime)">
+							<xsl:sequence select="/ukl:Legislation/Metadata/SecondaryMetadata/ComingIntoForce/DateTime/@Date" />
+						</xsl:when>
+						<xsl:when test="exists(/ukl:Legislation/@RestrictStartDate)">
+							<xsl:sequence select="/ukl:Legislation/@RestrictStartDate" />
 						</xsl:when>
 						<xsl:otherwise>
-							<xsl:value-of select="concat(/ukl:Legislation/Metadata/SecondaryMetadata/Year/@Value, '-01-01')" />
+							<xsl:sequence select="concat(/ukl:Legislation/Metadata/SecondaryMetadata/Year/@Value, '-01-01')" />
 						</xsl:otherwise>
 					</xsl:choose>
 				</xsl:otherwise>
@@ -95,13 +104,22 @@
 					<xsl:text>made</xsl:text>
 				</xsl:when>
 				<xsl:otherwise>
-					<xsl:variable name="prelim-date" as="xs:date?" select="local:parse-date(/ukl:Legislation/ukl:Secondary/ukl:SecondaryPrelims/ukl:MadeDate/ukl:DateText)" />
+					<xsl:variable name="from-prelims" as="xs:date?" select="local:parse-date(/ukl:Legislation/ukl:Secondary/ukl:SecondaryPrelims/ukl:MadeDate/ukl:DateText)" />
 					<xsl:choose>
-						<xsl:when test="exists($prelim-date)">
-							<xsl:text>made</xsl:text>
+						<xsl:when test="exists($from-prelims)">
+							<xsl:sequence select="'made'" />
+						</xsl:when>
+						<xsl:when test="exists(/ukl:Legislation/Metadata/SecondaryMetadata/Laid)">
+							<xsl:sequence select="'laid'" />
+						</xsl:when>
+						<xsl:when test="exists(/ukl:Legislation/Metadata/SecondaryMetadata/ComingIntoForce/DateTime)">
+							<xsl:sequence select="'comingIntoForce'" />
+						</xsl:when>
+						<xsl:when test="exists(/ukl:Legislation/@RestrictStartDate)">
+							<xsl:sequence select="'start'" />
 						</xsl:when>
 						<xsl:otherwise>
-							<xsl:text>estimated</xsl:text>
+							<xsl:sequence select="'estimated'" />
 						</xsl:otherwise>
 					</xsl:choose>
 				</xsl:otherwise>
@@ -413,6 +431,13 @@
 	</xsl:element>
 </xsl:template>
 
+<xsl:template match="*:Error">
+	<xsl:element name="{ local-name() }" namespace="{ namespace-uri(.) }">
+		<xsl:copy-of select="@*" />
+		<xsl:apply-templates />
+	</xsl:element>
+</xsl:template>
+
 <xsl:template match="ukm:UnappliedEffects | ukm:Notes | ukm:Alternatives | ukm:Statistics" />
 
 <xsl:template match="dc:*">
@@ -428,7 +453,7 @@
 </xsl:template>
 
 
-<xsl:variable name="elements-with-restrict-dates" as="element()*" select="//*[@RestrictStartDate or @RestrictEndDate]" />
+<xsl:variable name="elements-with-restrict-dates" as="element()*" select="//*[@RestrictStartDate or @RestrictEndDate][empty(ancestor-or-self::ukl:Attachments)]" />
 
 <!-- lifecycle -->
 
@@ -513,11 +538,11 @@
 
 <!-- analysis -->
 
-<xsl:variable name="elements-with-restrict-extent" as="element()*" select="//*[@RestrictExtent]" />
+<xsl:variable name="elements-with-restrict-extent" as="element()*" select="//*[@RestrictExtent][empty(ancestor-or-self::ukl:Attachments)]" />
 
-<xsl:variable name="elements-with-status" as="element()*" select="//*[@Status]" />
-<xsl:variable name="elements-with-confers-power" as="element()*" select="//*[@ConfersPower]" />
-<xsl:variable name="elements-with-match" as="element()*" select="//*[@Match]" />
+<xsl:variable name="elements-with-status" as="element()*" select="//*[@Status][empty(ancestor-or-self::ukl:Attachments)]" />
+<xsl:variable name="elements-with-confers-power" as="element()*" select="//*[@ConfersPower][empty(ancestor-or-self::ukl:Attachments)]" />
+<xsl:variable name="elements-with-match" as="element()*" select="//*[@Match][empty(ancestor-or-self::ukl:Attachments)]" />
 
 <xsl:variable name="has-restrictions" as="xs:boolean" select="exists($elements-with-restrict-extent) or exists($elements-with-restrict-dates)" />
 
@@ -637,7 +662,9 @@
 
 <xsl:template name="references">
 	<references source="#">
-		<xsl:apply-templates select="SecondaryMetadata/Laid" mode="tlc-organization" />
+		<xsl:for-each-group select="SecondaryMetadata/Laid" group-by="@Class">
+			<xsl:apply-templates select="." mode="tlc-organization" />
+		</xsl:for-each-group>
 		<xsl:apply-templates select="PrimaryMetadata/EnactmentDate" mode="tlc-event" />
 		<xsl:apply-templates select="SecondaryMetadata/(Sifted | Made | Laid | ComingIntoForce)" mode="tlc-event" />
 		<xsl:apply-templates select="EUMetadata/EnactmentDate | EUMetadata/ComingIntoForce" mode="tlc-event" />

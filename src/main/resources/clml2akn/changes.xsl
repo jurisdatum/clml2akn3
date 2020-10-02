@@ -12,6 +12,7 @@
 
 
 <xsl:key name="change" match="Addition[not(ancestor::Footnote)] | Repeal[not(ancestor::Footnote)] | Substitution[not(ancestor::Footnote)]" use="@ChangeId" />
+<!-- What to do in case all changes for a @ChangeId are within a footnote, e.g., eudr/1995/1 -->
 
 <xsl:template match="Addition | Substitution">
 	<ins>
@@ -26,24 +27,30 @@
 </xsl:template>
 
 <xsl:template name="change">
-	<xsl:variable name="first" as="xs:boolean" select=". is key('change', @ChangeId)[1]" />
+	<xsl:variable name="first" as="element()?" select="key('change', @ChangeId)[1]" />
+	<xsl:variable name="last" as="element()?" select="key('change', @ChangeId)[last()]" />
+	<!-- exists($first) is necessary to guard againt the case in which all changes for this @ChangeId are within a footnote, e.g., eudr/1995/1 -->
+	<xsl:variable name="is-first" as="xs:boolean" select="exists($first) and . is $first" />
+	<xsl:variable name="is-last" as="xs:boolean" select="exists($last) and . is $last" />
 	<xsl:variable name="classes" as="xs:string*">
 		<xsl:if test="self::Substitution">
 			<xsl:sequence select="lower-case(local-name())" />
 		</xsl:if>
-		<xsl:if test="$first">
+		<xsl:if test="$is-first">
 			<xsl:sequence select="'first'" />
 		</xsl:if>
-		<xsl:if test=". is key('change', @ChangeId)[last()]">
+		<xsl:if test="$is-last">
 			<xsl:sequence select="'last'" />
 		</xsl:if>
 	</xsl:variable>
-	<xsl:attribute name="class">
-		<xsl:value-of select="string-join($classes, ' ')" />
-	</xsl:attribute>
+	<xsl:if test="exists($classes)">
+		<xsl:attribute name="class">
+			<xsl:value-of select="string-join($classes, ' ')" />
+		</xsl:attribute>
+	</xsl:if>
 	<xsl:apply-templates select="@ChangeId" />
 	<xsl:apply-templates select="@CommentaryRef" />
-	<xsl:if test="$first">
+	<xsl:if test="$first and exists(@CommentaryRef)">	<!-- exists(@CommentaryRef) for ukpga/1980/9 -->
 		<noteRef uk:name="commentary" href="#{ @CommentaryRef }" class="commentary" />
 	</xsl:if>
 	<xsl:apply-templates />

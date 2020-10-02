@@ -18,7 +18,7 @@
 			<P2 akn="subsection" />
 		</primary>
 		<secondary>
-			<order> <!-- use if 'unknown' -->
+			<order> <!-- use if 'unknown' or 'scheme' -->
 				<P1 akn="article" />
 				<P2 akn="paragraph" />
 			</order>
@@ -55,7 +55,7 @@
 			<xsl:sequence select="$mapping/*:schedule/*[local-name()=$clml-element-name]/@akn" />
 		</xsl:when>
 		<xsl:when test="$doc-class = 'secondary'">
-			<xsl:variable name="doc-subclass" as="xs:string" select="if (empty($doc-subclass) or ($doc-subclass = 'unknown')) then 'order' else $doc-subclass" />
+			<xsl:variable name="doc-subclass" as="xs:string" select="if (empty($doc-subclass) or ($doc-subclass = ('unknown','scheme'))) then 'order' else $doc-subclass" />
 			<xsl:sequence select="$mapping/*:secondary/*[local-name()=$doc-subclass]/*[local-name()=$clml-element-name]/@akn" />
 		</xsl:when>
 		<xsl:when test="$doc-class = 'euretained'">
@@ -142,8 +142,10 @@
 						</xsl:otherwise>
 					</xsl:choose>
 				</xsl:when>
+				<xsl:otherwise>
+					<xsl:sequence select="$doc-category" />
+				</xsl:otherwise>
 			</xsl:choose>
-			<xsl:sequence select="$doc-category" />
 		</xsl:otherwise>
 	</xsl:choose>
 </xsl:function>
@@ -375,6 +377,10 @@
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:when>
+		<xsl:when test="exists(IncludedDocument)">
+			<xsl:variable name="headings" as="element()*" select="Number | Pnumber | Title | Subtitle" />
+			<xsl:apply-templates select="* except ($headings | Reference)" />
+		</xsl:when>
 		<xsl:otherwise>
 			<xsl:variable name="headings" as="element()*" select="Number | Pnumber | Title | Subtitle" />
 			<content>
@@ -406,13 +412,11 @@
 </xsl:function>
 
 <xsl:template name="hcontainer">
+	<xsl:param name="skipped-pgroup-title" as="xs:boolean" select="false()" />
 	<xsl:call-template name="add-structure-attributes" />
 	<xsl:choose>
 		<xsl:when test="local:heading-before-number(.)">
-			<xsl:if test="self::P1 and parent::P1group and empty(parent::*/parent::*/P1group[count(P1) gt 1])">
-				<xsl:apply-templates select="parent::*/Title" />
-			</xsl:if>
-			<xsl:if test="self::P2 and parent::P2group and empty(parent::*/parent::*/P2group[count(P2) gt 1])">
+			<xsl:if test="$skipped-pgroup-title">
 				<xsl:apply-templates select="parent::*/Title" />
 			</xsl:if>
 			<xsl:apply-templates select="Title | Subtitle" />
@@ -420,10 +424,7 @@
 		</xsl:when>
 		<xsl:otherwise>
 			<xsl:apply-templates select="Number | Pnumber" />
-			<xsl:if test="self::P1 and parent::P1group and empty(parent::*/parent::*/P1group[count(P1) gt 1])">
-				<xsl:apply-templates select="parent::*/Title" />
-			</xsl:if>
-			<xsl:if test="self::P2 and parent::P2group and empty(parent::*/parent::*/P2group[count(P2) gt 1])">
+			<xsl:if test="$skipped-pgroup-title">
 				<xsl:apply-templates select="parent::*/Title" />
 			</xsl:if>
 			<xsl:apply-templates select="Title | Subtitle" />
@@ -442,6 +443,12 @@
 
 
 <!-- matching templates -->
+
+<xsl:template match="Group">
+	<hcontainer name="groupOfParts">
+		<xsl:call-template name="hcontainer" />
+	</hcontainer>
+</xsl:template>
 
 <xsl:template match="Part">
 	<part>
@@ -497,6 +504,30 @@
 	</xsl:choose>
 </xsl:template>
 
+<xsl:template match="Group/Number | Part/Number | Chapter/Number | Pblock/Number | PsubBlock/Number">
+	<num>
+		<xsl:apply-templates />
+		<xsl:apply-templates select="../Reference" />
+	</num>
+</xsl:template>
+
+<xsl:template match="Group/Title | Part/Title | Chapter/Title | Pblock/Title | PsubBlock/Title">
+	<xsl:choose>
+		<xsl:when test="exists(preceding-sibling::Number)">
+			<xsl:next-match />
+		</xsl:when>
+		<xsl:otherwise>
+			<heading>
+				<xsl:apply-templates />
+				<xsl:apply-templates select="../Reference" />
+			</heading>
+		</xsl:otherwise>
+	</xsl:choose>
+</xsl:template>
+
+
+<!--  -->
+
 <xsl:template match="P1group">
 	<xsl:param name="context" as="xs:string*" tunnel="yes" />
 	<xsl:choose>
@@ -543,6 +574,7 @@
 		<xsl:otherwise> <!-- there is only one P1 -->
 			<xsl:apply-templates select="*[not(self::Title)]">
 				<xsl:with-param name="inherit-from-p1group" select="true()" />
+				<xsl:with-param name="skipped-pgroup-title" select="true()" />
 			</xsl:apply-templates>
 		</xsl:otherwise>
 	</xsl:choose>
@@ -552,6 +584,7 @@
 
 <xsl:template match="P1">
 	<xsl:param name="inherit-from-p1group" as="xs:boolean" select="false()" />
+	<xsl:param name="skipped-pgroup-title" as="xs:boolean" select="false()" />
 	<xsl:param name="context" as="xs:string*" tunnel="yes" />
 	<xsl:variable name="name" as="xs:string" select="local:make-hcontainer-name(., $context)" />
 	<xsl:variable name="alt-version-anchor" as="element()" select="if (empty(@AltVersionRefs) and $inherit-from-p1group) then .. else ." />
@@ -572,6 +605,7 @@
 			</xsl:attribute>
 		</xsl:if>
 		<xsl:call-template name="hcontainer">
+			<xsl:with-param name="skipped-pgroup-title" select="$skipped-pgroup-title" />
 			<xsl:with-param name="context" select="($name, $context)" tunnel="yes" />
 		</xsl:call-template>
 	</xsl:element>
@@ -583,19 +617,37 @@
 <xsl:template match="P2group">
 	<xsl:param name="context" as="xs:string*" tunnel="yes" />
 	<xsl:choose>
-		<xsl:when test="exists(parent::*/P2group[count(P2) gt 1])">
-			<hcontainer name="P2group">
-				<xsl:call-template name="add-structure-attributes" />
-				<xsl:apply-templates />
-			</hcontainer>
+		<xsl:when test="every $sibling in parent::*/P2group satisfies count($sibling/child::P2) eq 1">
+			<xsl:apply-templates select="*[not(self::Title)]">
+				<xsl:with-param name="skipped-pgroup-title" select="true()" />
+			</xsl:apply-templates>
 		</xsl:when>
 		<xsl:otherwise>
-			<xsl:apply-templates select="*[not(self::Title)]" />
+			<hcontainer name="P2group">
+				<xsl:call-template name="hcontainer" />
+			</hcontainer>
+		</xsl:otherwise>
+	</xsl:choose>
+</xsl:template>
+
+<xsl:template match="P3group">
+	<xsl:param name="context" as="xs:string*" tunnel="yes" />
+	<xsl:choose>
+		<xsl:when test="every $sibling in parent::*/P3group satisfies count($sibling/child::P3) eq 1">
+			<xsl:apply-templates select="*[not(self::Title)]">
+				<xsl:with-param name="skipped-pgroup-title" select="true()" />
+			</xsl:apply-templates>
+		</xsl:when>
+		<xsl:otherwise>
+			<hcontainer name="P3group">
+				<xsl:call-template name="hcontainer" />
+			</hcontainer>
 		</xsl:otherwise>
 	</xsl:choose>
 </xsl:template>
 
 <xsl:template match="P2 | P3 | P4 | P5 | P6 | Pblock/P | PsubBlock/P">
+	<xsl:param name="skipped-pgroup-title" as="xs:boolean" select="false()" />
 	<xsl:param name="context" as="xs:string*" tunnel="yes" />
 	<xsl:variable name="name" as="xs:string" select="local:make-hcontainer-name(., $context)" />
 	<xsl:element name="{ if ($name = $unsupported) then 'hcontainer' else $name }">
@@ -609,7 +661,9 @@
 				<xsl:value-of select="local:make-hcontainer-class(local-name(.))" />
 			</xsl:attribute>
 		</xsl:if>
-		<xsl:call-template name="hcontainer" />
+		<xsl:call-template name="hcontainer">
+			<xsl:with-param name="skipped-pgroup-title" select="$skipped-pgroup-title" />
+		</xsl:call-template>
 	</xsl:element>
 </xsl:template>
 
@@ -627,6 +681,21 @@
 	</hcontainer>
 </xsl:template>
 
+<xsl:template match="Abstract">
+	<xsl:param name="context" as="xs:string*" tunnel="yes" />
+	<hcontainer name="abstract">
+		<xsl:apply-templates>
+			<xsl:with-param name="context" select="('abstract', $context)" tunnel="yes" />
+		</xsl:apply-templates>
+	</hcontainer>
+</xsl:template>
+
+<xsl:template match="AbstractBody">
+	<content>
+		<xsl:apply-templates />
+	</content>
+</xsl:template>
+
 <xsl:template match="Schedule">
 	<xsl:param name="context" as="xs:string*" tunnel="yes" />
 	<hcontainer name="schedule">
@@ -637,11 +706,7 @@
 	</hcontainer>
 </xsl:template>
 
-<xsl:template match="ScheduleBody">
-	<xsl:call-template name="hcontainer-body" />
-</xsl:template>
-
-<xsl:template match="Schedule/Number | Schedule/ScheduleBody/Part/Number">
+<xsl:template match="Schedule/Number">
 	<num>
 		<xsl:apply-templates />
 		<xsl:apply-templates select="../Reference" />
@@ -654,6 +719,59 @@
 			<xsl:apply-templates />
 		</p>
 	</authorialNote>
+</xsl:template>
+
+<xsl:template match="ScheduleBody">
+	<xsl:choose>
+		<xsl:when test="exists(following-sibling::Appendix)">
+			<hcontainer name="scheduleBody">
+				<xsl:call-template name="hcontainer-body" />
+			</hcontainer>
+		</xsl:when>
+		<xsl:otherwise>
+			<xsl:call-template name="hcontainer-body" />
+		</xsl:otherwise>
+	</xsl:choose>
+</xsl:template>
+
+
+<!-- appendices -->
+
+<xsl:template match="Appendix">
+	<xsl:param name="context" as="xs:string*" tunnel="yes" />
+	<hcontainer name="appendix">
+		<xsl:call-template name="add-structure-attributes" />
+		<xsl:apply-templates select="*[not(self::Reference)]">
+			<xsl:with-param name="context" select="('appendix', $context)" tunnel="yes" />
+		</xsl:apply-templates>
+	</hcontainer>
+</xsl:template>
+
+<xsl:template match="Appendix/Number">
+	<num>
+		<xsl:apply-templates />
+		<xsl:apply-templates select="../Reference" />
+	</num>
+</xsl:template>
+
+<xsl:template match="Appendix[exists(Reference)][empty(Number)]/TitleBlock/Title[1]">
+	<heading>
+		<xsl:apply-templates />
+		<xsl:apply-templates select="../Reference" />
+	</heading>
+</xsl:template>
+
+<xsl:template match="AppendixBody">
+	<xsl:choose>
+		<xsl:when test="exists(following-sibling::Appendix)">
+			<hcontainer name="appendixBody">
+				<xsl:call-template name="hcontainer-body" />
+			</hcontainer>
+		</xsl:when>
+		<xsl:otherwise>
+			<xsl:call-template name="hcontainer-body" />
+		</xsl:otherwise>
+	</xsl:choose>
 </xsl:template>
 
 

@@ -7,10 +7,15 @@
 	xmlns="http://docs.oasis-open.org/legaldocml/ns/akn/3.0"
 	xmlns:uk="https://www.legislation.gov.uk/namespaces/UK-AKN"
 	xmlns:html="http://www.w3.org/1999/xhtml"
-	exclude-result-prefixes="xs uk html">
-
+	xmlns:local="http://www.jurisdatum.com/tna/clml2akn"
+	exclude-result-prefixes="xs uk html local">
 
 <xsl:key name="footnote-ref" match="FootnoteRef" use="@Ref" />
+
+<xsl:function name="local:footnote-has-ref" as="xs:boolean">
+	<xsl:param name="footnote" as="element(Footnote)" />
+	<xsl:sequence select="exists($footnote/@id) and exists(key('footnote-ref', $footnote/@id, root($footnote)))" />
+</xsl:function>
 
 <xsl:template match="FootnoteRef">
 	<xsl:choose>
@@ -22,8 +27,8 @@
 				</xsl:attribute>
 				<xsl:attribute name="marker">
 					<xsl:choose>
-						<xsl:when test="$footnote/Number">
-							<xsl:value-of select="$footnote/Number" />
+						<xsl:when test="exists($footnote/Number)">
+							<xsl:value-of select="normalize-space($footnote/Number)" />
 						</xsl:when>
 						<xsl:otherwise>
 							<xsl:value-of select="number(substring(@Ref , 2))" />
@@ -54,6 +59,21 @@
 </xsl:template>
 
 <xsl:template match="FootnoteText">
+	<xsl:apply-templates />
+</xsl:template>
+
+
+<!-- marginal notes -->
+
+<xsl:template match="MarginNoteRef">
+	<authorialNote placement="side" eId="{ @Ref }">
+		<xsl:apply-templates select="key('id', @Ref)" />
+	</authorialNote>
+</xsl:template>
+
+<xsl:template match="MarginNotes" />
+
+<xsl:template match="MarginNote">
 	<xsl:apply-templates />
 </xsl:template>
 

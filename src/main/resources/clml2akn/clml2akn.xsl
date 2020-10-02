@@ -19,6 +19,7 @@
 <xsl:include href="metadata.xsl" />
 <xsl:include href="context.xsl" />
 <xsl:include href="prelims.xsl" />
+<xsl:include href="toc.xsl" />
 <xsl:include href="structure.xsl" />
 <xsl:include href="numbers.xsl" />
 <xsl:include href="lists.xsl" />
@@ -49,6 +50,7 @@
 <xsl:template match="Legislation">
 	<act name="{ $doc-short-type }">
 		<xsl:apply-templates select="*[not(self::Footnotes) and not(self::Versions) and not(self::Resources)]" />
+		<xsl:call-template name="components" />
 	</act>
 </xsl:template>
 
@@ -199,7 +201,7 @@
 				<xsl:value-of select="@Expansion" />
 			</xsl:attribute>
 		</xsl:if>
-		<xsl:apply-templates select="@xml:lang" />
+		<xsl:copy-of select="@xml:lang" />
 		<xsl:apply-templates />
 	</abbr>
 </xsl:template>
@@ -208,6 +210,12 @@
 	<def ukl:Name="Definition">
 		<xsl:apply-templates />
 	</def>
+</xsl:template>
+
+<xsl:template match="Proviso">
+	<inline name="proviso">
+		<xsl:apply-templates />
+	</inline>
 </xsl:template>
 
 <xsl:template match="Span">
@@ -220,10 +228,7 @@
 	<span ukl:Name = "{ @Name }">
 		<xsl:choose>
 			<xsl:when test="@Name = 'DotPadding'">
-				<xsl:message terminate="yes" />
-			</xsl:when>
-			<xsl:when test="@Name = 'DotPadding'">
-				<xsl:text>&#x2026;&#x2026;&#x2026;&#x2026;</xsl:text>
+				<marker name="dotPadding" />
 			</xsl:when>
 			<xsl:when test="@Name = 'EmSpace'">
 				<xsl:text>&#x2003;</xsl:text>
@@ -273,13 +278,8 @@
 
 <xsl:template match="*">
 	<xsl:message terminate="yes">
-		<xsl:value-of select="local-name()" />
+		<xsl:sequence select="." />
 	</xsl:message>
-<!-- 	<xsl:comment>
-		<xsl:value-of select="local-name()" />
-	</xsl:comment>
-	<xsl:apply-templates /> -->
 </xsl:template>
-
 
 </xsl:transform>

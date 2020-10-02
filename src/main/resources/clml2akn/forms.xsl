@@ -12,10 +12,37 @@
 <xsl:template match="Form">
 	<xsl:param name="context" as="xs:string*" tunnel="yes" />
 	<tblock class="form">
-		<xsl:apply-templates>
+		<xsl:if test="exists(Reference) and empty(Number) and empty(TitleBlock/Title)">
+			<block name="reference">
+				<xsl:apply-templates select="Reference/node()" />
+			</block>
+		</xsl:if>
+		<xsl:apply-templates select="*[not(self::Reference)]">
 			<xsl:with-param name="context" select="('tblock', $context)" />
 		</xsl:apply-templates>
 	</tblock>
+</xsl:template>
+
+<xsl:template match="Form/Number">
+	<num>
+		<xsl:apply-templates />
+		<xsl:apply-templates select="../Reference" />
+	</num>
+</xsl:template>
+
+<xsl:template match="Form/TitleBlock[empty(preceding-sibling::Number)]/Title[1]">
+	<heading>
+		<xsl:apply-templates />
+		<xsl:apply-templates select="../Reference" />
+	</heading>
+</xsl:template>
+
+<xsl:template match="Form/Reference">
+	<authorialNote class="referenceNote">
+		<p>
+			<xsl:apply-templates />
+		</p>
+	</authorialNote>
 </xsl:template>
 
 <xsl:template match="Form/IncludedDocument">

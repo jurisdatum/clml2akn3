@@ -56,4 +56,47 @@
 </xsl:template>
 
 
+<!-- included documents -->
+
+<xsl:template match="IncludedDocument">
+	<componentRef src="#{ @ResourceRef }" showAs="" />
+</xsl:template>
+
+<xsl:template name="components">
+	<xsl:variable name="components" as="element(IncludedDocument)*" select="//IncludedDocument[not(parent::Form)]" />
+	<xsl:if test="exists($components)">
+		<components>
+			<xsl:apply-templates select="$components" mode="component" />
+		</components>
+	</xsl:if>
+</xsl:template>
+
+<xsl:template match="IncludedDocument" mode="component">
+	<xsl:variable name="reference" select="key('id', @ResourceRef)" />
+	<component eId="{ @ResourceRef }">
+		<xsl:apply-templates select="$reference/node()" />
+	</component>
+</xsl:template>
+
+<xsl:template match="InternalVersion">
+	<xsl:apply-templates />
+</xsl:template>
+
+<xsl:template match="XMLcontent">
+	<xsl:choose>
+		<xsl:when test="exists(Contents)">
+			<xsl:apply-templates />
+		</xsl:when>
+		<xsl:otherwise>
+			<interstitial>
+				<p>
+					<subFlow name="InternalVersion">
+						<xsl:apply-templates />
+					</subFlow>
+				</p>
+			</interstitial>
+		</xsl:otherwise>
+	</xsl:choose>
+</xsl:template>
+
 </xsl:transform>

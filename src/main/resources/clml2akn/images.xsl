@@ -39,7 +39,12 @@
 </xsl:function>
 
 <xsl:template match="Image">
-	<xsl:variable name="src" as="xs:string" select="key('id',@ResourceRef)/ExternalVersion/@URI" />
+	<xsl:variable name="src" as="xs:string?" select="key('id', @ResourceRef)/ExternalVersion/@URI" />
+	<xsl:if test="empty($src)">
+		<xsl:message>
+			<xsl:sequence select="." />
+		</xsl:message>
+	</xsl:if>
 	<xsl:variable name="clml" as="element()">
 		<img src="{ $src }">
 			<xsl:if test="exists(@Width)">
@@ -50,7 +55,7 @@
 							<xsl:value-of select="@Width" />
 						</xsl:attribute>
 					</xsl:when>
-					<xsl:when test="ends-with(@Width, 'pt')">
+					<xsl:when test="ends-with(@Width, 'pt') and (substring-before(@Width,'pt') castable as xs:decimal)">
 						<xsl:attribute name="width">
 							<xsl:value-of select="local:pt-to-px(number(substring-before(@Width,'pt')))" />
 						</xsl:attribute>
@@ -81,7 +86,7 @@
 							<xsl:value-of select="@Height" />
 						</xsl:attribute>
 					</xsl:when>
-					<xsl:when test="ends-with(@Height, 'pt')">
+					<xsl:when test="ends-with(@Height, 'pt') and (substring-before(@Height,'pt') castable as xs:decimal)">
 						<xsl:attribute name="height">
 							<xsl:value-of select="local:pt-to-px(number(substring-before(@Height,'pt')))" />
 						</xsl:attribute>
@@ -129,6 +134,18 @@
 			</p>
 		</xsl:otherwise>
 	</xsl:choose>
+</xsl:template>
+
+<xsl:template match="Figure/Notes">
+	<container name="notes">
+		<xsl:apply-templates />
+	</container>
+</xsl:template>
+
+<xsl:template match="Figure/Notes/Footnote">
+	<tblock class="note" ukl:Name="Footnote" eId="{ @id }">
+		<xsl:apply-templates />
+	</tblock>
 </xsl:template>
 
 </xsl:transform>

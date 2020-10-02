@@ -99,7 +99,7 @@
 
 <xsl:template match="BlockAmendment" mode="wrapped">
 	<xsl:param name="context" as="xs:string*" tunnel="yes" />
-	<xsl:variable name="lead-in" as="element(Text)?" select="*[1][self::Text]" />
+	<xsl:variable name="lead-in" as="element(Text)?" select="*[1][self::Text][exists(following-sibling::*)]" />
 	<xsl:choose>
 		<xsl:when test="exists($lead-in)">
 			<quotedText>

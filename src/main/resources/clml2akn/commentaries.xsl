@@ -37,7 +37,7 @@
 	<xsl:variable name="all-commentaries-in-reference-order" as="element(Commentary)*">
 		<xsl:variable name="root" as="document-node()" select="root()" />
 		<xsl:for-each select="$all-unique-commentary-ids-in-reference-order">
-			<xsl:sequence select="key('id', ., $root)" />
+			<xsl:sequence select="key('id', ., $root)[self::Commentary]" />	<!-- self::Commentary only b/c of errors, e.g., in ukpga/1974/7 -->
 		</xsl:for-each>
 	</xsl:variable>
 	
@@ -119,7 +119,7 @@
 </xsl:template>
 
 <xsl:template match="CommentaryRef">
-	<xsl:variable name="commentary" as="element(Commentary)?" select="key('id', @Ref)" />
+	<xsl:variable name="commentary" as="element(Commentary)?" select="key('id', @Ref)[self::Commentary]" />	<!-- self::Commentary b/c of errors in ukpga/1974/7 -->
 	<xsl:if test="exists($commentary) and $commentary/@Type = ('F', 'M', 'X')">
 		<noteRef href="#{ @Ref }" uk:name="commentary" ukl:Name="CommentaryRef" class="commentary" />
 	</xsl:if>

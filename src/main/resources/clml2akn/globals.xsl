@@ -6,9 +6,10 @@
 	xpath-default-namespace="http://www.legislation.gov.uk/namespaces/legislation"
 	xmlns:ukm="http://www.legislation.gov.uk/namespaces/metadata"
 	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:dct="http://purl.org/dc/terms/"
 	xmlns:html="http://www.w3.org/1999/xhtml"
 	xmlns:local="http://www.jurisdatum.com/tna/clml2akn"
-	exclude-result-prefixes="xs ukm dc html local">
+	exclude-result-prefixes="xs ukm dc dct html local">
 
 
 <!-- keys -->
@@ -141,7 +142,7 @@
 	<xsl:param name="raw" as="xs:string" />
 	<xsl:variable name="normalized" as="xs:string" select="normalize-space(translate($raw, '&#160;', ' '))" />
 	<xsl:variable name="temp" as="xs:date*">
-		<xsl:analyze-string regex="(\d{{1,2}})(st|nd|rd|th)?( day of)? (January|February|March|April|May|June|July|August|September|October|November|December) (\d{{4}})" select="$normalized">
+		<xsl:analyze-string regex="(\d{{1,2}})(st|nd|rd|th)?( day of)? (January|February|March|April|May|June|July|August|September|October|November|December) ?(\d{{4}})" select="$normalized">
 			<xsl:matching-substring>
 				<xsl:variable name="day" as="xs:string" select="format-number(number(regex-group(1)), '00')" />
 				<xsl:variable name="months" as="xs:string*" select="('January','February','March','April','May','June','July','August','September','October','November','December')" />
@@ -184,7 +185,7 @@
 			<xsl:sequence select="''" />
 		</xsl:when>
 		<xsl:when test="exists($e/ancestor::Version)">
-			<xsl:variable name="version" as="element(Version)" select="$e/ancestor::Version" />
+			<xsl:variable name="version" as="element(Version)" select="$e/ancestor::Version[last()]" />	<!-- [last()] for nested Versions in ukpga/1999/3/2007-01-29 -->
 			<xsl:choose>
 				<xsl:when test="exists($e/@id) and exists($version/@Description)">
 					<xsl:sequence select="concat($e/@id, '-', lower-case($version/@Description))" />
@@ -293,12 +294,56 @@
 	</xsl:choose>
 </xsl:variable>
 
-<xsl:variable name="doc-number" as="xs:string" select="/Legislation/ukm:Metadata/ukm:*/ukm:Number/@Value" />
+<xsl:variable name="doc-number" as="xs:string">
+	<xsl:variable name="ukm-number" as="element()?" select="/Legislation/ukm:Metadata/ukm:*/ukm:Number" />
+	<xsl:choose>
+		<xsl:when test="exists($ukm-number)">
+			<xsl:sequence select="$ukm-number/@Value" />
+		</xsl:when>
+		<xsl:otherwise>
+			<xsl:variable name="dc-identifier" as="xs:string?" select="//ukm:Metadata/dc:identifier[1]" />
+			<xsl:choose>
+				<xsl:when test="exists($dc-identifier)">
+					<xsl:variable name="good-part" as="xs:string" select="substring-after($dc-identifier, 'legislation.gov.uk/')" />
+					<xsl:variable name="parts" as="xs:string*" select="tokenize($good-part, '/')" />
+					<xsl:choose>
+						<xsl:when test="$parts[2] castable as xs:integer">
+							<xsl:sequence select="$parts[3]" />
+						</xsl:when>
+						<xsl:otherwise>	<!-- 2 and 3 are regnal year -->
+							<xsl:sequence select="$parts[4]" />
+						</xsl:otherwise>
+					</xsl:choose>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:sequence select="'0'" />
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:otherwise>
+	</xsl:choose>
+</xsl:variable>
 
 <xsl:variable name="doc-title" as="xs:string" select="/Legislation/ukm:Metadata/dc:title" />
 
 <xsl:variable name="doc-short-id" as="xs:string">
-	<xsl:value-of select="concat($doc-short-type, '/', $doc-year, '/', $doc-number)" />
+	<xsl:sequence select="concat($doc-short-type, '/', $doc-year, '/', $doc-number)" />
+<!-- 	<xsl:variable name="dc-identifier" as="xs:string?" select="//ukm:Metadata/dc:identifier[1]" />
+	<xsl:choose>
+		<xsl:when test="exists($dc-identifier)">
+			<xsl:variable name="good-part" as="xs:string" select="substring-after($dc-identifier, 'legislation.gov.uk/')" />
+			<xsl:variable name="parts" as="xs:string*" select="tokenize($good-part, '/')" />
+			<xsl:choose>
+				<xsl:when test="true()">
+					<xsl:sequence select="string-join($parts, '/')" />
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:sequence select="string-join($parts, '/')" />
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:when>
+		<xsl:otherwise>
+		</xsl:otherwise>
+	</xsl:choose> -->
 </xsl:variable>
 
 <xsl:variable name="doc-long-id" as="xs:string">
@@ -307,7 +352,38 @@
 
 <xsl:variable name="doc-version" as="xs:string">
 	<xsl:variable name="dc-identifier" as="xs:string" select="(//dc:identifier)[1]" />
-	<xsl:value-of select="substring-after($dc-identifier, concat($doc-short-id, '/'))" />
+	<xsl:variable name="good-part" as="xs:string" select="substring-after($dc-identifier, 'legislation.gov.uk/')" />
+	<xsl:variable name="parts" as="xs:string*" select="tokenize($good-part, '/')" />
+	<xsl:variable name="last-part" as="xs:string" select="$parts[last()]" />
+	<xsl:choose>
+		<xsl:when test="$last-part = ('enacted','made','created','adopted')">
+			<xsl:sequence select="$last-part" />
+		</xsl:when>
+		<xsl:when test="$last-part castable as xs:date">
+			<xsl:sequence select="$last-part" />
+		</xsl:when>
+		<xsl:otherwise>
+			<xsl:variable name="dct-valid" as="element()?" select="/Legislation/ukm:Metadata/dct:valid" />
+			<xsl:choose>
+				<xsl:when test="exists($dct-valid)">
+					<xsl:sequence select="string($dct-valid)" />
+				</xsl:when>
+				<xsl:when test="$doc-category = 'primary'">
+					<xsl:sequence select="'enacted'" />
+				</xsl:when>
+				<!-- created -->
+				<xsl:when test="$doc-category = 'secondary'">
+					<xsl:sequence select="'made'" />
+				</xsl:when>
+				<xsl:when test="$doc-category = 'euretained'">
+					<xsl:sequence select="'adopted'" />
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:sequence select="'unknown'" />
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:otherwise>
+	</xsl:choose>
 </xsl:variable>
 
 </xsl:transform>

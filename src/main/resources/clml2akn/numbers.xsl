@@ -75,8 +75,11 @@
 
 <xsl:function name="local:format-list-number" as="xs:string?">
 	<xsl:param name="number" as="xs:string" />
-	<xsl:param name="list-decor" as="attribute(Decoration)" />
+	<xsl:param name="list-decor" as="attribute(Decoration)?" />
 	<xsl:choose>
+		<xsl:when test="empty($list-decor)">
+			<xsl:value-of select="$number" />
+		</xsl:when>
 		<xsl:when test="$list-decor = 'none'">
 			<xsl:value-of select="$number" />
 		</xsl:when>

@@ -108,6 +108,17 @@
 	</hcontainer>
 </xsl:template>
 
+<xsl:template match="ListItem/Division">
+	<blockContainer uk:name="division">
+		<xsl:if test="exists(@Type)">
+			<xsl:attribute name="class">
+				<xsl:value-of select="lower-case(@Type)" />
+			</xsl:attribute>
+		</xsl:if>
+		<xsl:apply-templates />
+	</blockContainer>
+</xsl:template>
+
 
 <!-- attachments -->
 

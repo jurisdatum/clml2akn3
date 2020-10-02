@@ -77,20 +77,6 @@
 </xsl:template>
 
 
-<xsl:template name="collapse-para">
-	<xsl:choose>
-		<xsl:when test="empty(preceding-sibling::*) and empty(following-sibling::*)">
-			<xsl:apply-templates />
-		</xsl:when>
-		<xsl:otherwise>
-			<container name="para">
-				<xsl:apply-templates />
-			</container>
-		</xsl:otherwise>
-	</xsl:choose>
-</xsl:template>
-
-
 <!-- secondary -->
 
 
@@ -270,35 +256,42 @@
 </xsl:template>
 
 <xsl:template match="SiftedDate/DateText | MadeDate/DateText | LaidDate/DateText | ComingIntoForce/DateText | ComingIntoForceClauses/DateText">
-	<docDate>
-		<xsl:attribute name="date">
-			<xsl:variable name="from-text" as="xs:date?" select="local:parse-date(.)" />
-			<xsl:choose>
-				<xsl:when test="exists($from-text)">
-					<xsl:value-of select="$from-text" />
-				</xsl:when>
-				<xsl:when test="parent::SiftedDate">
-					<xsl:value-of select="/Legislation/ukm:Metadata/ukm:*/ukm:Sifted/@Date" />
-				</xsl:when>
-				<xsl:when test="parent::MadeDate">
-					<xsl:variable name="ukm-made" as="element(ukm:Made)?" select="/Legislation/ukm:Metadata/ukm:SecondaryMetadata/ukm:Made" />
-					<xsl:value-of select="$ukm-made/@Date" />
-				</xsl:when>
-				<xsl:when test="parent::LaidDate">
-					<xsl:variable name="pos" as="xs:integer" select="count(parent::*/preceding-sibling::LaidDate) + 1" />
-					<xsl:value-of select="/Legislation/ukm:Metadata/ukm:SecondaryMetadata/ukm:Laid[$pos]/@Date" />
-				</xsl:when>
-				<xsl:when test="parent::ComingIntoForce">
-					<xsl:value-of select="/Legislation/ukm:Metadata/ukm:*/ukm:ComingIntoForce/ukm:DateTime/@Date" />
-				</xsl:when>
-				<xsl:when test="parent::ComingIntoForceClauses">
-					<xsl:variable name="pos" as="xs:integer" select="count(../preceding-sibling::ComingIntoForceClauses) + 1" />
-					<xsl:value-of select="/Legislation/ukm:Metadata/ukm:SecondaryMetadata/ukm:ComingIntoForce/ukm:DateTime[$pos]/@Date" />
-				</xsl:when>
-			</xsl:choose>
-		</xsl:attribute>
-		<xsl:apply-templates />
-	</docDate>
+	<xsl:variable name="date" as="xs:date?">
+		<xsl:variable name="from-text" as="xs:date?" select="local:parse-date(.)" />
+		<xsl:choose>
+			<xsl:when test="exists($from-text)">
+				<xsl:sequence select="$from-text" />
+			</xsl:when>
+			<xsl:when test="parent::SiftedDate">
+				<xsl:sequence select="/Legislation/ukm:Metadata/ukm:*/ukm:Sifted/@Date" />
+			</xsl:when>
+			<xsl:when test="parent::MadeDate">	<!-- could add and exists(/Legislation/ukm:Metadata/ukm:SecondaryMetadata/ukm:Made) -->
+				<xsl:variable name="ukm-made" as="element(ukm:Made)?" select="/Legislation/ukm:Metadata/ukm:SecondaryMetadata/ukm:Made" />
+				<xsl:sequence select="$ukm-made/@Date" />
+			</xsl:when>
+			<xsl:when test="parent::LaidDate">
+				<xsl:variable name="pos" as="xs:integer" select="count(parent::*/preceding-sibling::LaidDate) + 1" />
+				<xsl:sequence select="/Legislation/ukm:Metadata/ukm:SecondaryMetadata/ukm:Laid[$pos]/@Date" />
+			</xsl:when>
+			<xsl:when test="parent::ComingIntoForce">
+				<xsl:sequence select="/Legislation/ukm:Metadata/ukm:*/ukm:ComingIntoForce/ukm:DateTime/@Date" />
+			</xsl:when>
+			<xsl:when test="parent::ComingIntoForceClauses">
+				<xsl:variable name="pos" as="xs:integer" select="count(../preceding-sibling::ComingIntoForceClauses) + 1" />
+				<xsl:sequence select="/Legislation/ukm:Metadata/ukm:SecondaryMetadata/ukm:ComingIntoForce/ukm:DateTime[$pos]/@Date" />
+			</xsl:when>
+		</xsl:choose>
+	</xsl:variable>
+	<xsl:choose>
+		<xsl:when test="exists($date)">
+			<docDate date="{ $date }">
+				<xsl:apply-templates />
+			</docDate>
+		</xsl:when>
+		<xsl:otherwise>
+			<xsl:apply-templates />
+		</xsl:otherwise>
+	</xsl:choose>
 </xsl:template>
 
 
@@ -326,23 +319,13 @@
 </xsl:template>
 
 <xsl:template match="RoyalPresence/Para">
-	<xsl:call-template name="collapse-para" />
-<!-- 	<xsl:choose>
-		<xsl:when test="empty(preceding-sibling::*) and empty(following-sibling::*)">
-			<xsl:apply-templates />
-		</xsl:when>
-		<xsl:otherwise>
-			<container name="para">
-				<xsl:apply-templates />
-			</container>
-		</xsl:otherwise>
-	</xsl:choose> -->
+	<xsl:apply-templates />
 </xsl:template>
 
 <xsl:template match="Resolution">
-	<block name="resolution">
+	<container name="resolution">
 		<xsl:apply-templates />
-	</block>
+	</container>
 </xsl:template>
 
 <xsl:template match="IntroductoryText">
@@ -375,7 +358,5 @@
 
 <xsl:template match="EnactingTextOmitted">
 </xsl:template>
-
-<xsl:template match="Contents" />
 
 </xsl:transform>
