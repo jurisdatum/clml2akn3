@@ -14,6 +14,7 @@
 <xsl:output method="xml" version="1.0" encoding="utf-8" omit-xml-declaration="no" indent="yes" saxon:suppress-indentation="block p num heading subheading" />
 
 <xsl:strip-space elements="*" />
+<xsl:preserve-space elements="" />
 
 <xsl:include href="globals.xsl" />
 <xsl:include href="metadata.xsl" />

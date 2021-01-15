@@ -19,7 +19,7 @@
 
 <xsl:template match="FootnoteRef">
 	<xsl:choose>
-		<xsl:when test=". is key('footnote-ref', @Ref)[1]">
+		<xsl:when test="empty(preceding::FootnoteRef[@Ref=current()/@Ref])">
 			<xsl:variable name="footnote" as="element()?" select="key('id', @Ref)" />
 			<authorialNote class="footnote"> <!-- uk:name="footnote"  -->
 				<xsl:attribute name="eId">
