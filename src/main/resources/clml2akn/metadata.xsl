@@ -477,7 +477,7 @@
 </xsl:template>
 
 <xsl:template match="EnactmentDate" mode="tlc-event">
-	<TLCEvent eId="enactment" href="" showAs="EnactementDate" />
+	<TLCEvent eId="enactment" href="" showAs="EnactmentDate" />
 </xsl:template>
 <xsl:template match="EnactmentDate" mode="event-ref">
 	<eventRef refersTo="#enactment" date="{ @Date }" eId="date-enacted" source="#" />
