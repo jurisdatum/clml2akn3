@@ -11,10 +11,10 @@
 	xmlns:saxon="http://saxon.sf.net/"
 	exclude-result-prefixes="xs local saxon">
 
-<xsl:output method="xml" version="1.0" encoding="utf-8" omit-xml-declaration="no" indent="yes" saxon:suppress-indentation="block p num heading subheading" />
+<xsl:output method="xml" version="1.0" encoding="utf-8" omit-xml-declaration="no" indent="yes" suppress-indentation="block p num heading subheading" />
 
 <xsl:strip-space elements="*" />
-<xsl:preserve-space elements="" />
+<xsl:preserve-space elements="Text Emphasis Strong Underline SmallCaps Superior Inferior Uppercase Underline Expanded Strike Definition Proviso Abbreviation Acronym Term Span Citation CitationSubRef InternalLink ExternalLink InlineAmendment Addition Substitution Repeal" />
 
 <xsl:include href="globals.xsl" />
 <xsl:include href="metadata.xsl" />
@@ -263,13 +263,7 @@
 			<xsl:call-template name="add-punctuation-to-number" />
 		</xsl:when>
 		<xsl:otherwise>
-			<xsl:if test="matches(., '^\s')">
-				<xsl:text> </xsl:text>
-			</xsl:if>
-			<xsl:value-of select="normalize-space(.)" />
-			<xsl:if test="matches(., '\s$')">
-				<xsl:text> </xsl:text>
-			</xsl:if>
+			<xsl:next-match />
 		</xsl:otherwise>
 	</xsl:choose>
 </xsl:template>

@@ -2,9 +2,8 @@ package com.jurisdatum.tna.clml2akn;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Properties;
+import java.io.OutputStream;
 
-import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
@@ -14,12 +13,12 @@ import com.jurisdatum.xml.Saxon;
 
 import net.sf.saxon.s9api.Destination;
 import net.sf.saxon.s9api.SaxonApiException;
-import net.sf.saxon.s9api.Serializer.Property;
+import net.sf.saxon.s9api.Serializer;
 import net.sf.saxon.s9api.XsltCompiler;
 import net.sf.saxon.s9api.XsltExecutable;
 import net.sf.saxon.s9api.XsltTransformer;
 
-public class Transform implements com.jurisdatum.xml.Transform {
+public class Transform {
 	
 	private static final String stylesheet = "/clml2akn/clml2akn.xsl";
 
@@ -46,7 +45,7 @@ public class Transform implements com.jurisdatum.xml.Transform {
 		}
 	}
 	
-	public void transform(Source clml, Destination destination) {
+	private void transform(Source clml, Destination destination) {
 		XsltTransformer transform = executable.load();
 		try {
 			transform.setSource(clml);
@@ -57,15 +56,10 @@ public class Transform implements com.jurisdatum.xml.Transform {
 		}
 	}
 
-	private static Properties properties = new Properties();
-	static {
-		properties.setProperty(Property.INDENT.toString(), "yes");
-		properties.setProperty(Property.SAXON_SUPPRESS_INDENTATION.toString(), "{http://docs.oasis-open.org/legaldocml/ns/akn/3.0}block {http://docs.oasis-open.org/legaldocml/ns/akn/3.0}p {http://docs.oasis-open.org/legaldocml/ns/akn/3.0}num {http://docs.oasis-open.org/legaldocml/ns/akn/3.0}heading {http://docs.oasis-open.org/legaldocml/ns/akn/3.0}subheading");
-	}
-	
-	public void transform(Source clml, Result akn) {
-		Destination destination = Saxon.makeDestination(akn, properties);
-		transform(clml, destination);
+	public void transform(InputStream clml, OutputStream akn) {
+		Source source = new StreamSource(clml);
+		Serializer serializer = Saxon.processor.newSerializer(akn);
+		transform(source, serializer);
 	}
 
 }
