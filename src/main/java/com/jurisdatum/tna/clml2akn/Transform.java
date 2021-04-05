@@ -58,7 +58,7 @@ public class Transform {
 
 	public void transform(InputStream clml, OutputStream akn) {
 		Source source = new StreamSource(clml);
-		Serializer serializer = Saxon.processor.newSerializer(akn);
+		Serializer serializer = executable.getProcessor().newSerializer(akn);
 		transform(source, serializer);
 	}
 

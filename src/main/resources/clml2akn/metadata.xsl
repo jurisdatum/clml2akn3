@@ -9,9 +9,10 @@
 	xmlns="http://docs.oasis-open.org/legaldocml/ns/akn/3.0"
 	xmlns:dc="http://purl.org/dc/elements/1.1/"
 	xmlns:dct="http://purl.org/dc/terms/"
+	xmlns:atom="http://www.w3.org/2005/Atom"
 	xmlns:local="http://www.jurisdatum.com/tna/clml2akn"
 	xmlns:uk="https://www.legislation.gov.uk/namespaces/UK-AKN"
-	exclude-result-prefixes="xs ukl local">
+	exclude-result-prefixes="xs ukl ukm dc dct atom local">
 
 <xsl:template match="Metadata">
 	<meta>
@@ -415,42 +416,23 @@
 
 <xsl:template name="proprietary">
 	<proprietary source="#">
-		<xsl:apply-templates select="/ukl:Legislation/Metadata/dc:*" />
-		<xsl:apply-templates select="/ukl:Legislation/Metadata/dct:*" />
-		<xsl:apply-templates select="/ukl:Legislation/Metadata/ukm:*" />
+		<xsl:namespace name="ukm" select="'http://www.legislation.gov.uk/namespaces/metadata'" />
+		<xsl:namespace name="dc" select="'http://purl.org/dc/elements/1.1/'" />
+		<xsl:namespace name="dct" select="'http://purl.org/dc/terms/'" />
+		<xsl:apply-templates select="/ukl:Legislation/ukm:Metadata/*" />
 	</proprietary>
 </xsl:template>
 
-<xsl:template match="ukm:PrimaryMetadata | ukm:SecondaryMetadata | ukm:EUMetadata | ukm:DocumentClassification">
-	<xsl:apply-templates />
-</xsl:template>
-
-<xsl:template match="ukm:*">
-	<xsl:element name="ukm:{ local-name() }">
-		<xsl:copy-of select="@*" />
-	</xsl:element>
-</xsl:template>
-
-<xsl:template match="*:Error">
-	<xsl:element name="{ local-name() }" namespace="{ namespace-uri(.) }">
+<xsl:template match="ukm:* | dc:* | dct:*">
+	<xsl:element name="{ name() }">
 		<xsl:copy-of select="@*" />
 		<xsl:apply-templates />
 	</xsl:element>
 </xsl:template>
 
-<xsl:template match="ukm:UnappliedEffects | ukm:Notes | ukm:Alternatives | ukm:Statistics" />
+<xsl:template match="atom:*" />
 
-<xsl:template match="dc:*">
-	<xsl:element name="dc:{ local-name() }">
-		<xsl:apply-templates />
-	</xsl:element>
-</xsl:template>
-
-<xsl:template match="dct:*">
-	<xsl:element name="dct:{ local-name() }">
-		<xsl:apply-templates />
-	</xsl:element>
-</xsl:template>
+<xsl:template match="ukm:UnappliedEffects" />
 
 
 <xsl:variable name="elements-with-restrict-dates" as="element()*" select="//*[@RestrictStartDate or @RestrictEndDate][empty(ancestor-or-self::ukl:Attachments)]" />
