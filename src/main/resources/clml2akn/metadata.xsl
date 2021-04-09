@@ -410,9 +410,7 @@
 	</identification>
 </xsl:template>
 
-<xsl:template name="notes">
-	<xsl:apply-templates select="/ukl:Legislation/ukl:Commentaries" mode="metadata" />
-</xsl:template>
+<!-- notes template in commentaries.xsl -->
 
 <xsl:template name="proprietary">
 	<proprietary source="#">

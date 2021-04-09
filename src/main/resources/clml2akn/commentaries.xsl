@@ -11,10 +11,7 @@
 	exclude-result-prefixes="xs uk ukl local">
 
 
-<xsl:template match="Commentaries" />
-
-<xsl:template match="Commentaries" mode="metadata">
-
+<xsl:template name="notes">
 	<xsl:variable name="all-unique-commentary-ids-in-reference-order" as="xs:string*">
 		<xsl:variable name="all-elements" as="element()*" select="( //CommentaryRef | //*[exists(@CommentaryRef)] )" />
 		<xsl:variable name="all-commentary-ids-with-duplicates" as="xs:string*">
@@ -40,17 +37,41 @@
 			<xsl:sequence select="key('id', ., $root)[self::Commentary]" />	<!-- self::Commentary only b/c of errors, e.g., in ukpga/1974/7 -->
 		</xsl:for-each>
 	</xsl:variable>
+
+	<xsl:variable name="all-unique-margin-note-ids-in-reference-order" as="xs:string*">
+		<xsl:variable name="all-elements" as="element()*" select="//MarginNoteRef" />
+		<xsl:variable name="all-margin-note-ids-with-duplicates" as="xs:string*">
+			<xsl:for-each select="$all-elements">
+				<xsl:sequence select="string(@Ref)" />
+			</xsl:for-each>
+		</xsl:variable>
+		<xsl:for-each-group select="$all-margin-note-ids-with-duplicates" group-by=".">
+			<xsl:sequence select="." />
+		</xsl:for-each-group>
+	</xsl:variable>
+
+	<xsl:variable name="all-margin-notes-in-reference-order" as="element(MarginNote)*">
+		<xsl:variable name="root" as="document-node()" select="root()" />
+		<xsl:for-each select="$all-unique-margin-note-ids-in-reference-order">
+			<xsl:sequence select="key('id', ., $root)" />
+		</xsl:for-each>
+	</xsl:variable>
 	
-	<notes source="#">
-		<xsl:apply-templates select="$all-commentaries-in-reference-order[@Type='I']" />
-		<xsl:apply-templates select="$all-commentaries-in-reference-order[@Type='X']" />
-		<xsl:apply-templates select="$all-commentaries-in-reference-order[@Type='E']" />
-		<xsl:apply-templates select="$all-commentaries-in-reference-order[@Type='F']" />
-		<xsl:apply-templates select="$all-commentaries-in-reference-order[@Type='C']" />
-		<xsl:apply-templates select="$all-commentaries-in-reference-order[@Type='M']" />
-		<xsl:apply-templates select="$all-commentaries-in-reference-order[@Type='P']" />
-	</notes>
+	<xsl:if test="exists($all-commentaries-in-reference-order) or exists($all-margin-notes-in-reference-order)">
+		<notes source="#">
+			<xsl:apply-templates select="$all-commentaries-in-reference-order[@Type='I']" />
+			<xsl:apply-templates select="$all-commentaries-in-reference-order[@Type='X']" />
+			<xsl:apply-templates select="$all-commentaries-in-reference-order[@Type='E']" />
+			<xsl:apply-templates select="$all-commentaries-in-reference-order[@Type='F']" />
+			<xsl:apply-templates select="$all-commentaries-in-reference-order[@Type='C']" />
+			<xsl:apply-templates select="$all-commentaries-in-reference-order[@Type='M']" />
+			<xsl:apply-templates select="$all-margin-notes-in-reference-order" />
+			<xsl:apply-templates select="$all-commentaries-in-reference-order[@Type='P']" />
+		</notes>
+	</xsl:if>
 </xsl:template>
+
+<xsl:template match="Commentaries" />
 
 <xsl:template match="Commentary">
 	<note ukl:Name="Commentary" ukl:Type="{ @Type }">
@@ -110,6 +131,9 @@
 	<xsl:for-each-group select="$all-commentary-ids-with-duplicates" group-by=".">
 		<uk:commentary href="#{ $id }" refersTo="#{ . }" />
 	</xsl:for-each-group>
+	<xsl:for-each-group select="descendant::MarginNoteRef" group-by="@Ref">
+		<uk:commentary href="#{ $id }" refersTo="#{ @Ref }" />
+	</xsl:for-each-group>
 </xsl:template>
 
 <xsl:template match="BlockAmendment | EmbeddedStructure" mode="other-analysis" />
@@ -123,6 +147,38 @@
 	<xsl:if test="exists($commentary) and $commentary/@Type = ('F', 'M', 'X')">
 		<noteRef href="#{ @Ref }" uk:name="commentary" ukl:Name="CommentaryRef" class="commentary" />
 	</xsl:if>
+</xsl:template>
+
+
+<!-- margin notes -->
+
+<xsl:template match="MarginNoteRef">
+	<xsl:variable name="margin-note" as="element(MarginNote)?" select="key('id', @Ref)" />
+	<xsl:if test="exists($margin-note)">
+		<noteRef href="#{ @Ref }" uk:name="commentary" ukl:Name="MarginNoteRef" class="commentary" />
+	</xsl:if>
+</xsl:template>
+
+<xsl:template match="MarginNotes" />
+
+<xsl:variable name="number-of-proper-m-notes" as="xs:integer" select="count(/Legislation/Commentaries/Commentary[@Type='M'])" />
+
+<xsl:template match="MarginNote">
+	<note ukl:Name="MarginNote" ukl:Type="M">
+		<xsl:attribute name="class">
+			<xsl:text>commentary M</xsl:text>
+		</xsl:attribute>
+		<xsl:attribute name="eId">
+			<xsl:value-of select="@id" />
+		</xsl:attribute>
+		<xsl:attribute name="marker">
+			<xsl:text>M</xsl:text>
+			<xsl:value-of select="$number-of-proper-m-notes + position()" />
+		</xsl:attribute>
+		<xsl:apply-templates>
+			<xsl:with-param name="context" select="'note'" tunnel="yes" />
+		</xsl:apply-templates>
+	</note>
 </xsl:template>
 
 </xsl:transform>

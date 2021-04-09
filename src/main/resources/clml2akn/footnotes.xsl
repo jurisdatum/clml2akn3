@@ -62,19 +62,4 @@
 	<xsl:apply-templates />
 </xsl:template>
 
-
-<!-- marginal notes -->
-
-<xsl:template match="MarginNoteRef">
-	<authorialNote placement="side" eId="{ @Ref }">
-		<xsl:apply-templates select="key('id', @Ref)" />
-	</authorialNote>
-</xsl:template>
-
-<xsl:template match="MarginNotes" />
-
-<xsl:template match="MarginNote">
-	<xsl:apply-templates />
-</xsl:template>
-
 </xsl:transform>
