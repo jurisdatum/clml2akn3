@@ -12,10 +12,9 @@
 
 <xsl:template name="para-with-amendment">
 	<xsl:param name="context" as="xs:string*" tunnel="yes" />
-	<xsl:variable name="children" as="node()*" select="node()" /> <!-- [self::element() or self::text()[normalize-space()]] -->
+	<xsl:variable name="children" as="node()*" select="node()" />
 	<xsl:choose>
-		<!-- asp/2016/22/2016-04-29 -->
-		<xsl:when test="$children[1][self::Text[child::InlineAmendment]] and $children[2][self::BlockAmendment] and (empty($children[3]) or $children[3][self::AppendText])">
+		<xsl:when test="exists($children[1][self::Text]) and exists($children[2][self::BlockAmendment])">
 			<p>
 				<mod>
 					<xsl:apply-templates select="$children[1]/node()">
@@ -24,22 +23,9 @@
 					<xsl:apply-templates select="$children[2]">
 						<xsl:with-param name="context" select="('mod', 'p', $context)" tunnel="yes" />
 					</xsl:apply-templates>
-					<xsl:apply-templates select="$children[3]">
-						<xsl:with-param name="context" select="('mod', 'p', $context)" tunnel="yes" />
-					</xsl:apply-templates>
 				</mod>
 			</p>
-			<xsl:apply-templates select="$children[position() gt 3]" />
-		</xsl:when>
-		<xsl:when test="$children[1][self::Text] and $children[2][self::BlockAmendment] and (empty($children[3]) or $children[3][self::AppendText])">
-			<p>
-				<xsl:apply-templates select="$children[1]/node()" />
-				<xsl:apply-templates select="$children[2]">
-					<xsl:with-param name="context" select="('p', $context)" tunnel="yes" />
-				</xsl:apply-templates>
-				<xsl:apply-templates select="$children[3]" />
-			</p>
-			<xsl:apply-templates select="$children[position() gt 3]" />
+			<xsl:apply-templates select="$children[position() gt 2]" />
 		</xsl:when>
 		<xsl:otherwise>
 			<xsl:apply-templates />
@@ -137,20 +123,16 @@
 		</xsl:when>
 		<xsl:when test="$context[1] = 'p'">
 			<mod>
-				<xsl:apply-templates select="." mode="wrapped">
+				<xsl:apply-templates select=".">
 					<xsl:with-param name="context" select="('mod', $context)" tunnel="yes" />
 				</xsl:apply-templates>
-				<xsl:apply-templates select="following-sibling::*[1][self::AppendText]" mode="force" />
 			</mod>
 		</xsl:when>
 		<xsl:otherwise>
 			<p>
-				<mod>
-					<xsl:apply-templates select="." mode="wrapped">
-						<xsl:with-param name="context" select="('mod', 'p', $context)" tunnel="yes" />
-					</xsl:apply-templates>
-					<xsl:apply-templates select="following-sibling::*[1][self::AppendText]" mode="force" />
-				</mod>
+				<xsl:apply-templates select=".">
+					<xsl:with-param name="context" select="('p', $context)" tunnel="yes" />
+				</xsl:apply-templates>
 			</p>
 		</xsl:otherwise>
 	</xsl:choose>
