@@ -24,8 +24,36 @@
 </xsl:template>
 
 <xsl:template name="change">
-	<xsl:variable name="is-first" as="xs:boolean" select="empty(preceding::*[@ChangeId=current()/@ChangeId])" />
-	<xsl:variable name="is-last" as="xs:boolean" select="empty(following::*[@ChangeId=current()/@ChangeId])" />
+	<xsl:variable name="is-first" as="xs:boolean">
+		<xsl:choose>
+			<xsl:when test="exists(ancestor::Title/parent::P1group/child::P1[1][not(local:heading-before-number(.))])">
+				<xsl:variable name="changes-in-number" as="element()*" select="ancestor::Title/following-sibling::P1[1]/child::Pnumber/descendant::*[@ChangeId=current()/@ChangeId]" />
+				<xsl:sequence select="empty(preceding::*[@ChangeId=current()/@ChangeId]) and empty(ancestor::*[@ChangeId=current()/@ChangeId]) and empty($changes-in-number)" />
+			</xsl:when>
+			<xsl:when test="exists(ancestor::Pnumber/parent::P1[empty(preceding-sibling::*[not(self::Title)])][not(local:heading-before-number(.))])">
+				<xsl:variable name="changes-in-title" as="element()*" select="ancestor::Pnumber/parent::P1/parent::P1group/child::Title/descendant::*[@ChangeId=current()/@ChangeId]" />
+				<xsl:sequence select="empty(preceding::*[@ChangeId=current()/@ChangeId] except $changes-in-title) and empty(ancestor::*[@ChangeId=current()/@ChangeId] except $changes-in-title)" />
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:sequence select="empty(preceding::*[@ChangeId=current()/@ChangeId]) and empty(ancestor::*[@ChangeId=current()/@ChangeId])" />
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:variable>
+	<xsl:variable name="is-last" as="xs:boolean">
+		<xsl:choose>
+			<xsl:when test="exists(ancestor::Title/parent::P1group/child::P1[1][not(local:heading-before-number(.))])">
+				<xsl:variable name="changes-in-number" as="element()*" select="ancestor::Title/following-sibling::P1[1]/child::Pnumber/descendant::*[@ChangeId=current()/@ChangeId]" />
+				<xsl:sequence select="empty(following::*[@ChangeId=current()/@ChangeId] except $changes-in-number) and empty(descendant::*[@ChangeId=current()/@ChangeId] except $changes-in-number)" />
+			</xsl:when>
+			<xsl:when test="exists(ancestor::Pnumber/parent::P1[empty(preceding-sibling::*[not(self::Title)])][not(local:heading-before-number(.))])">
+				<xsl:variable name="changes-in-title" as="element()*" select="ancestor::Pnumber/parent::P1/parent::P1group/child::Title/descendant::*[@ChangeId=current()/@ChangeId]" />
+				<xsl:sequence select="empty(following::*[@ChangeId=current()/@ChangeId]) and empty(descendant::*[@ChangeId=current()/@ChangeId]) and empty($changes-in-title)" />
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:sequence select="empty(following::*[@ChangeId=current()/@ChangeId]) and empty(descendant::*[@ChangeId=current()/@ChangeId])" />
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:variable>
 	<xsl:variable name="classes" as="xs:string*">
 		<xsl:if test="self::Substitution">
 			<xsl:sequence select="lower-case(local-name())" />
