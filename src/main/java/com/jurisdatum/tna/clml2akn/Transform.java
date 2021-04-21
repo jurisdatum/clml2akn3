@@ -25,7 +25,7 @@ public class Transform {
 	private static class Importer implements URIResolver {
 		@Override public Source resolve(String href, String base) throws TransformerException {
 			InputStream file = this.getClass().getResourceAsStream("/clml2akn/" + href);
-			return new StreamSource(file);
+			return new StreamSource(file, href);
 		}
 	}
 
@@ -35,7 +35,7 @@ public class Transform {
 		XsltCompiler compiler = Saxon.processor.newXsltCompiler();
 		compiler.setURIResolver(new Importer());
 		InputStream stream = this.getClass().getResourceAsStream(stylesheet);
-		Source source = new StreamSource(stream);
+		Source source = new StreamSource(stream, "clml2akn.xsl");
 		try {
 			executable = compiler.compile(source);
 		} catch (SaxonApiException e) {
