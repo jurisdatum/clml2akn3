@@ -5,11 +5,11 @@
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xpath-default-namespace="http://www.legislation.gov.uk/namespaces/legislation"
 	xmlns="http://docs.oasis-open.org/legaldocml/ns/akn/3.0"
+	xmlns:uk="https://www.legislation.gov.uk/namespaces/UK-AKN"
 	xmlns:ukl="http://www.legislation.gov.uk/namespaces/legislation"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:local="http://www.jurisdatum.com/tna/clml2akn"
-	xmlns:saxon="http://saxon.sf.net/"
-	exclude-result-prefixes="xs local saxon">
+	exclude-result-prefixes="xs local">
 
 <xsl:output method="xml" version="1.0" encoding="utf-8" omit-xml-declaration="no" indent="yes" suppress-indentation="block p num heading subheading" />
 
@@ -41,9 +41,6 @@
 
 <xsl:template match="/">
 	<akomaNtoso xsi:schemaLocation="http://docs.oasis-open.org/legaldocml/ns/akn/3.0 http://docs.oasis-open.org/legaldocml/akn-core/v1.0/cos01/part2-specs/schemas/akomantoso30.xsd">
-		<xsl:namespace name="uk">
-			<xsl:text>https://www.legislation.gov.uk/namespaces/UK-AKN</xsl:text>
-		</xsl:namespace>
 		<xsl:apply-templates />
 	</akomaNtoso>
 </xsl:template>
