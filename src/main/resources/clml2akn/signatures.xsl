@@ -44,9 +44,9 @@
 
 <xsl:template match="PersonName">
 	<block name="signature">
-		<person refersTo="#">
+		<signature refersTo="#">
 			<xsl:apply-templates />
-		</person>
+		</signature>
 	</block>
 </xsl:template>
 
@@ -67,7 +67,7 @@
 </xsl:template>
 
 <xsl:template match="Address">
-	<blockContainer uk:name="address" class="address">
+	<blockContainer class="address">
 		<xsl:apply-templates />
 	</blockContainer>
 </xsl:template>
