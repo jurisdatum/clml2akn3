@@ -18,10 +18,20 @@
 </xsl:function>
 
 <xsl:template match="FootnoteRef">
+	<xsl:variable name="footnote" as="element()?" select="key('id', @Ref)" />
+	<xsl:variable name="class" as="xs:string">
+		<xsl:choose>
+			<xsl:when test="exists($footnote/ancestor::html:tfoot)">
+				<xsl:sequence>tablenote</xsl:sequence>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:sequence>footnote</xsl:sequence>
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:variable>
 	<xsl:choose>
-		<xsl:when test="empty(preceding::FootnoteRef[@Ref=current()/@Ref])">
-			<xsl:variable name="footnote" as="element()?" select="key('id', @Ref)" />
-			<authorialNote class="footnote"> <!-- uk:name="footnote"  -->
+		<xsl:when test=". is key('footnote-ref', @Ref)[1]">	<!-- empty(preceding::FootnoteRef[@Ref=current()/@Ref]) -->
+			<authorialNote class="{ $class }">
 				<xsl:attribute name="eId">
 					<xsl:value-of select="$footnote/@id" />
 				</xsl:attribute>
@@ -35,15 +45,14 @@
 						</xsl:otherwise>
 					</xsl:choose>
 				</xsl:attribute>
-				<xsl:apply-templates select="$footnote/node()">
+				<xsl:apply-templates select="$footnote/node() except $footnote/Number">
 					<xsl:with-param name="context" select="'authorialNote'" tunnel="yes" />
 				</xsl:apply-templates>
 			</authorialNote>
 		</xsl:when>
 		<xsl:otherwise>
-			<noteRef href="#{@Ref}" uk:name="footnote" class="footnote">
+			<noteRef class="{ $class }" href="#{ @Ref }">
 				<xsl:attribute name="marker">
-					<xsl:variable name="footnote" select="key('id', @Ref)" />
 					<xsl:choose>
 						<xsl:when test="$footnote/Number">
 							<xsl:value-of select="$footnote/Number" />

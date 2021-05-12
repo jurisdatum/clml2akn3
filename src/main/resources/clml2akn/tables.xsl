@@ -12,7 +12,7 @@
 
 
 <xsl:template match="Tabular">
-	<tblock class="tabular" ukl:Orientation="{ @Orientation }">
+	<tblock class="table" ukl:Orientation="{ @Orientation }">
 		<xsl:apply-templates />
 	</tblock>
 </xsl:template>
@@ -34,8 +34,9 @@
 
 <xsl:template match="html:tfoot/html:tr[every $n in html:*/node() satisfies $n/self::Footnote[local:footnote-has-ref(.)]]" />
 
+<!-- orphan table footnotes -->
 <xsl:template match="html:tfoot//Footnote[not(local:footnote-has-ref(.))]">
-	<authorialNote placement="inline" ukl:Name="Footnote">
+	<authorialNote placement="inline">
 		<xsl:attribute name="eId">
 			<xsl:value-of select="@id" />
 		</xsl:attribute>
