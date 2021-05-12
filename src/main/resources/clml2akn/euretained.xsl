@@ -52,6 +52,14 @@
 	</longTitle>
 </xsl:template>
 
+<xsl:template match="EUPrelims/Number">
+	<block name="number">
+		<docNumber>
+			<xsl:apply-templates />
+		</docNumber>
+	</block>
+</xsl:template>
+
 <xsl:template match="EUPreamble">
 	<preamble>
 		<xsl:apply-templates />
@@ -59,7 +67,7 @@
 </xsl:template>
 
 <xsl:template match="EUPreamble//Division">
-	<blockContainer uk:name="division">
+	<blockContainer class="division" uk:name="division">
 		<xsl:apply-templates />
 	</blockContainer>
 </xsl:template>
