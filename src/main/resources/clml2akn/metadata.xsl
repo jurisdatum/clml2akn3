@@ -52,7 +52,12 @@
 					<xsl:sequence select="/ukl:Legislation/Metadata/SecondaryMetadata/Made/@Date" />
 				</xsl:when>
 				<xsl:otherwise>
-					<xsl:variable name="from-prelims" as="xs:date?" select="local:parse-date(/ukl:Legislation/ukl:Secondary/ukl:SecondaryPrelims/ukl:MadeDate/ukl:DateText)" />
+					<xsl:variable name="from-prelims" as="xs:date?">
+						<xsl:variable name="date-text" as="element()?" select="/ukl:Legislation/ukl:Secondary/ukl:SecondaryPrelims/ukl:MadeDate/ukl:DateText" />
+						<xsl:if test="exists($date-text)">
+							<xsl:sequence select="local:parse-date($date-text)" />
+						</xsl:if>
+					</xsl:variable>
 					<xsl:choose>
 						<xsl:when test="exists($from-prelims)">
 							<xsl:sequence select="string($from-prelims)" />
@@ -105,7 +110,12 @@
 					<xsl:text>made</xsl:text>
 				</xsl:when>
 				<xsl:otherwise>
-					<xsl:variable name="from-prelims" as="xs:date?" select="local:parse-date(/ukl:Legislation/ukl:Secondary/ukl:SecondaryPrelims/ukl:MadeDate/ukl:DateText)" />
+					<xsl:variable name="from-prelims" as="xs:date?">
+						<xsl:variable name="date-text" as="element()?" select="/ukl:Legislation/ukl:Secondary/ukl:SecondaryPrelims/ukl:MadeDate/ukl:DateText" />
+						<xsl:if test="exists($date-text)">
+							<xsl:sequence select="local:parse-date($date-text)" />
+						</xsl:if>
+					</xsl:variable>
 					<xsl:choose>
 						<xsl:when test="exists($from-prelims)">
 							<xsl:sequence select="'made'" />
@@ -220,6 +230,7 @@
 </xsl:variable>
 
 <xsl:variable name="work-cite" as="xs:string">
+	<xsl:variable name="secondary-metadata" select="/ukl:Legislation/Metadata/SecondaryMetadata" />
 	<xsl:choose>
 		<xsl:when test="$doc-long-type = 'EnglandAct'">
 			<xsl:value-of select="concat($doc-year, ' c. ', $doc-number)" />
@@ -240,13 +251,13 @@
 			<xsl:value-of select="concat($doc-year, ' c. ', $doc-number, ' (N.I.)')" />
 		</xsl:when>
 		<xsl:when test="$doc-long-type = 'NorthernIrelandOrderInCouncil' or $doc-long-type = 'NorthernIrelandDraftOrderInCouncil'">
-			<xsl:variable name="alt-num" select="SecondaryMetadata/AlternativeNumber[@Category='NI']/@Value" />
+			<xsl:variable name="alt-num" select="$secondary-metadata/AlternativeNumber[@Category='NI']/@Value" />
 			<xsl:value-of select="concat('S.I. ', $doc-year, '/', $doc-number, ' (N.I. ', $alt-num, ')')" />
 		</xsl:when>
 		<xsl:when test="$doc-long-type = 'NorthernIrelandStatutoryRule' or $doc-long-type = 'NorthernIrelandDraftStatutoryRule'">
 			<xsl:choose>
-				<xsl:when test="SecondaryMetadata/AlternativeNumber[@Category='C']">
-					<xsl:variable name="c-num" select="SecondaryMetadata/AlternativeNumber[@Category='C']/@Value" />
+				<xsl:when test="$secondary-metadata/AlternativeNumber[@Category='C']">
+					<xsl:variable name="c-num" select="$secondary-metadata/AlternativeNumber[@Category='C']/@Value" />
 					<xsl:value-of select="concat('S.R. ', $doc-year, '/', $doc-number, ' (C. ', $c-num, ')')" />
 				</xsl:when>
 				<xsl:otherwise>
@@ -256,8 +267,8 @@
 		</xsl:when>
 		<xsl:when test="$doc-long-type = 'NorthernIrelandStatutoryRuleOrOrder'">
 			<xsl:choose>
-				<xsl:when test="SecondaryMetadata/AlternativeNumber[@Category='C']">
-					<xsl:variable name="c-num" select="SecondaryMetadata/AlternativeNumber[@Category='C']/@Value" />
+				<xsl:when test="$secondary-metadata/AlternativeNumber[@Category='C']">
+					<xsl:variable name="c-num" select="$secondary-metadata/AlternativeNumber[@Category='C']/@Value" />
 					<xsl:value-of select="concat('S.R. &amp; O. (N.I.) ', $doc-year, '/', $doc-number, ' (C. ', $c-num, ')')" />
 				</xsl:when>
 				<xsl:otherwise>
@@ -273,8 +284,8 @@
 		</xsl:when>
 		<xsl:when test="$doc-long-type = 'ScottishStatutoryInstrument' or $doc-long-type = 'ScottishDraftStatutoryInstrument'">
 			<xsl:choose>
-				<xsl:when test="SecondaryMetadata/AlternativeNumber[@Category='C']">
-					<xsl:variable name="c-num" select="SecondaryMetadata/AlternativeNumber[@Category='C']/@Value" />
+				<xsl:when test="$secondary-metadata/AlternativeNumber[@Category='C']">
+					<xsl:variable name="c-num" select="$secondary-metadata/AlternativeNumber[@Category='C']/@Value" />
 					<xsl:value-of select="concat('S.S.I. ', $doc-year, '/', $doc-number, ' (C. ', $c-num, ')')" />
 				</xsl:when>
 				<xsl:otherwise>
@@ -307,16 +318,22 @@
 			<xsl:value-of select="concat('Ministerial Direction ', $doc-year, '/', $doc-number)" />
 		</xsl:when>
 		<xsl:when test="$doc-long-type = 'UnitedKingdomStatutoryInstrument' or $doc-long-type = 'UnitedKingdomDraftStatutoryInstrument'">
-			<xsl:value-of select="concat('S.I. ', $doc-year, '/', $doc-number)" />
-			<xsl:for-each select="SecondaryMetadata/AlternativeNumber[@Category='C' or @Category='L' or @Category='S']">
-				<xsl:value-of select="concat(' (', @Category,'. ', @Value, ')')" />
-			</xsl:for-each>
+			<xsl:variable name="parts" as="xs:string+">
+				<xsl:sequence select="concat('S.I. ', $doc-year, '/', $doc-number)" />
+				<xsl:for-each select="$secondary-metadata/AlternativeNumber[@Category='C' or @Category='L' or @Category='S']">
+					<xsl:sequence select="concat('(', @Category, '. ', @Value, ')')" />
+				</xsl:for-each>
+			</xsl:variable>
+			<xsl:sequence select="string-join($parts, ' ')" />
 		</xsl:when>
 		<xsl:when test="$doc-long-type = 'UnitedKingdomStatutoryRuleOrOrder'">
-			<xsl:value-of select="concat('S.R. &amp; O. ', $doc-year, '/', $doc-number)" />
-			<xsl:for-each select="SecondaryMetadata/AlternativeNumber[@Category='C' or @Category='L' or @Category='S']">
-				<xsl:value-of select="concat(' (', @Category,'. ', @Value, ')')" />
-			</xsl:for-each>
+			<xsl:variable name="parts" as="xs:string+">
+				<xsl:sequence select="concat('S.R. &amp; O. ', $doc-year, '/', $doc-number)" />
+				<xsl:for-each select="$secondary-metadata/AlternativeNumber[@Category='C' or @Category='L' or @Category='S']">
+					<xsl:sequence select="concat('(', @Category, '. ', @Value, ')')" />
+				</xsl:for-each>
+			</xsl:variable>
+			<xsl:sequence select="string-join($parts, ' ')" />
 		</xsl:when>
 		<xsl:when test="$doc-long-type = 'WelshAssemblyMeasure'">
 			<xsl:value-of select="concat($doc-year, ' nawm ', $doc-number)" />
@@ -325,10 +342,10 @@
 			<xsl:value-of select="concat($doc-year, ' anaw ', $doc-number)" />
 		</xsl:when>
 		<xsl:when test="$doc-long-type = 'WelshStatutoryInstrument' or $doc-long-type = 'WelshDraftStatutoryInstrument'">
-			<xsl:variable name="alt-num" select="SecondaryMetadata/AlternativeNumber[@Category='W' or @Category='Cy']/@Value" />
+			<xsl:variable name="alt-num" as="xs:string" select="$secondary-metadata/AlternativeNumber[@Category=('W','Cy')]/@Value" />
+			<xsl:variable name="c-num" as="xs:string?" select="$secondary-metadata/AlternativeNumber[@Category='C']/@Value" />
 			<xsl:choose>
-				<xsl:when test="SecondaryMetadata/AlternativeNumber[@Category='C']">
-					<xsl:variable name="c-num" select="SecondaryMetadata/AlternativeNumber[@Category='C']/@Value" />
+				<xsl:when test="exists($c-num)">
 					<xsl:value-of select="concat('S.I. ', $doc-year, '/', $doc-number, ' (W. ', $alt-num, ') (C. ', $c-num,')')" />
 				</xsl:when>
 				<xsl:otherwise>
@@ -390,6 +407,9 @@
 				<FRBRsubtype value="{ $doc-minor-type }" />
 			</xsl:if>
 			<FRBRnumber value="{ $doc-number }" />
+			<xsl:for-each select="/ukl:Legislation/Metadata/SecondaryMetadata/AlternativeNumber">
+				<FRBRnumber value="{ @Category }. { @Value }" />
+			</xsl:for-each>
 			<FRBRname value="{ $work-cite }" />
 			<FRBRprescriptive value="true" />
 		</FRBRWork>
