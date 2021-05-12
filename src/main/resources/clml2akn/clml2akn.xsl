@@ -176,6 +176,11 @@
 
 <xsl:template match="Term">
 	<term refersTo="#{local:make-term-id(.)}">
+		<xsl:if test="exists(@id)">
+			<xsl:attribute name="eId">
+				<xsl:value-of select="@id" />
+			</xsl:attribute>
+		</xsl:if>
 		<xsl:apply-templates />
 	</term>
 </xsl:template>
@@ -206,6 +211,11 @@
 
 <xsl:template match="Definition">
 	<def ukl:Name="Definition">
+		<xsl:if test="exists(@TermRef)">
+			<xsl:attribute name="ukl:TermRef">
+				<xsl:value-of select="@TermRef" />
+			</xsl:attribute>
+		</xsl:if>
 		<xsl:apply-templates />
 	</def>
 </xsl:template>
