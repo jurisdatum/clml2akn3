@@ -117,6 +117,22 @@
 							</wrapUp>
 						</xsl:if>
 					</xsl:when>
+					<xsl:when test="exists(OrderedList[@Decoration='parens'][@Type='alpha'])">
+						<xsl:variable name="sublist" as="element(OrderedList)" select="OrderedList[@Decoration='parens'][@Type='alpha'][1]" />
+						<xsl:variable name="intro" as="element()*" select="$sublist/preceding-sibling::*" />
+						<xsl:variable name="wrap-up" as="element()*" select="$sublist/following-sibling::*" />
+						<xsl:if test="exists($intro)">
+							<intro>
+								<xsl:apply-templates select="$intro" />
+							</intro>
+						</xsl:if>
+						<xsl:apply-templates select="$sublist/*" mode="paragraph" />
+						<xsl:if test="exists($wrap-up)">
+							<wrapUp>
+								<xsl:apply-templates select="$wrap-up" />
+							</wrapUp>
+						</xsl:if>
+					</xsl:when>
 					<xsl:otherwise>
 						<content>
 							<xsl:apply-templates>

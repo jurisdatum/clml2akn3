@@ -10,7 +10,7 @@
 
 
 <xsl:template match="ExplanatoryNotes">
-	<blockContainer class="explanatoryNotes">
+	<blockContainer class="explanatoryNote">
 		<xsl:apply-templates />
 	</blockContainer>
 </xsl:template>
@@ -42,7 +42,7 @@
 <!-- earlier orders -->
 
 <xsl:template match="EarlierOrders">
-	<blockContainer class="earlierOrders">
+	<blockContainer class="commencementHistory">
 		<xsl:apply-templates />
 	</blockContainer>
 </xsl:template>
@@ -51,19 +51,25 @@
 <!--  -->
 
 <xsl:template match="ExplanatoryNotes//P1group | EarlierOrders//P1group">
-	<blockContainer ukl:Name="{ local-name(.) }" >
+	<blockContainer ukl:Name="{ local-name(.) }">
 		<xsl:apply-templates />
 	</blockContainer>
 </xsl:template>
 
 <xsl:template match="ExplanatoryNotes//P1 | EarlierOrders//P1">
-	<blockContainer ukl:Name="{ local-name(.) }" >
+	<blockContainer ukl:Name="{ local-name(.) }" class="prov1">
 		<xsl:apply-templates />
 	</blockContainer>
 </xsl:template>
 
 <xsl:template match="ExplanatoryNotes//P | EarlierOrders//P">
 	<blockContainer ukl:Name="{ local-name(.) }" >
+		<xsl:apply-templates />
+	</blockContainer>
+</xsl:template>
+
+<xsl:template match="ExplanatoryNotes//P2 | EarlierOrders//P2">
+	<blockContainer ukl:Name="P2" class="prov2">
 		<xsl:apply-templates />
 	</blockContainer>
 </xsl:template>

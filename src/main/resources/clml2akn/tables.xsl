@@ -24,10 +24,20 @@
 <xsl:template match="html:table">
 	<foreign>
 		<xsl:copy>
-			<xsl:copy-of select="@*" />
+			<xsl:copy-of select="@* except @cols" />
 			<xsl:apply-templates />
 		</xsl:copy>
 	</foreign>
+</xsl:template>
+
+<xsl:template match="html:col">
+	<xsl:copy>
+		<xsl:copy-of select="@* except @width" />
+		<xsl:if test="exists(@width)">
+			<xsl:attribute name="style" select="concat('width:', @width)" />
+		</xsl:if>
+		<xsl:apply-templates />
+	</xsl:copy>
 </xsl:template>
 
 <xsl:template match="html:tfoot[every $n in html:tr/html:*/node() satisfies $n/self::Footnote[local:footnote-has-ref(.)]]" />
@@ -58,7 +68,25 @@
 
 <xsl:template match="html:*">
 	<xsl:copy>
-		<xsl:copy-of select="@*" />
+		<xsl:copy-of select="@* except (@valign, @align)" />
+		<xsl:if test="exists(@valign) or exists(@align)">
+			<xsl:variable name="values" as="xs:string+">
+				<xsl:if test="exists(@valign)">
+					<xsl:sequence select="concat('vertical-align:', @valign)" />
+				</xsl:if>
+				<xsl:choose>
+					<xsl:when test="@align = 'char'">	<!-- ??? -->
+						<xsl:sequence select="()" />
+					</xsl:when>
+					<xsl:when test="exists(@align)">
+						<xsl:sequence select="concat('text-align:', @align)" />
+					</xsl:when>
+				</xsl:choose>
+			</xsl:variable>
+			<xsl:attribute name="style">
+				<xsl:value-of select="string-join($values, ';')" />
+			</xsl:attribute>
+		</xsl:if>
 		<xsl:apply-templates />
 	</xsl:copy>
 </xsl:template>

@@ -87,7 +87,7 @@
 </xsl:template>
 
 <xsl:template match="DateSigned/DateText">
-	<date date="{ ../@Date }">
+	<date>
 		<xsl:attribute name="date">
 			<xsl:choose>
 				<xsl:when test="../@Date castable as xs:date">
@@ -104,19 +104,17 @@
 
 <xsl:template match="LSseal">
 	<block name="seal">
-		<xsl:if test="@ResourceRef">
-			<img class="seal" src="{ key('id', @ResourceRef)/ExternalVersion/@URI }" />
-		</xsl:if>
 		<xsl:choose>
+			<xsl:when test="@ResourceRef">
+				<img src="{ key('id', @ResourceRef)/ExternalVersion/@URI }" />
+			</xsl:when>
 			<xsl:when test="@Date">
-				<date class="seal" date="{ @Date }">
+				<date date="{ @Date }">
 					<xsl:apply-templates />
 				</date>
 			</xsl:when>
 			<xsl:when test="exists(child::node())">
-				<inline name="seal">
-					<xsl:apply-templates />
-				</inline>
+				<xsl:apply-templates />
 			</xsl:when>
 			<xsl:otherwise>
 				<marker name="seal" />

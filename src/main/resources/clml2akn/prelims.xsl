@@ -177,8 +177,16 @@
 	</container>
 </xsl:template>
 
-<xsl:template match="Subject/Title | Subject/Subtitle">
-	<block name="{ lower-case(local-name()) }">
+<xsl:template match="Subject/Title">
+	<block name="subject">
+		<concept refersTo="#">
+			<xsl:apply-templates />
+		</concept>
+	</block>
+</xsl:template>
+
+<xsl:template match="Subject/Subtitle">
+	<block name="subsubject">
 		<concept refersTo="#">
 			<xsl:apply-templates />
 		</concept>
