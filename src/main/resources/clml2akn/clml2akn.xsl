@@ -16,6 +16,7 @@
 <xsl:strip-space elements="*" />
 <xsl:preserve-space elements="Text Emphasis Strong Underline SmallCaps Superior Inferior Uppercase Underline Expanded Strike Definition Proviso Abbreviation Acronym Term Span Citation CitationSubRef InternalLink ExternalLink InlineAmendment Addition Substitution Repeal" />
 
+<xsl:include href="fix-clml.xsl" />
 <xsl:include href="globals.xsl" />
 <xsl:include href="metadata.xsl" />
 <xsl:include href="context.xsl" />
@@ -40,8 +41,13 @@
 
 
 <xsl:template match="/">
+	<xsl:variable name="fixed" as="document-node()">
+		<xsl:document>
+			<xsl:apply-templates mode="fix-clml" />
+		</xsl:document>
+	</xsl:variable>
 	<akomaNtoso xsi:schemaLocation="http://docs.oasis-open.org/legaldocml/ns/akn/3.0 http://docs.oasis-open.org/legaldocml/akn-core/v1.0/cos01/part2-specs/schemas/akomantoso30.xsd">
-		<xsl:apply-templates />
+		<xsl:apply-templates select="$fixed/node()" />
 	</akomaNtoso>
 </xsl:template>
 
