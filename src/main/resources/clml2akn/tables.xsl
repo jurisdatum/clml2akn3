@@ -66,27 +66,38 @@
 	</authorialNote>
 </xsl:template>
 
-<xsl:template match="html:*">
+<xsl:template match="html:th | html:td">
 	<xsl:copy>
-		<xsl:copy-of select="@* except (@valign, @align)" />
-		<xsl:if test="exists(@valign) or exists(@align)">
-			<xsl:variable name="values" as="xs:string+">
-				<xsl:if test="exists(@valign)">
-					<xsl:sequence select="concat('vertical-align:', @valign)" />
-				</xsl:if>
-				<xsl:choose>
-					<xsl:when test="@align = 'char'">	<!-- ??? -->
-						<xsl:sequence select="()" />
-					</xsl:when>
-					<xsl:when test="exists(@align)">
-						<xsl:sequence select="concat('text-align:', @align)" />
-					</xsl:when>
-				</xsl:choose>
-			</xsl:variable>
+		<xsl:copy-of select="@* except (@valign, @align, @char)" />
+		<xsl:variable name="styles" as="xs:string*">
+			<xsl:if test="exists(@valign)">
+				<xsl:sequence select="concat('vertical-align:', @valign)" />
+			</xsl:if>
+			<xsl:if test="exists(@align) and not(@align = 'char')">
+				<xsl:sequence select="concat('text-align:', @align)" />
+			</xsl:if>
+		</xsl:variable>
+		<xsl:if test="exists($styles)">
 			<xsl:attribute name="style">
-				<xsl:value-of select="string-join($values, ';')" />
+				<xsl:sequence select="string-join($styles, ';')" />
 			</xsl:attribute>
 		</xsl:if>
+		<xsl:choose>
+			<xsl:when test="exists(*[local:is-inline(.)]) or exists(text()[normalize-space(.)])">
+				<p>
+					<xsl:apply-templates />
+				</p>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:apply-templates />
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:copy>
+</xsl:template>
+
+<xsl:template match="html:*">
+	<xsl:copy>
+		<xsl:copy-of select="@*" />
 		<xsl:apply-templates />
 	</xsl:copy>
 </xsl:template>
