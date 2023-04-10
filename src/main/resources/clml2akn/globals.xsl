@@ -81,6 +81,127 @@
 	<xsl:sequence select="$short-types/@*[name() = $long-type]" />
 </xsl:function>
 
+<xsl:function name="local:short-type-is-scottish" as="xs:boolean">
+	<xsl:param name="short-type" as="xs:string" />
+	<xsl:sequence select="$short-type = ('asp', 'aosp', 'ssi', 'sdsi')" />
+</xsl:function>
+
+<xsl:function name="local:short-type-is-welsh" as="xs:boolean">
+	<xsl:param name="short-type" as="xs:string" />
+	<xsl:sequence select="$short-type = ('asc', 'anaw', 'mwa', 'wsi')" />
+</xsl:function>
+
+<xsl:function name="local:short-type-is-northern-irish" as="xs:boolean">
+	<xsl:param name="short-type" as="xs:string" />
+	<xsl:sequence select="$short-type = ('nia', 'mnia', 'apni', 'nisi', 'nisr', 'nisro', 'nidsr')" />
+</xsl:function>
+
+<xsl:function name="local:get-primary-uk-type" as="xs:string">
+	<xsl:param name="year" as="xs:integer?" />
+	<xsl:choose>
+		<xsl:when test="empty($year)">
+			<xsl:sequence select="'ukpga'" />
+		</xsl:when>
+		<xsl:when test="$year lt 1707">
+			<xsl:sequence select="'aep'" />
+		</xsl:when>
+		<xsl:when test="$year lt 1801">
+			<xsl:sequence select="'apgb'" />
+		</xsl:when>
+		<xsl:otherwise>
+			<xsl:sequence select="'ukpga'" />
+		</xsl:otherwise>
+	</xsl:choose>
+</xsl:function>
+<xsl:function name="local:get-secondary-uk-type" as="xs:string">
+	<xsl:param name="year" as="xs:integer?" />
+	<xsl:choose>
+		<xsl:when test="empty($year)">
+			<xsl:sequence select="'uksi'" />
+		</xsl:when>
+		<xsl:when test="$year lt 1948">
+			<xsl:sequence select="'uksro'" />
+		</xsl:when>
+		<xsl:otherwise>
+			<xsl:sequence select="'uksi'" />
+		</xsl:otherwise>
+	</xsl:choose>
+</xsl:function>
+
+<xsl:function name="local:get-primary-scottish-type" as="xs:string">
+	<xsl:param name="year" as="xs:integer?" />
+	<xsl:choose>
+		<xsl:when test="empty($year)">
+			<xsl:sequence select="'asp'" />
+		</xsl:when>
+		<xsl:when test="$year lt 1999">
+			<xsl:sequence select="'aosp'" />
+		</xsl:when>
+		<xsl:otherwise>
+			<xsl:sequence select="'asp'" />
+		</xsl:otherwise>
+	</xsl:choose>
+</xsl:function>
+<xsl:function name="local:get-secondary-scottish-type" as="xs:string">
+	<xsl:param name="year" as="xs:integer?" />
+	<xsl:sequence select="'ssi'" />
+</xsl:function>
+
+<xsl:function name="local:get-primary-welsh-type" as="xs:string">
+	<xsl:param name="year" as="xs:integer?" />
+	<xsl:choose>
+		<xsl:when test="empty($year)">
+			<xsl:sequence select="'asc'" />
+		</xsl:when>
+		<xsl:when test="$year lt 2012">
+			<xsl:sequence select="'mwa'" />
+		</xsl:when>
+		<xsl:when test="$year lt 2020">
+			<xsl:sequence select="'anaw'" />
+		</xsl:when>
+		<xsl:otherwise>
+			<xsl:sequence select="'asc'" />
+		</xsl:otherwise>
+	</xsl:choose>
+</xsl:function>
+<xsl:function name="local:get-secondary-welsh-type" as="xs:string">
+	<xsl:param name="year" as="xs:integer?" />
+	<xsl:sequence select="'wsi'" />
+</xsl:function>
+
+<xsl:function name="local:get-primary-northern-irish-type" as="xs:string">
+	<xsl:param name="year" as="xs:integer?" />
+	<xsl:choose>
+		<xsl:when test="empty($year)">
+			<xsl:sequence select="'nia'" />
+		</xsl:when>
+		<xsl:when test="$year lt 1921">
+			<xsl:sequence select="'aip'" />
+		</xsl:when>
+		<xsl:when test="$year lt 2020">
+			<xsl:sequence select="'apni'" />
+		</xsl:when>
+		<xsl:otherwise>
+			<xsl:sequence select="'nia'" />
+		</xsl:otherwise>
+	</xsl:choose>
+</xsl:function>
+<xsl:function name="local:get-secondary-northern-irish-type" as="xs:string">
+	<xsl:param name="year" as="xs:integer?" />
+	<xsl:choose>
+		<xsl:when test="empty($year)">
+			<xsl:sequence select="'nisr'" />
+		</xsl:when>
+		<xsl:when test="$year lt 1991">
+			<xsl:sequence select="'nisro'" />
+		</xsl:when>
+		<xsl:otherwise>
+			<xsl:sequence select="'nisr'" />
+		</xsl:otherwise>
+	</xsl:choose>
+</xsl:function>
+
+
 <xsl:function name="local:element-is-structural" as="xs:boolean">
 	<xsl:param name="e" as="element()" />
 	<xsl:variable name="name" select="local-name($e)" />
@@ -277,6 +398,18 @@
 
 <xsl:variable name="doc-short-type" as="xs:string">
 	<xsl:sequence select="local:short-type-from-long($doc-long-type)" />
+</xsl:variable>
+
+<xsl:variable name="doc-is-scottish" as="xs:boolean">
+	<xsl:sequence select="local:short-type-is-scottish($doc-short-type)" />
+</xsl:variable>
+
+<xsl:variable name="doc-is-welsh" as="xs:boolean">
+	<xsl:sequence select="local:short-type-is-welsh($doc-short-type)" />
+</xsl:variable>
+
+<xsl:variable name="doc-is-northern-irish" as="xs:boolean">
+	<xsl:sequence select="local:short-type-is-northern-irish($doc-short-type)" />
 </xsl:variable>
 
 <xsl:variable name="doc-category" as="xs:string">

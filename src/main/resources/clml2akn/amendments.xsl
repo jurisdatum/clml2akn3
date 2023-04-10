@@ -5,6 +5,7 @@
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xpath-default-namespace="http://www.legislation.gov.uk/namespaces/legislation"
 	xmlns:ukl="http://www.legislation.gov.uk/namespaces/legislation"
+	xmlns:uk="https://www.legislation.gov.uk/namespaces/UK-AKN"
 	xmlns="http://docs.oasis-open.org/legaldocml/ns/akn/3.0"
 	xmlns:local="http://www.jurisdatum.com/tna/clml2akn"
 	exclude-result-prefixes="xs ukl local">
@@ -68,6 +69,78 @@
 	<xsl:call-template name="add-end-quote-attribute" />
 </xsl:template>
 
+<xsl:template name="add-lawmaker-context-attributes">
+	<xsl:attribute name="uk:context">
+		<xsl:choose>
+			<xsl:when test="@Context = 'main'">
+				<xsl:sequence select="'body'" />
+			</xsl:when>
+			<xsl:when test="@Context = 'schedule'">
+				<xsl:sequence select="'schedule'" />
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:sequence select="'unknown'" />
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:attribute>
+	<xsl:attribute name="uk:docName">
+		<xsl:variable name="main-class" as="xs:string?" select="if (exists(@TargetClass)) then @TargetClass else @SourceClass" />
+		<xsl:choose>
+			<xsl:when test="$main-class = 'primary'">
+				<xsl:choose>
+					<xsl:when test="$doc-category = 'primary'">
+						<xsl:sequence select="$doc-short-type" />
+					</xsl:when>
+					<xsl:when test="$doc-is-scottish">
+						<xsl:sequence select="local:get-primary-scottish-type($doc-year)" />
+					</xsl:when>
+					<xsl:when test="$doc-is-welsh">
+						<xsl:sequence select="local:get-primary-welsh-type($doc-year)" />
+					</xsl:when>
+					<xsl:when test="$doc-is-northern-irish">
+						<xsl:sequence select="local:get-primary-northern-irish-type($doc-year)" />
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:sequence select="local:get-primary-uk-type($doc-year)" />
+					</xsl:otherwise>
+				</xsl:choose>
+			</xsl:when>
+			<xsl:when test="$main-class = 'secondary'">
+				<xsl:choose>
+					<xsl:when test="$doc-category = 'secondary'">
+						<xsl:sequence select="$doc-short-type" />
+					</xsl:when>
+					<xsl:when test="$doc-is-scottish">
+						<xsl:sequence select="local:get-secondary-scottish-type($doc-year)" />
+					</xsl:when>
+					<xsl:when test="$doc-is-welsh">
+						<xsl:sequence select="local:get-secondary-welsh-type($doc-year)" />
+					</xsl:when>
+					<xsl:when test="$doc-is-northern-irish">
+						<xsl:sequence select="local:get-secondary-northern-irish-type($doc-year)" />
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:sequence select="local:get-secondary-uk-type($doc-year)" />
+					</xsl:otherwise>
+				</xsl:choose>
+			</xsl:when>
+			<xsl:when test="$main-class = 'euretained'">
+				<xsl:choose>
+					<xsl:when test="$doc-category = 'euretained'">
+						<xsl:sequence select="$doc-short-type" />
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:sequence select="'eur'" />
+					</xsl:otherwise>
+				</xsl:choose>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:sequence select="'unknown'" />
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:attribute>
+</xsl:template>
+
 <xsl:template name="add-uk-amendment-attributes">
 	<xsl:attribute name="ukl:TargetClass">
 		<xsl:value-of select="@TargetClass" />
@@ -96,6 +169,7 @@
 			</quotedText>
 			<quotedStructure>
 				<xsl:call-template name="add-end-quote-attribute" />
+				<xsl:call-template name="add-lawmaker-context-attributes" />
 				<xsl:call-template name="add-uk-amendment-attributes" />
 				<xsl:apply-templates select="* except $lead-in">
 					<xsl:with-param name="context" select="('quotedStructure', $context)" tunnel="yes" />
@@ -105,6 +179,7 @@
 		<xsl:otherwise>
 			<quotedStructure>
 				<xsl:call-template name="add-quote-attributes" />
+				<xsl:call-template name="add-lawmaker-context-attributes" />
 				<xsl:call-template name="add-uk-amendment-attributes" />
 				<xsl:apply-templates>
 					<xsl:with-param name="context" select="('quotedStructure', $context)" tunnel="yes" />
