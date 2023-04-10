@@ -78,7 +78,7 @@
 
 <xsl:function name="local:short-type-from-long" as="xs:string">
 	<xsl:param name="long-type" as="xs:string" />
-	<xsl:value-of select="$short-types/@*[name() = $long-type]" />
+	<xsl:sequence select="$short-types/@*[name() = $long-type]" />
 </xsl:function>
 
 <xsl:function name="local:element-is-structural" as="xs:boolean">
@@ -86,25 +86,25 @@
 	<xsl:variable name="name" select="local-name($e)" />
 	<xsl:choose>
 		<xsl:when test="$name = ('Group', 'Part', 'Chapter', 'Pblock', 'PsubBlock')">
-			<xsl:value-of select="true()" />
+			<xsl:sequence select="true()" />
 		</xsl:when>
 		<xsl:when test="$name = ('EUPart', 'EUTitle', 'EUChapter', 'EUSection', 'EUSubsection', 'Division')">
-			<xsl:value-of select="true()" />
+			<xsl:sequence select="true()" />
 		</xsl:when>
 		<xsl:when test="$name = ('P1group', 'P2group', 'P3group')">
-			<xsl:value-of select="true()" />
+			<xsl:sequence select="true()" />
 		</xsl:when>
 		<xsl:when test="$name = ('P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7')">
-			<xsl:value-of select="true()" />
+			<xsl:sequence select="true()" />
 		</xsl:when>
 		<xsl:when test="$e/self::P/parent::Pblock or $e/self::P/parent::PsubBlock">
-			<xsl:value-of select="true()" />
+			<xsl:sequence select="true()" />
 		</xsl:when>
 		<xsl:when test="$e/self::UnorderedList[@Class='Definition']">
-			<xsl:value-of select="true()" />
+			<xsl:sequence select="true()" />
 		</xsl:when>
 		<xsl:otherwise>
-			<xsl:value-of select="false()" />
+			<xsl:sequence select="false()" />
 		</xsl:otherwise>
 	</xsl:choose>
 </xsl:function>
@@ -114,13 +114,13 @@
 	<xsl:variable name="name" select="local-name($e)" />
 	<xsl:choose>
 		<xsl:when test="$name = ('Para', 'P1para', 'P2para', 'P3para', 'P4para', 'P5para', 'P6para', 'P7para')">
-			<xsl:value-of select="true()" />
+			<xsl:sequence select="true()" />
 		</xsl:when>
 		<xsl:when test="$e/self::P and not($e/parent::Pblock) and not($e/parent::PsubBlock)">
-			<xsl:value-of select="true()" />
+			<xsl:sequence select="true()" />
 		</xsl:when>
 		<xsl:otherwise>
-			<xsl:value-of select="false()" />
+			<xsl:sequence select="false()" />
 		</xsl:otherwise>
 	</xsl:choose>
 </xsl:function>
@@ -130,10 +130,10 @@
 	<xsl:param name="term" as="element(Term)" />
 	<xsl:choose>
 		<xsl:when test="$term/@id">
-			<xsl:value-of select="$term/@id" />
+			<xsl:sequence select="$term/@id" />
 		</xsl:when>
 		<xsl:otherwise>
-			<xsl:value-of select="concat('term-', lower-case(translate(normalize-space($term), ' &#xA;&#34;“”%', '-')))" />
+			<xsl:sequence select="concat('term-', lower-case(translate(normalize-space($term), ' &#xA;&#34;“”%', '-')))" />
 		</xsl:otherwise>
 	</xsl:choose>
 </xsl:function>
@@ -148,7 +148,7 @@
 				<xsl:variable name="months" as="xs:string*" select="('January','February','March','April','May','June','July','August','September','October','November','December')" />
 				<xsl:variable name="month" as="xs:string" select="format-number(index-of($months, regex-group(4)), '00')" />
 				<xsl:variable name="year" as="xs:string" select="regex-group(5)" />
-				<xsl:value-of select="concat($year, '-', $month, '-', $day)" />
+				<xsl:sequence select="xs:date(concat($year, '-', $month, '-', $day))" />
 			</xsl:matching-substring>
 		</xsl:analyze-string>
 	</xsl:variable>
@@ -168,11 +168,11 @@
 	<xsl:variable name="index" as="xs:integer*">
 		<xsl:for-each select="$nodes">
 			<xsl:if test=". is $n">
-				<xsl:value-of select="position()" />
+				<xsl:sequence select="position()" />
 			</xsl:if>
 		</xsl:for-each>
 	</xsl:variable>
-	<xsl:value-of select="$index[1]" />
+	<xsl:sequence select="$index[1]" />
 </xsl:function>
 
 
@@ -231,10 +231,10 @@
 	<xsl:param name="e" as="element()" />
 	<xsl:choose>
 		<xsl:when test="$e/self::P1group and local:p1group-collapses-into-p1($e)">
-			<xsl:value-of select="local:get-internal-id($e/P1)" />
+			<xsl:sequence select="local:get-internal-id($e/P1)" />
 		</xsl:when>
 		<xsl:otherwise>
-			<xsl:value-of select="local:get-internal-id($e)" />
+			<xsl:sequence select="local:get-internal-id($e)" />
 		</xsl:otherwise>
 	</xsl:choose>
 </xsl:function>
@@ -252,7 +252,7 @@
 	<!-- this may now be overly complex -->
 	<xsl:if test="$is-in-main-body or exists($from/@id) or $is-necessary-for-metadata or $is-necessary-for-reference">
 		<xsl:attribute name="eId">
-			<xsl:value-of select="local:get-internal-id($from)" />
+			<xsl:sequence select="local:get-internal-id($from)" />
 		</xsl:attribute>
 	</xsl:if>
 </xsl:template>
@@ -263,7 +263,7 @@
 	<xsl:variable name="is-necessary-for-reference" as="xs:boolean" select="exists($from/@id) and exists(key('internal-links', $from/@id, root($from)))" />
 	<xsl:if test="$is-necessary-for-metadata or $is-necessary-for-reference">
 		<xsl:attribute name="eId">
-			<xsl:value-of select="local:get-internal-id($from)" />
+			<xsl:sequence select="local:get-internal-id($from)" />
 		</xsl:attribute>
 	</xsl:if>
 </xsl:template>
@@ -272,15 +272,15 @@
 <!-- variables -->
 
 <xsl:variable name="doc-long-type" as="xs:string">
-	<xsl:value-of select="/Legislation/ukm:Metadata/ukm:*/ukm:DocumentClassification/ukm:DocumentMainType/@Value" />
+	<xsl:sequence select="/Legislation/ukm:Metadata/ukm:*/ukm:DocumentClassification/ukm:DocumentMainType/@Value" />
 </xsl:variable>
 
 <xsl:variable name="doc-short-type" as="xs:string">
-	<xsl:value-of select="local:short-type-from-long($doc-long-type)" />
+	<xsl:sequence select="local:short-type-from-long($doc-long-type)" />
 </xsl:variable>
 
 <xsl:variable name="doc-category" as="xs:string">
-	<xsl:value-of select="/Legislation/ukm:Metadata/ukm:*/ukm:DocumentClassification/ukm:DocumentCategory/@Value" />
+	<xsl:sequence select="/Legislation/ukm:Metadata/ukm:*/ukm:DocumentClassification/ukm:DocumentCategory/@Value" />
 </xsl:variable>
 
 <xsl:variable name="doc-minor-type" as="xs:string?" select="/Legislation/ukm:Metadata/ukm:*/ukm:DocumentClassification/ukm:DocumentMinorType/@Value" />
@@ -289,7 +289,7 @@
 	<xsl:variable name="ukm-year" as="element(ukm:Year)?" select="/Legislation/ukm:Metadata/(ukm:PrimaryMetadata | ukm:SecondaryMetadata | ukm:EUMetadata)/ukm:Year" />
 	<xsl:choose>
 		<xsl:when test="exists($ukm-year)">
-			<xsl:value-of select="xs:integer($ukm-year/@Value)" />
+			<xsl:sequence select="xs:integer($ukm-year/@Value)" />
 		</xsl:when>
 	</xsl:choose>
 </xsl:variable>
@@ -347,7 +347,7 @@
 </xsl:variable>
 
 <xsl:variable name="doc-long-id" as="xs:string">
-	<xsl:value-of select="concat('http://www.legislation.gov.uk/id/', $doc-short-id)" />
+	<xsl:sequence select="concat('http://www.legislation.gov.uk/id/', $doc-short-id)" />
 </xsl:variable>
 
 <xsl:variable name="doc-version" as="xs:string">
