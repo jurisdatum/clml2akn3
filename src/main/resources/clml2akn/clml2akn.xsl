@@ -81,12 +81,16 @@
 
 <xsl:template match="Secondary">
 	<xsl:apply-templates select="SecondaryPrelims" />
-	<body>
-		<xsl:call-template name="add-internal-id-if-necessary">
-			<xsl:with-param name="from" select="Body" />
-		</xsl:call-template>
-		<xsl:apply-templates select="Body | Appendix | Schedules" />
-	</body>
+	<xsl:if test="exists(Body | Appendix | Schedules)">
+		<body>
+			<xsl:if test="exists(Body)">
+				<xsl:call-template name="add-internal-id-if-necessary">
+					<xsl:with-param name="from" select="Body" />
+				</xsl:call-template>
+			</xsl:if>
+			<xsl:apply-templates select="Body | Appendix | Schedules" />
+		</body>
+	</xsl:if>
 	<xsl:if test="exists(ExplanatoryNotes | EarlierOrders | Include)">
 		<conclusions>
 			<xsl:apply-templates select="ExplanatoryNotes | EarlierOrders | Include" />
