@@ -22,9 +22,11 @@
 <xsl:template match="EURetained">
 	<xsl:apply-templates select="EUPrelims" />
 	<body>
-		<xsl:call-template name="add-internal-id-if-necessary">
-			<xsl:with-param name="from" select="EUBody" />
-		</xsl:call-template>
+		<xsl:if test="exists(EUBody)">
+			<xsl:call-template name="add-internal-id-if-necessary">
+				<xsl:with-param name="from" select="EUBody" />
+			</xsl:call-template>
+		</xsl:if>
 		<xsl:apply-templates select="EUBody" />
 		<xsl:apply-templates select="EUBody/following-sibling::*" />
 	</body>

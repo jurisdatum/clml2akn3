@@ -62,9 +62,11 @@
 <xsl:template match="Primary">
 	<xsl:apply-templates select="PrimaryPrelims" />
 	<body>
-		<xsl:call-template name="add-internal-id-if-necessary">
-			<xsl:with-param name="from" select="Body" />
-		</xsl:call-template>
+		<xsl:if test="exists(Body)">
+			<xsl:call-template name="add-internal-id-if-necessary">
+				<xsl:with-param name="from" select="Body" />
+			</xsl:call-template>
+		</xsl:if>
 		<xsl:apply-templates select="Body | Appendix | Schedules" />
 	</body>
 	<xsl:if test="exists(ExplanatoryNotes | Include)">
